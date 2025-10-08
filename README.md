@@ -7,10 +7,10 @@ QUDO Solver provides two tensor network based methods to solve QUDO/QUBO (Quadra
 - License: (add if applicable)
 
 ## Features
-- Solve QUDO/QUBO with Two k-neighbors and discrete values of base `d` (bits, trits, ...) using two different methods.
+- Solve QUDO/QUBO with k-neighbors and discrete values of base `d` (bits, trits, ...) using two different methods.
   - Matrix-based with `numpy`/ (`qubo_k_neighbors_matrix_optimized.py`).
   - Tensor-based with `tensorkrowch`/`torch` (`qubo_k_neighbors_tensorkrowch_optimized.py`).
-- Alternative reference solver using `OR-Tools` in `qudo_solver_core/qubo_solvers.py` (`ortools_qudo_solver`).
+- Alternative solver using `OR-Tools` in `qudo_solver_core/qubo_solvers.py` (`ortools_qudo_solver`).
 
 ## Requirements
 - Python 3.10+
@@ -36,8 +36,8 @@ This repository includes three notebooks, one for each variant of the method:
 - A notebook for the tensor-based implementation (tensorkrowch/Torch), following the same workflow but using tensors and backend-specific operations.
 
 - A notebook that reproduces all the experiments reported in the paper.
-```
-Additionally, it includes to python scripts contianing each of the algorithms as a module.
+
+Additionally, it includes to python scripts containing each of the algorithms as a module.
 
 ## Tips and notes
 - Tune `tau` for your problem. `tau` controls the "temperature" of the imaginary-time evolution.
