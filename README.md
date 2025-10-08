@@ -1,56 +1,57 @@
 # QUDO Solver
 
-QUDO Solver es un conjunto de algoritmos y utilidades para resolver problemas QUDO/QUBO (Quadratic Unconstrained Discrete/Binary Optimization) usando redes tensoriales y otros enfoques. Incluye dos implementaciones optimizadas del método MeLoCoTN para el caso de k-vecinos fijos: una basada en matrices (`numpy/scipy`) y otra basada en tensores con `tensorkrowch`.
+QUDO Solver provides algorithms and utilities to solve QUDO/QUBO (Quadratic Unconstrained Discrete/Binary Optimization) problems using tensor networks and other approaches. It includes two optimized implementations of the MeLoCoTN method for fixed k-neighbors: one matrix-based (`numpy/scipy`) and one tensor-based using `tensorkrowch`.
 
-- **Autor**: Sergio Muñiz Subiñas (<sergio.muniz@itcl.es>)
-- **Organización**: ITCL
-- **Licencia**: (añadir si aplica)
+- Author: Sergio Muñiz Subiñas (<sergio.muniz@itcl.es>)
+- Organization: ITCL
+- License: (add if applicable)
 
-## Características
-- Resolución de QUDO/QUBO con valores discretos de base `d` (bits, trits, ...).
-- Dos implementaciones del solver k-vecinos:
-  - Implementación matricial con `numpy`/`scipy` (`qubo_k_neighbors_matrix_optimized.py`).
-  - Implementación con `tensorkrowch`/`torch` (`qubo_k_neighbors_tensorkrowch_optimized.py`).
-- Funciones auxiliares para generar y evaluar instancias en formato de listas triangulares y convertirlas a matrices (`qudo_solver_core/qubo_auxiliar_functions.py`).
-- Solver alternativo con `OR-Tools` para referencia en `qudo_solver_core/qubo_solvers.py` (`ortools_qudo_solver`).
+## Features
+- Solve QUDO/QUBO with discrete values of base `d` (bits, trits, ...).
+- Two k-neighbors solver implementations:
+  - Matrix-based with `numpy`/`scipy` (`qubo_k_neighbors_matrix_optimized.py`).
+  - Tensor-based with `tensorkrowch`/`torch` (`qubo_k_neighbors_tensorkrowch_optimized.py`).
+- Auxiliary functions to generate/evaluate instances in triangular-list format and convert them to dense matrices (`qudo_solver_core/qubo_auxiliar_functions.py`).
+- Alternative reference solver using `OR-Tools` in `qudo_solver_core/qubo_solvers.py` (`ortools_qudo_solver`).
 
-## Requisitos
+## Requirements
 - Python 3.10+
-- Recomendado: entorno virtual con `poetry`.
+- Recommended: virtual environment via `poetry`.
 
-Dependencias principales (ver `pyproject.toml` para versiones exactas):
+Main dependencies (see `pyproject.toml` for exact versions):
 - `numpy`, `scipy`, `matplotlib`
 - `torch`, `tensorkrowch`
-- `dimod`, `dwave-neal`, `dwave-system` (para ecosistema D-Wave si se desea)
+- `dimod`, `dwave-neal`, `dwave-system` (optional, for the D-Wave ecosystem)
 - `ortools`
 
-## Instalación
+## Installation
 
-### Opción 1: Poetry (recomendada)
+### Option 1: Poetry (recommended)
 ```bash
-# Instalar Poetry si no lo tienes
-# Windows PowerShell
+# Install Poetry (Windows PowerShell)
 (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
 
-# En la raíz del proyecto
+# From the project root
 poetry install
 
-# Activar el entorno
+# Activate the virtualenv
 poetry shell
 ```
 
-### Opción 2: pip + venv
+### Option 2: pip + venv
 ```bash
-# Crear y activar venv (Windows PowerShell)
+# Create and activate venv (Windows PowerShell)
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 
-# Instalar dependencias principales
-pip install -r <(poetry export -f requirements.txt --without-hashes)
-# Si no usas poetry, instala manualmente según pyproject.toml
+# If you have Poetry available, export deps to a requirements file
+poetry export -f requirements.txt --without-hashes -o requirements.txt
+pip install -r requirements.txt
+
+# Otherwise, install manually based on pyproject.toml
 ```
 
-## Estructura del proyecto
+## Project structure
 ```
 qudo_solver/
   ├─ qubo_k_neighbors_matrix_optimized.py
@@ -63,86 +64,86 @@ qudo_solver/
       └─ qubo_solvers.py
 ```
 
-## Formatos de entrada QUBO/QUDO
-Para problemas de k-vecinos, se usa un formato de "lista triangular alineada a la derecha" (`lists_tri`) donde:
-- La fila `i` contiene los coeficientes de las columnas `j` desde `i - len(row) + 1` hasta `i` (inclusive).
-- El término cuadrático `Q[i,i]` es el último elemento de la fila `i`.
+## QUBO/QUDO input format
+For k-neighbors problems, a "right-aligned triangular list" format (`lists_tri`) is used where:
+- Row `i` contains the coefficients of columns `j` from `i - len(row) + 1` to `i` (inclusive).
+- The quadratic term `Q[i, i]` is the last element of row `i`.
 
-Puedes convertir este formato a matriz densa con `qubo_list_to_matrix`.
+You can convert this format to a dense matrix with `qubo_list_to_matrix`.
 
-Funciones relevantes en `qudo_solver_core/qubo_auxiliar_functions.py`:
-- `qudo_evaluation(Q_matrix, x)` — evalúa el coste `x^T Q x`.
-- `generate_1k_qubo(n_variables, seed=None)` — genera instancia con 1 vecino.
-- `generate_k_qubo(n_variables, k_neighbour, seed=None)` — genera instancia con hasta `k` vecinos.
-- `normalize_list_of_lists(Q_matrix)` — normaliza manteniendo forma.
-- `qubo_list_to_matrix(lists, fill=0.0)` — convierte listas triangulares a matriz densa.
-- `qubo_value_from_lists(x, lists_tri)` — evalúa energía directamente sobre el formato triangular.
+Relevant functions in `qudo_solver_core/qubo_auxiliar_functions.py`:
+- `qudo_evaluation(Q_matrix, x)` — evaluates the cost `x^T Q x`.
+- `generate_1k_qubo(n_variables, seed=None)` — generates a 1-neighbor instance.
+- `generate_k_qubo(n_variables, k_neighbour, seed=None)` — generates an instance with up to `k` neighbors.
+- `normalize_list_of_lists(Q_matrix)` — normalizes while preserving shape.
+- `qubo_list_to_matrix(lists, fill=0.0)` — converts triangular lists to a dense matrix.
+- `qubo_value_from_lists(x, lists_tri)` — evaluates the energy directly on the triangular format.
 
-## Uso rápido
-A continuación se muestra cómo resolver una instancia con ambos enfoques.
+## Quick start
+Below are examples to solve an instance with both approaches.
 
-### Solver matricial (NumPy/Scipy)
+### Matrix solver (NumPy/Scipy)
 ```python
 from qudo_solver.qudo_solver_core.qubo_auxiliar_functions import generate_k_qubo, normalize_list_of_lists
 from qudo_solver.qubo_k_neighbors_matrix_optimized import qubo_solver_matrix
 
-# Parámetros del problema
+# Problem parameters
 n_variables = 10
 k_neighbors = 3
- d = 2              # bits (2), trits (3), etc.
- tau = 0.5
+d = 2              # bits (2), trits (3), etc.
+tau = 0.5
 
-# Generar instancia y normalizar
+# Generate and normalize instance
 Q_lists = generate_k_qubo(n_variables, k_neighbors, seed=123)
 Q_lists = normalize_list_of_lists(Q_lists)
 
-# Resolver
+# Solve
 solution = qubo_solver_matrix(Q_lists, tau=tau, dits=d, n_neighbors=k_neighbors)
-print("Solución:", solution)
+print("Solution:", solution)
 ```
 
-### Solver con Tensorkrowch (Torch)
+### Tensorkrowch solver (Torch)
 ```python
 from qudo_solver.qudo_solver_core.qubo_auxiliar_functions import generate_k_qubo, normalize_list_of_lists
 from qudo_solver.qubo_k_neighbors_tensorkrowch_optimized import qubo_solver_tensor
 
 n_variables = 10
 k_neighbors = 3
- d = 2
- tau = 0.5
+d = 2
+tau = 0.5
 
 Q_lists = generate_k_qubo(n_variables, k_neighbors, seed=123)
 Q_lists = normalize_list_of_lists(Q_lists)
 
 solution = qubo_solver_tensor(Q_lists, tau=tau, dits=d, n_neighbors=k_neighbors)
-print("Solución:", solution)
+print("Solution:", solution)
 ```
 
-### Solver de referencia con OR-Tools
-`ortools_qudo_solver(Q, num_values, time)` acepta `Q` denso (`n x n`), el número de valores discretos `num_values` y tiempo límite en segundos.
+### Reference solver with OR-Tools
+`ortools_qudo_solver(Q, num_values, time)` expects a dense `Q` (`n x n`), the number of discrete values `num_values`, and a time limit in seconds.
 ```python
 import numpy as np
 from qudo_solver.qudo_solver_core.qubo_auxiliar_functions import qubo_list_to_matrix
 from qudo_solver.qudo_solver_core.qubo_solvers import ortools_qudo_solver
 
-# Convertir listas triangulares a matriz densa
+# Convert triangular lists to a dense matrix
 Q_dense = qubo_list_to_matrix(Q_lists)
 sol = ortools_qudo_solver(Q_dense, num_values=d, time=10)
 print(sol)
 ```
 
 ## Notebooks
-- `qudo_solver/experimentation.ipynb`: experimentos y gráficos.
-- `qudo_solver/qubo-k-neighbors-*.ipynb`: versiones notebook de las implementaciones optimizadas.
+- `qudo_solver/experimentation.ipynb`: experiments and plots.
+- `qudo_solver/qubo-k-neighbors-*.ipynb`: notebook versions of the optimized implementations.
 
-## Consejos y límites
-- Ajusta `tau` y `dits` según el problema. `tau` controla la "temperatura" de la evolución imaginaria.
-- En problemas grandes, prefiere la versión matricial si no necesitas autodiff; usa `tensorkrowch` si deseas explotar GPU o flujos con tensores.
-- El formato de listas triangulares debe estar correctamente alineado; usa `normalize_list_of_lists` para escalado homogéneo si tu instancia lo requiere.
+## Tips and notes
+- Tune `tau` and `dits` for your problem. `tau` controls the "temperature" of the imaginary-time evolution.
+- For large problems, prefer the matrix version if you do not need autodiff; use `tensorkrowch` if you want to leverage GPU or tensor workflows.
+- The triangular-list format must be properly aligned; use `normalize_list_of_lists` for homogeneous scaling if needed.
 
-## Desarrollo
-- Requisitos de desarrollo: `ipykernel` para ejecutar notebooks.
-- Ejecuta los notebooks con el kernel del entorno creado.
+## Development
+- Dev requirement: `ipykernel` to run notebooks.
+- Open and run the notebooks with the environment kernel.
 
-## Citar
-Si usas este repositorio en trabajos académicos, por favor cita la metodología MeLoCoTN y este repositorio.
+## Citation
+If you use this repository in academic work, please cite the MeLoCoTN methodology and this repository.
