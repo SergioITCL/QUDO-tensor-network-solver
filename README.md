@@ -1,14 +1,13 @@
 # QUDO Solver
 
-QUDO Solver provides two tensor network based methods to solve QUDO/QUBO (Quadratic Unconstrained Discrete/Binary Optimization) problems. It includes two optimized implementations of the MeLoCoTN method for fixed k-neighbors: one matrix-based (`numpy/scipy`) and one tensor-based using `tensorkrowch`.
+QUDO Solver provides two tensor network based methods to solve QUDO/QUBO (Quadratic Unconstrained Discrete/Binary Optimization) problems. It includes two optimized implementations of the MeLoCoTN method for fixed k-neighbors: one matrix-based `numpy` and one tensor-based using `tensorkrowch`.
 
 - Author: Sergio Muñiz Subiñas (<sergio.muniz@itcl.es>)
 - Organization: ITCL
 - License: (add if applicable)
 
 ## Features
-- Solve QUDO/QUBO with discrete values of base `d` (bits, trits, ...).
-- Two k-neighbors solver implementations:
+- Solve QUDO/QUBO with Two k-neighbors and discrete values of base `d` (bits, trits, ...) using two different methods.
   - Matrix-based with `numpy`/ (`qubo_k_neighbors_matrix_optimized.py`).
   - Tensor-based with `tensorkrowch`/`torch` (`qubo_k_neighbors_tensorkrowch_optimized.py`).
 - Alternative reference solver using `OR-Tools` in `qudo_solver_core/qubo_solvers.py` (`ortools_qudo_solver`).
