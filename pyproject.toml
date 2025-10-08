@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "qudo-solver"
+version = "0.1.0"
+description = ""
+authors = ["Sergio Muñiz Subiñas <sergio.muniz@itcl.es>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+numpy = "1.26.4"
+greedy = "^0.1.1"
+dimod = "^0.12.21"
+dwave-neal = "^0.6.0"
+ortools = "^9.14.6206"
+dwave-system = "^1.33.0"
+matplotlib = "^3.10.6"
+torch = "2.5.1"
+tensorkrowch = "^1.1.6"
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.30.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
