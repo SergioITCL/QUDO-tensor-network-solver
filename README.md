@@ -4,7 +4,6 @@ QUDO Solver provides two tensor network based methods to solve QUDO/QUBO (Quadra
 
 - Author: Sergio Muñiz Subiñas (<sergio.muniz@itcl.es>)
 - Organization: ITCL
-- License: (add if applicable)
 
 ## Features
 - Solve QUDO/QUBO with k-neighbors and discrete values of base `d` (bits, trits, ...) using two different methods.
