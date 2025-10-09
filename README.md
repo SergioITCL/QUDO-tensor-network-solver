@@ -31,7 +31,7 @@ poetry shell
 
 This repository includes three notebooks, one for each variant of the method:
 
-- A notebook for the matrix-based implementation (NumPy/SciPy), showing step-by-step instance generation, network construction, and solution via matrix operations.
+- A notebook for the matrix-based implementation (NumPy), showing step-by-step instance generation, network construction, and solution via matrix operations.
 
 - A notebook for the tensor-based implementation (tensorkrowch/Torch), following the same workflow but using tensors and backend-specific operations.
 
