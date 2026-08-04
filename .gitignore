@@ -1,0 +1,68 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+.cursor/
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+.tox/
+
+# Data files (no commitear datos binarios)
+*.npy
+*.html
+# Excepciones: mantener templates si los hay
+!**/templates/*.html
+
+# Notebooks
+*.ipynb_checkpoints/
+test_*.ipynb
+*.ipynb
+
+# Datasets - ignorar todo el contenido
+datasets/*
+
+# Exceptuar la carpeta que sí quieres commitear
+!datasets/small_example/
+
+
+# OS
+.DS_Store
+Thumbs.db
+*.Zone.Identifier
+
+# Poetry (opcional, algunos lo commitean)
+# poetry.lock
+
+# OSRM data - Spain maps
+map_generator/osrm-data/spain.osrm*
+map_generator/osrm-data/spain.osm.pbf
+
+# OSRM data - time matrix generator (binaries / extracts)
+scripts/time_matrix_generator/osrm-data/
+
+# JSON files in outputs
+outputs/**/*.json
+
+# Experimentation results (JSON + plots)
+experimentation/**/*.json
+experimentation/**/*.png
