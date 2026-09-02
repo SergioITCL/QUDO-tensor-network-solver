@@ -1,37 +1,50 @@
 import json
+import math
 import sys
 from pathlib import Path
-
-
-from qudo_solver.auxiliar_functions import estimate_tau_max
-from qudo_solver.data_generator.qudo_problem_generator import generate_frustrated_k_qubo, generate_k_qubo, normalize_list_of_lists
-
-from qudo_solver.solvers.dynamic_programming.dynamic_programming_solver2 import solver_dynamic_programming2
-from qudo_solver.solvers.dynamic_programming.heuristic_dynamic_programming_solver import solver_dynamic_programming_heuristic
-from qudo_solver.solvers.matrix_method.matrix_method_solver import solver_matrix_method
-
+from time import perf_counter
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from qudo_solver.auxiliar_functions import estimate_tau_max
+from qudo_solver.data_generator.qudo_problem_generator import (
+    qudo_problem_generation,
+)
+from qudo_solver.solvers.dynamic_programming.dynamic_programming_solver3 import (
+    solver_dynamic_programming3,
+)
+from qudo_solver.solvers.dynamic_programming.heuristic_dynamic_programming_solver import (
+    solver_dynamic_programming_heuristic,
+)
+from qudo_solver.solvers.matrix_method.matrix_method_solver import solver_matrix_method
+from qudo_solver.solvers.scip import solver_scip_with_metadata
+from qudo_solver.solvers.tabu_search import solver_tabu_search
+
 RESULTS_DIR = PROJECT_ROOT / "experimentation" / "experiment_1_correctness_vs_optimal" / "results"
 
-N_VARIABLES = list(range(10, 1001, 100))
-DITS_VALUES = [2]
-K_VALUES = [4,5,6]
-SEED = list(range(1, 101, 20))
+N_VARIABLES = [250, 500]  # list(range(10, 1001, 100))
+DITS_VALUES = [2, 4, 6]
+K_VALUES = [2, 3, 4]
+N_RANDOM_INSTANCES = 50
+N_FIXED_INSTANCES = 0
 OPTIMAL_TOLERANCE = 1e-9
 HEURISTIC_LOOKAHEAD_DEPTH = 0
 HEURISTIC_LOCAL_SEARCH_PASSES = 0
 HEURISTIC_MIN_BEAM_WIDTH = 1
 HEURISTIC_MAX_BEAM_WIDTH = 4096
-HEURISTIC_TIME_MATCH_TOLERANCE = 0.25
+HEURISTIC_TIME_MATCH_TOLERANCE = 0.10
 HEURISTIC_BEAM_WIDTH_MAX_PROBES = 10
+TABU_TENURE = None
+TABU_CANDIDATE_LIST_SIZE = None
+TABU_DIVERSIFICATION_INTERVAL = 500
+TABU_GREEDY_INITIALIZATION = True
 
 
 def solve_heuristic_with_matching_time(
     q_matrix: list[list[float]],
+    q_row: list[float],
     dits: int,
     n_neighbors: int,
     target_time: float,
@@ -41,11 +54,14 @@ def solve_heuristic_with_matching_time(
     max_beam_width: int = HEURISTIC_MAX_BEAM_WIDTH,
     max_probes: int = HEURISTIC_BEAM_WIDTH_MAX_PROBES,
 ) -> tuple:
-    """Pick beam_width so heuristic runtime is close to target_time."""
+    """Return the largest measured beam width within Matrix's time budget."""
+    if target_time <= 0.0:
+        raise ValueError("target_time must be positive")
 
-    def run_heuristic(beam_width: int):
+    def run(beam_width: int):
         return solver_dynamic_programming_heuristic(
             q_matrix=q_matrix,
+            q_row=q_row,
             dits=dits,
             n_neighbors=n_neighbors,
             beam_width=beam_width,
@@ -53,75 +69,87 @@ def solve_heuristic_with_matching_time(
             local_search_passes=local_search_passes,
         )
 
-    best_beam_width = min_beam_width
-    best_solution = None
-    best_time_diff = float("inf")
+    selected_solution = None
+    selected_beam_width = None
+    minimum_beam_solution = None
     probes = 0
-
-    below_beam_width = None
-    above_beam_width = None
+    largest_feasible = None
+    smallest_infeasible = None
     beam_width = min_beam_width
+    maximum_allowed_time = (
+        1.0 + HEURISTIC_TIME_MATCH_TOLERANCE
+    ) * target_time
 
     while beam_width <= max_beam_width and probes < max_probes:
-        solution = run_heuristic(beam_width)
+        solution = run(beam_width)
         probes += 1
-        time_diff = abs(solution.execution_time - target_time)
+        if minimum_beam_solution is None:
+            minimum_beam_solution = solution
 
-        if time_diff < best_time_diff:
-            best_time_diff = time_diff
-            best_beam_width = beam_width
-            best_solution = solution
-
-        if solution.execution_time < target_time:
-            below_beam_width = beam_width
-            next_beam_width = beam_width * 2
-            if next_beam_width > max_beam_width:
+        if solution.execution_time <= maximum_allowed_time:
+            selected_solution = solution
+            selected_beam_width = beam_width
+            largest_feasible = beam_width
+            next_beam_width = min(beam_width * 2, max_beam_width)
+            if next_beam_width == beam_width:
                 break
             beam_width = next_beam_width
         else:
-            above_beam_width = beam_width
+            smallest_infeasible = beam_width
             break
 
-    if best_solution is None:
-        raise RuntimeError("beam_width calibration failed to evaluate any candidate")
+    if minimum_beam_solution is None:
+        raise RuntimeError("beam_width calibration evaluated no candidates")
 
-    if (
-        below_beam_width is not None
-        and above_beam_width is not None
-        and below_beam_width < above_beam_width - 1
-        and probes < max_probes
-    ):
-        low = below_beam_width
-        high = above_beam_width
-
+    if largest_feasible is not None and smallest_infeasible is not None:
+        low = largest_feasible
+        high = smallest_infeasible
         while low + 1 < high and probes < max_probes:
-            mid_beam_width = (low + high) // 2
-            solution = run_heuristic(mid_beam_width)
+            beam_width = (low + high) // 2
+            solution = run(beam_width)
             probes += 1
-            time_diff = abs(solution.execution_time - target_time)
-
-            if time_diff < best_time_diff:
-                best_time_diff = time_diff
-                best_beam_width = mid_beam_width
-                best_solution = solution
-
-            if solution.execution_time < target_time:
-                low = mid_beam_width
+            if solution.execution_time <= maximum_allowed_time:
+                selected_solution = solution
+                selected_beam_width = beam_width
+                low = beam_width
             else:
-                high = mid_beam_width
+                high = beam_width
 
-    time_match_ratio = best_solution.execution_time / target_time
-    return best_solution, best_beam_width, time_match_ratio, probes
+    # If even the minimum beam exceeds the allowance, there is no beam width
+    # satisfying the requested budget. Return beam 1 and expose that fact via
+    # its time-match ratio instead of selecting a still larger overrun.
+    if selected_solution is None or selected_beam_width is None:
+        selected_solution = minimum_beam_solution
+        selected_beam_width = min_beam_width
+
+    return (
+        selected_solution,
+        selected_beam_width,
+        selected_solution.execution_time / target_time,
+        probes,
+    )
 
 
 def compute_method_metrics(
     method_cost: float,
     optimal_cost: float,
+    *,
+    abs_tol: float = 1e-9,
+    rel_tol: float = 1e-8,
 ) -> dict:
     optimality_gap = method_cost - optimal_cost
-    relative_gap = optimality_gap / (abs(optimal_cost) + OPTIMAL_TOLERANCE)
     cost_difference = abs(optimality_gap)
-    reached_optimal = cost_difference < OPTIMAL_TOLERANCE
+
+    scale = max(abs(optimal_cost), abs_tol)
+    relative_gap = optimality_gap / scale
+
+    reached_optimal = math.isclose(
+        method_cost,
+        optimal_cost,
+        abs_tol=abs_tol,
+        rel_tol=rel_tol,
+    )
+
     return {
         "optimality_gap": optimality_gap,
         "relative_gap": relative_gap,
@@ -146,12 +174,35 @@ def compute_stability_summary(
     }
 
 
+def compute_partial_stability_summary(
+    gaps: list[float],
+    relative_gaps: list[float],
+    optimal_count: int,
+    total_trials: int,
+) -> dict:
+    """Summarize a method that may finish without a feasible incumbent."""
+    feasible_count = len(gaps)
+    return {
+        "optimal_count": optimal_count,
+        "feasible_count": feasible_count,
+        "no_incumbent_count": total_trials - feasible_count,
+        "total_trials": total_trials,
+        "success_rate": optimal_count / total_trials,
+        "feasible_rate": feasible_count / total_trials,
+        "mean_gap": sum(gaps) / feasible_count if feasible_count else None,
+        "mean_relative_gap": (
+            sum(relative_gaps) / feasible_count if feasible_count else None
+        ),
+        "max_relative_gap": max(relative_gaps) if feasible_count else None,
+    }
+
+
 def run_experiment(dits: int, n_neighbors: int):
-    dynamic_programming_times = []
-    matrix_method_times = []
     results = []
     optimal_summary = []
     heuristic_summary = []
+    tabu_search_summary = []
+    scip_summary = []
     json_path = RESULTS_DIR / f"experiment_1_params_d{dits}_k{n_neighbors}.json"
 
     for n_variables in N_VARIABLES:
@@ -162,45 +213,137 @@ def run_experiment(dits: int, n_neighbors: int):
         heuristic_gaps: list[float] = []
         heuristic_relative_gaps: list[float] = []
         heuristic_time_match_ratios: list[float] = []
+        tabu_search_optimal_count = 0
+        tabu_search_gaps: list[float] = []
+        tabu_search_relative_gaps: list[float] = []
+        tabu_search_time_match_ratios: list[float] = []
+        scip_optimal_count = 0
+        scip_gaps: list[float] = []
+        scip_relative_gaps: list[float] = []
+        scip_time_match_ratios: list[float] = []
+        calibrated_beam_width: int | None = None
+        calibration_probes = 0
+        calibration_wall_time = 0.0
+        calibration_time_match_ratio = 0.0
+        calibration_within_budget = False
+        calibration_seed: int | None = None
 
-        for seed in SEED:
-            qubo_problem = generate_k_qubo(
-                n_variables=n_variables,
-                k_neighbor=n_neighbors,
-                seed=seed,
-            )
-            qubo_problem = generate_frustrated_k_qubo(
-                n_variables=n_variables,
-                k_neighbor=n_neighbors,
-                seed=seed,
-                frustration_probability=1.0,
-            )
-            #qubo_problem = normalize_list_of_lists(qubo_problem)
+        tau = estimate_tau_max(
+            n_variables=n_variables,
+            dits=dits,
+            n_neighbors=n_neighbors,
+        )
 
-            dynamic_programming_solution = solver_dynamic_programming2(
-                q_matrix=qubo_problem,
+        qudo_instances = qudo_problem_generation(
+            n_variables=n_variables,
+            n_neighbors=n_neighbors,
+            n_random_instances=N_RANDOM_INSTANCES,
+            n_fixed_instances=N_FIXED_INSTANCES,
+        )
+        for index, instance in enumerate(qudo_instances):
+            qudo_problem_matrix = instance["q_matrix"]
+            qudo_problem_row = instance["q_row"]
+
+            dynamic_programming_solution = solver_dynamic_programming3(
+                q_matrix=qudo_problem_matrix,
+                q_row=qudo_problem_row,
                 dits=dits,
                 n_neighbors=n_neighbors,
+                require_nonzero=False,
             )
-            tau = estimate_tau_max(
-                n_variables=n_variables,
-                n_neighbors=n_neighbors,
-                dits=dits,
-            )
+
             matrix_method_solution = solver_matrix_method(
-                Q_list=qubo_problem,
+                Q_list=qudo_problem_matrix,
+                Q_row=qudo_problem_row,
                 dits=dits,
                 n_neighbors=n_neighbors,
+                tau=tau,
             )
-            heuristic_solution, heuristic_beam_width, heuristic_time_match_ratio, heuristic_probes = (
-                solve_heuristic_with_matching_time(
-                    q_matrix=qubo_problem,
+            matrix_method_time_limit = matrix_method_solution.execution_time
+            tabu_search_solution = solver_tabu_search(
+                q_matrix=qudo_problem_matrix,
+                q_row=qudo_problem_row,
+                dits=dits,
+                n_neighbors=n_neighbors,
+                time_limit=matrix_method_time_limit,
+                tabu_tenure=TABU_TENURE,
+                candidate_list_size=TABU_CANDIDATE_LIST_SIZE,
+                diversification_interval=TABU_DIVERSIFICATION_INTERVAL,
+                seed=instance["seed"],
+                greedy_initialization=TABU_GREEDY_INITIALIZATION,
+                require_nonzero=False,
+            )
+            tabu_search_time_match_ratio = (
+                tabu_search_solution.execution_time / matrix_method_time_limit
+            )
+
+            is_calibration_instance = calibrated_beam_width is None
+            if is_calibration_instance:
+                calibration_started_at = perf_counter()
+                (
+                    heuristic_solution,
+                    calibrated_beam_width,
+                    heuristic_time_match_ratio,
+                    calibration_probes,
+                ) = solve_heuristic_with_matching_time(
+                    q_matrix=qudo_problem_matrix,
+                    q_row=qudo_problem_row,
                     dits=dits,
                     n_neighbors=n_neighbors,
-                    target_time=matrix_method_solution.execution_time,
+                    target_time=matrix_method_time_limit,
+                    max_beam_width=min(
+                        HEURISTIC_MAX_BEAM_WIDTH,
+                        dits**n_neighbors,
+                    ),
                 )
+                calibration_wall_time = perf_counter() - calibration_started_at
+                calibration_time_match_ratio = heuristic_time_match_ratio
+                calibration_within_budget = (
+                    heuristic_time_match_ratio
+                    <= 1.0 + HEURISTIC_TIME_MATCH_TOLERANCE
+                )
+                calibration_seed = instance["seed"]
+                heuristic_calibration_probes = calibration_probes
+            else:
+                heuristic_solution = solver_dynamic_programming_heuristic(
+                    q_matrix=qudo_problem_matrix,
+                    q_row=qudo_problem_row,
+                    dits=dits,
+                    n_neighbors=n_neighbors,
+                    beam_width=calibrated_beam_width,
+                    lookahead_depth=HEURISTIC_LOOKAHEAD_DEPTH,
+                    local_search_passes=HEURISTIC_LOCAL_SEARCH_PASSES,
+                )
+                heuristic_time_match_ratio = (
+                    heuristic_solution.execution_time
+                    / matrix_method_time_limit
+                )
+                heuristic_calibration_probes = 0
+            heuristic_beam_width = calibrated_beam_width
+            scip_started_at = perf_counter()
+            try:
+                scip_solution, scip_metadata = solver_scip_with_metadata(
+                    q_matrix=qudo_problem_matrix,
+                    q_row=qudo_problem_row,
+                    dits=dits,
+                    n_neighbors=n_neighbors,
+                    time_limit=matrix_method_time_limit,
+                    seed=instance["seed"],
+                    require_nonzero=False,
+                )
+            except RuntimeError as error:
+                if "without finding a feasible solution" not in str(error):
+                    raise
+                scip_solution = None
+                scip_metadata = None
+                scip_error = str(error)
+                scip_execution_time = perf_counter() - scip_started_at
+            else:
+                scip_error = None
+                scip_execution_time = scip_solution.execution_time
+            scip_time_match_ratio = (
+                scip_execution_time / matrix_method_time_limit
             )
-
             matrix_metrics = compute_method_metrics(
                 matrix_method_solution.cost,
                 dynamic_programming_solution.cost,
@@ -208,6 +351,18 @@ def run_experiment(dits: int, n_neighbors: int):
             heuristic_metrics = compute_method_metrics(
                 heuristic_solution.cost,
                 dynamic_programming_solution.cost,
+            )
+            tabu_search_metrics = compute_method_metrics(
+                tabu_search_solution.cost,
+                dynamic_programming_solution.cost,
+            )
+            scip_metrics = (
+                compute_method_metrics(
+                    scip_solution.cost,
+                    dynamic_programming_solution.cost,
+                )
+                if scip_solution is not None
+                else None
             )
 
             gaps.append(matrix_metrics["optimality_gap"])
@@ -221,12 +376,25 @@ def run_experiment(dits: int, n_neighbors: int):
             if heuristic_metrics["reached_optimal"]:
                 heuristic_optimal_count += 1
 
-            dynamic_programming_times.append(dynamic_programming_solution.execution_time)
-            matrix_method_times.append(matrix_method_solution.execution_time)
+            tabu_search_gaps.append(tabu_search_metrics["optimality_gap"])
+            tabu_search_relative_gaps.append(tabu_search_metrics["relative_gap"])
+            tabu_search_time_match_ratios.append(tabu_search_time_match_ratio)
+            if tabu_search_metrics["reached_optimal"]:
+                tabu_search_optimal_count += 1
+
+            if scip_metrics is not None:
+                scip_gaps.append(scip_metrics["optimality_gap"])
+                scip_relative_gaps.append(scip_metrics["relative_gap"])
+                if scip_metrics["reached_optimal"]:
+                    scip_optimal_count += 1
+            scip_time_match_ratios.append(scip_time_match_ratio)
+
             results.append(
                 {
                     "n_variables": n_variables,
-                    "seed": seed,
+                    "instance_index": index,
+                    "instance_type": instance["instance_type"],
+                    "seed": instance["seed"],
                     "reached_optimal": matrix_metrics["reached_optimal"],
                     "optimality_gap": matrix_metrics["optimality_gap"],
                     "relative_gap": matrix_metrics["relative_gap"],
@@ -240,9 +408,94 @@ def run_experiment(dits: int, n_neighbors: int):
                         "time": matrix_method_solution.execution_time,
                         "cost": matrix_method_solution.cost,
                     },
+                    "tabu_search": {
+                        "seed": instance["seed"],
+                        "time_limit": matrix_method_time_limit,
+                        "time_match_ratio": tabu_search_time_match_ratio,
+                        "time": tabu_search_solution.execution_time,
+                        "cost": tabu_search_solution.cost,
+                        "reached_optimal": tabu_search_metrics["reached_optimal"],
+                        "optimality_gap": tabu_search_metrics["optimality_gap"],
+                        "relative_gap": tabu_search_metrics["relative_gap"],
+                        "cost_difference": tabu_search_metrics["cost_difference"],
+                    },
+                    "scip": {
+                        "seed": instance["seed"],
+                        "time_limit": matrix_method_time_limit,
+                        "time_match_ratio": scip_time_match_ratio,
+                        "time": scip_execution_time,
+                        "has_incumbent": scip_solution is not None,
+                        "cost": (
+                            scip_solution.cost
+                            if scip_solution is not None
+                            else None
+                        ),
+                        "status": (
+                            scip_metadata.status
+                            if scip_metadata is not None
+                            else "no_incumbent"
+                        ),
+                        "error": scip_error,
+                        "solving_time": (
+                            scip_metadata.solving_time
+                            if scip_metadata is not None
+                            else None
+                        ),
+                        "nodes": (
+                            scip_metadata.nodes
+                            if scip_metadata is not None
+                            else None
+                        ),
+                        "incumbent_objective": (
+                            scip_metadata.objective
+                            if scip_metadata is not None
+                            else None
+                        ),
+                        "best_bound": (
+                            scip_metadata.best_bound
+                            if scip_metadata is not None
+                            else None
+                        ),
+                        "gap": (
+                            scip_metadata.gap
+                            if scip_metadata is not None
+                            else None
+                        ),
+                        "reached_optimal": (
+                            scip_metrics["reached_optimal"]
+                            if scip_metrics is not None
+                            else False
+                        ),
+                        "optimality_gap": (
+                            scip_metrics["optimality_gap"]
+                            if scip_metrics is not None
+                            else None
+                        ),
+                        "relative_gap": (
+                            scip_metrics["relative_gap"]
+                            if scip_metrics is not None
+                            else None
+                        ),
+                        "cost_difference": (
+                            scip_metrics["cost_difference"]
+                            if scip_metrics is not None
+                            else None
+                        ),
+                    },
                     "heuristic": {
                         "beam_width": heuristic_beam_width,
-                        "beam_width_calibration_probes": heuristic_probes,
+                        "is_calibration_instance": is_calibration_instance,
+                        "beam_width_calibration_probes": (
+                            heuristic_calibration_probes
+                        ),
+                        "calibration_within_budget": (
+                            calibration_within_budget
+                        ),
+                        "calibration_wall_time": (
+                            calibration_wall_time
+                            if is_calibration_instance
+                            else None
+                        ),
                         "time_match_ratio": heuristic_time_match_ratio,
                         "lookahead_depth": HEURISTIC_LOOKAHEAD_DEPTH,
                         "local_search_passes": HEURISTIC_LOCAL_SEARCH_PASSES,
@@ -258,21 +511,51 @@ def run_experiment(dits: int, n_neighbors: int):
 
         print("\\")
         print(f"Prueba con dits={dits}, k={n_neighbors}, n={n_variables}")
+        total_trials = len(qudo_instances)
 
         stability_summary = compute_stability_summary(
             gaps=gaps,
             relative_gaps=relative_gaps,
             optimal_count=optimal_count,
-            total_trials=len(SEED),
+            total_trials=total_trials,
         )
         heuristic_stability_summary = compute_stability_summary(
             gaps=heuristic_gaps,
             relative_gaps=heuristic_relative_gaps,
             optimal_count=heuristic_optimal_count,
-            total_trials=len(SEED),
+            total_trials=total_trials,
         )
         heuristic_stability_summary["mean_time_match_ratio"] = (
-            sum(heuristic_time_match_ratios) / len(SEED)
+            sum(heuristic_time_match_ratios) / total_trials
+        )
+        heuristic_stability_summary.update(
+            {
+                "beam_width": calibrated_beam_width,
+                "calibration_instance_index": 0,
+                "calibration_seed": calibration_seed,
+                "calibration_probes": calibration_probes,
+                "calibration_wall_time": calibration_wall_time,
+                "calibration_time_match_ratio": calibration_time_match_ratio,
+                "calibration_within_budget": calibration_within_budget,
+            }
+        )
+        tabu_search_stability_summary = compute_stability_summary(
+            gaps=tabu_search_gaps,
+            relative_gaps=tabu_search_relative_gaps,
+            optimal_count=tabu_search_optimal_count,
+            total_trials=total_trials,
+        )
+        tabu_search_stability_summary["mean_time_match_ratio"] = (
+            sum(tabu_search_time_match_ratios) / total_trials
+        )
+        scip_stability_summary = compute_partial_stability_summary(
+            gaps=scip_gaps,
+            relative_gaps=scip_relative_gaps,
+            optimal_count=scip_optimal_count,
+            total_trials=total_trials,
+        )
+        scip_stability_summary["mean_time_match_ratio"] = (
+            sum(scip_time_match_ratios) / total_trials
         )
         optimal_summary.append(
             {
@@ -286,38 +569,91 @@ def run_experiment(dits: int, n_neighbors: int):
                 **heuristic_stability_summary,
             }
         )
+        tabu_search_summary.append(
+            {
+                "n_variables": n_variables,
+                **tabu_search_stability_summary,
+            }
+        )
+        scip_summary.append(
+            {
+                "n_variables": n_variables,
+                **scip_stability_summary,
+            }
+        )
+
         print(
-            f"n={n_variables}: matrix optimal {optimal_count}/{len(SEED)}, "
+            f"n={n_variables}: matrix optimal {optimal_count}/{total_trials}, "
             f"mean_relative_gap={stability_summary['mean_relative_gap']:.6f}, "
             f"max_relative_gap={stability_summary['max_relative_gap']:.6f}"
         )
         print(
-            f"n={n_variables}: heuristic optimal {heuristic_optimal_count}/{len(SEED)}, "
+            f"n={n_variables}: heuristic optimal {heuristic_optimal_count}/{total_trials}, "
+            f"beam_width={calibrated_beam_width}, "
             f"mean_relative_gap={heuristic_stability_summary['mean_relative_gap']:.6f}, "
             f"max_relative_gap={heuristic_stability_summary['max_relative_gap']:.6f}, "
             f"mean_time_match_ratio={heuristic_stability_summary['mean_time_match_ratio']:.3f}"
         )
+        print(
+            f"n={n_variables}: tabu optimal {tabu_search_optimal_count}/{total_trials}, "
+            f"mean_relative_gap={tabu_search_stability_summary['mean_relative_gap']:.6f}, "
+            f"max_relative_gap={tabu_search_stability_summary['max_relative_gap']:.6f}, "
+            f"mean_time_match_ratio="
+            f"{tabu_search_stability_summary['mean_time_match_ratio']:.3f}"
+        )
+        print(
+            f"n={n_variables}: SCIP optimal {scip_optimal_count}/{total_trials}, "
+            f"incumbents={scip_stability_summary['feasible_count']}/{total_trials}, "
+            f"mean_relative_gap={scip_stability_summary['mean_relative_gap']}, "
+            f"max_relative_gap={scip_stability_summary['max_relative_gap']}, "
+            f"mean_time_match_ratio="
+            f"{scip_stability_summary['mean_time_match_ratio']:.3f}"
+        )
 
     experiment_data = {
         "parameters": {
-            "seed": SEED,
             "dits": dits,
             "n_neighbors": n_neighbors,
             "n_variables": N_VARIABLES,
+            "instance_generation": {
+                "n_random_instances": N_RANDOM_INSTANCES,
+                "n_fixed_instances": N_FIXED_INSTANCES,
+                "seeds": {
+                    "random": list(range(N_RANDOM_INSTANCES)),
+                    "fixed": list(range(N_FIXED_INSTANCES)),
+                },
+            },
             "optimal_tolerance": OPTIMAL_TOLERANCE,
             "heuristic": {
-                "beam_width_calibration": {
-                    "min_beam_width": HEURISTIC_MIN_BEAM_WIDTH,
-                    "max_beam_width": HEURISTIC_MAX_BEAM_WIDTH,
-                    "time_match_tolerance": HEURISTIC_TIME_MATCH_TOLERANCE,
-                    "max_probes": HEURISTIC_BEAM_WIDTH_MAX_PROBES,
-                },
+                "beam_width_strategy": "calibrate_on_first_instance_per_d_k_n",
+                "time_limit_source": "first_matrix_method.execution_time",
+                "minimum_beam_width": HEURISTIC_MIN_BEAM_WIDTH,
+                "maximum_beam_width": HEURISTIC_MAX_BEAM_WIDTH,
+                "maximum_time_overrun_fraction": (
+                    HEURISTIC_TIME_MATCH_TOLERANCE
+                ),
+                "maximum_calibration_probes": HEURISTIC_BEAM_WIDTH_MAX_PROBES,
                 "lookahead_depth": HEURISTIC_LOOKAHEAD_DEPTH,
                 "local_search_passes": HEURISTIC_LOCAL_SEARCH_PASSES,
+            },
+            "tabu_search": {
+                "time_limit_source": "matrix_method.execution_time",
+                "tabu_tenure": TABU_TENURE,
+                "candidate_list_size": TABU_CANDIDATE_LIST_SIZE,
+                "diversification_interval": TABU_DIVERSIFICATION_INTERVAL,
+                "greedy_initialization": TABU_GREEDY_INITIALIZATION,
+                "seed_source": "instance.seed",
+            },
+            "scip": {
+                "time_limit_source": "matrix_method.execution_time",
+                "time_limit_semantics": "total_wall_clock_budget",
+                "seed_source": "instance.seed",
             },
         },
         "matrix_method_summary": optimal_summary,
         "heuristic_summary": heuristic_summary,
+        "tabu_search_summary": tabu_search_summary,
+        "scip_summary": scip_summary,
         "results": results,
     }
 
@@ -335,9 +671,9 @@ def main():
 
 if __name__ == "__main__":
     main()
-    # n_variables = 110
-    # dits = 3
-    # n_neighbors = 3
+    # n_variables = 5
+    # dits = 2
+    # n_neighbors = 2
     # seed = 7
     # qubo_problem = generate_k_qubo(
     #     n_variables=n_variables,
@@ -346,6 +682,13 @@ if __name__ == "__main__":
     # )
     # # qubo_problem = normalize_list_of_lists(qubo_problem)
 
+    # # qubo_problem = generate_frustrated_k_qubo(
+    # #     n_variables=n_variables,
+    # #     k_neighbor=n_neighbors,
+    # #     seed=seed,
+    # #     frustration_probability=1.0,
+    # # )
+    # print(qubo_problem)
     # dynamic_programming_solution = solver_dynamic_programming2(
     #     q_matrix=qubo_problem,
     #     dits=dits,

@@ -1,89 +1,125 @@
+from time import time
 
-from qudo_solver.auxiliar_functions import estimate_tau_max
-from qudo_solver.data_generator.qudo_problem_generator import generate_k_qubo
-from qudo_solver.solvers.dynamic_programming.heuristic_dynamic_programming_solver import solver_dynamic_programming_heuristic
-from qudo_solver.solvers.dynamic_programming.dynamic_programming_solver import solver_dynamic_programming
-from qudo_solver.solvers.dynamic_programming.dynamic_programming_solver2 import solver_dynamic_programming2
+from qudo_solver.data_generator.qudo_problem_generator import qudo_problem_generation
+from qudo_solver.solvers.dynamic_programming.dynamic_programming_solver import (
+    solver_dynamic_programming,
+)
+from qudo_solver.solvers.dynamic_programming.dynamic_programming_solver2 import (
+    solver_dynamic_programming2,
+)
+from qudo_solver.solvers.dynamic_programming.dynamic_programming_solver3 import (
+    solver_dynamic_programming3,
+)
+from qudo_solver.solvers.dynamic_programming.heuristic_dynamic_programming_solver import (
+    solver_dynamic_programming_heuristic,
+)
 from qudo_solver.solvers.matrix_method.matrix_method_solver import solver_matrix_method
 from qudo_solver.solvers.ortools.ortools_method_solver import solver_ortools
+from qudo_solver.solvers.scip import (
+    solver_scip,
+    solver_scip_time_to_target,
+    solver_scip_with_metadata,
+)
+from qudo_solver.solvers.sum_product import solver_sum_product
+from qudo_solver.solvers.tabu_search import solver_tabu_search
 from qudo_solver.solvers.tensorkrowch_tn.tensorkrowch_solver import solver_tensorkrowch
 
+n = 100
+k = 5
+d = 5
+
+instancia = qudo_problem_generation(n, k, 1, 0)[0]
+Q = instancia["q_matrix"]
+q = instancia["q_row"]
+# q = [0.0]*n
+in1 = time()
+resultado = solver_matrix_method(Q, q, d, k)
+matrix_time = time() - in1
+print("Matriz:", resultado.cost, "time", matrix_time)
+
+# resultado = solver_tabu_search(
+#     Q,
+#     q,
+#     d,
+#     k,
+#     time_limit=matrix_time,
+#     seed=instancia["seed"],
+# )
+# print("Tabu Search:", resultado.cost)
+
+# resultado = solver_scip(
+#     Q,
+#     q,
+#     d,
+#     k,
+#     time_limit=3*matrix_time,
+#     seed=instancia["seed"],
+# )
+# print("SCIP:", resultado.cost)
+
+# resultado = solver_tensorkrowch(Q, q, None, d, k)
+# print("TensorKrowch:", resultado.cost)
+
+# resultado = solver_dynamic_programming(Q, q, d, k)
+# print("Dinámica 1:", resultado.cost)
+
+# resultado = solver_dynamic_programming2(Q, q,d, k)
+# print("Dinámica 2:", resultado.cost)
+
+# resultado = solver_dynamic_programming3(Q, q,d, k)
+# print("Dinámica 3:", resultado.cost)
+
+# resultado = solver_dynamic_programming_heuristic(Q, q,d, k)
+# print("Heurística:", resultado.cost)
+
+# resultado = solver_sum_product(Q, q, d, k)
+# print("Min-sum:", resultado.cost)
+
+# resultado = solver_ortools(Q, q, d, 10)
+# print("OR-Tools:", resultado.cost)
 
 
-def main():
-    pass
-if __name__ == "__main__":
-    n_variables = 1000
-    n_neighbors = 5
-    seed = 455
-    tau = 60
-    dits = 6
-
-    qubo_problem_list = generate_k_qubo(
-        n_variables=n_variables,
-        k_neighbor=n_neighbors,
-        seed=seed
-    )
-
-    tau = estimate_tau_max(
-        q_matrix=qubo_problem_list,
-        dits=dits,
-        n_neighbors=n_neighbors,
-    )
-
-    # print("tau", tau)
- 
-    solution_t = solver_matrix_method(
-        Q_list=qubo_problem_list,
-        tau=tau,
-        dits=dits,
-        n_neighbors=n_neighbors)
-   
-
-    print("Matrix method")
-    print(solution_t.cost, "tiempo", solution_t.execution_time)
-    solution_t = solver_tensorkrowch(
-        Q_matrix=qubo_problem_list,
-        tau=tau,
-        dits=dits,
-        n_neighbors=n_neighbors)
-    print("Tensorkrowch method")
-    print(solution_t.cost, solution_t.execution_time)
-    solution_orto = solver_ortools(
-        Q_matrix=qubo_problem_list,
-        dits=dits,
-        max_time=solution_t.execution_time*2
-        )
-    print("Ortools method")
-    print(solution_orto.cost, "Tiempo", solution_orto.execution_time)
-
-    solution_d = solver_dynamic_programming(
-        Q_matrix=qubo_problem_list,
-        dits=dits,
-        n_neighbors=n_neighbors
-        )
-    print("Dynamic programming method")
-    print(solution_d.cost, "tiempo", solution_d.execution_time)
+target_result = solver_scip_time_to_target(
+    Q,
+    q,
+    d,
+    k,
+    target_cost=resultado.cost,
+    max_time=100.0,
+    seed=1,
+)
+print("Scip time result", target_result.time_to_target)
 
 
-    solution_h = solver_dynamic_programming_heuristic(
-        q_matrix=qubo_problem_list,
-        dits=dits,
-        n_neighbors=n_neighbors,
-        beam_width=256,
-        lookahead_depth=3,
-        local_search_passes=3,
-        )
-    print("Dynamic programming heuristic method")
-    print(solution_h.cost, "tiempo", solution_h.execution_time)
-    
 
-    solution_d = solver_dynamic_programming2(
-        q_matrix=qubo_problem_list,
-        dits=dits,
-        n_neighbors=n_neighbors
-        )
-    print("Dynamic programming method manual")
-    print(solution_d.cost, "tiempo", solution_d.execution_time)
 
-    main()
+# for scip_time in [
+#     0.1,
+#     0.25,
+#     0.5,
+#     0.75,
+#     1.0,
+#     1.5,
+#     2.0,
+#     2.5,
+#     3.0,
+#     4.0,
+#     5.0,
+# ]:
+#     resultado, metadata = solver_scip_with_metadata(
+#         Q,
+#         q,
+#         d,
+#         k,
+#         time_limit=scip_time,
+#         seed=instancia["seed"],
+#     )
+
+#     print(
+#         f"SCIP {scip_time}s:",
+#         resultado.cost,
+#         metadata.status,
+#         metadata.gap,
+#         metadata.best_bound,
+#         metadata.nodes,
+#     )

@@ -1,11 +1,12 @@
 from itertools import product
-from typing import List
 
 import numpy as np
-
 from scipy.sparse import coo_matrix, csr_array, dia_matrix, diags
+
+
 def node_0(
     Q_matrix_0: float, 
+    Q_row_0: float,
     dits: int, 
     tau: float
     ) -> dia_matrix:
@@ -20,13 +21,14 @@ def node_0(
     Returns:
         tensor (csr_matrix): tensor of the first node
     """
-    diagonal_values = np.exp(-tau * Q_matrix_0 * np.arange(dits)**2)
+    diagonal_values = np.exp(-tau * (Q_matrix_0 * np.arange(dits)**2 + Q_row_0*np.arange(dits)))
     tensor = diags(diagonal_values, offsets=0, format='csr')
     
     return tensor
 
 def node_grow(
-    Q_matrix_row: List[float], 
+    Q_matrix_row: list[float], 
+    Q_row_row: float,
     dits: int, 
     n_neight: int, 
     tau: float
@@ -55,7 +57,7 @@ def node_grow(
             full_element = list(element) + [index_last]
             
             # Calculate the tensor value
-            value = 1.0
+            value = 1*np.exp(-tau * Q_row_row * full_element[-1])
             for aux in range(len(full_element)):
                 value *= np.exp(-tau * Q_matrix_row[aux] * full_element[-1] * full_element[aux])
 
@@ -65,7 +67,8 @@ def node_grow(
     return tensor
 
 def node_intermediate(
-    Q_matrix_row: List[float], 
+    Q_matrix_row: list[float], 
+    Q_row_row: float,
     dits: int, 
     n_neigh: int, 
     tau: float
@@ -93,7 +96,7 @@ def node_intermediate(
     k = np.arange(dits)                              
     Q_last = Q_matrix_row[-1]
   
-    exponents = (S[:, None] * k[None, :]) + (Q_last * (k ** 2))[None, :]
+    exponents = (S[:, None] * k[None, :]) + (Q_last * (k ** 2))[None, :] + Q_row_row * k[None, :]
     data_mat = np.exp(-tau * exponents)            
 
     rows = np.repeat(np.arange(size), dits)          
@@ -105,7 +108,8 @@ def node_intermediate(
     return A  
 
 def last_tensor(
-    Q_matrix_row: List[float], 
+    Q_matrix_row: list[float], 
+    Q_row_row: float,
     dits: int, 
     tau:float
     ) -> np.ndarray:
@@ -133,7 +137,7 @@ def last_tensor(
         for index_last in range(dits):
             full_element = list(element) + [index_last]
             # Compute the tensor value
-            tensor_aux = 1.0
+            tensor_aux = 1.0 * np.exp(-tau * Q_row_row * full_element[-1])
             for el in range(len(full_element)):
                 tensor_aux *= np.exp(-tau * Q_matrix_row[el] * full_element[el] * full_element[-1])
             tensor[index_up] += tensor_aux
@@ -144,6 +148,7 @@ def last_tensor(
 
 def new_initial_tensor(
     Q_matrix_row, 
+    Q_row_row,
     dits: int, 
     size_2, 
     solution, 
@@ -183,7 +188,7 @@ def new_initial_tensor(
         for element in combinations_up:
             if element[:-1] == solution:
                 index_down_aux = index_down + dits**(n - 1) * element[-1]
-                tensor[element[-1], index_down_aux] = np.exp(-tau * Q_matrix_row[0] * last_solution * element[-1])
+                tensor[element[-1], index_down_aux] = np.exp(-tau * (Q_matrix_row[0] * last_solution * element[-1] + Q_row_row * element[-1]))
                 # Ensure the indexing is valid by checking that el+1 is within range
                 for el in range(len(element)):
                     if el + 1 < len(Q_matrix_row):  # Ensure we're not out of bounds
@@ -193,7 +198,9 @@ def new_initial_tensor(
         for element in combinations_up:
             if element[:-1] == solution:
                 index_down_aux = index_down + dits**(n - 1) * element[-1]
-                tensor[element[-1], index_down_aux] = 1.0
+                tensor[element[-1], index_down_aux] = np.exp(
+                    -tau * Q_row_row * element[-1]
+                )
                 
                 # Ensure the indexing is valid by checking that el is within range
                 for el in range(len(element)):

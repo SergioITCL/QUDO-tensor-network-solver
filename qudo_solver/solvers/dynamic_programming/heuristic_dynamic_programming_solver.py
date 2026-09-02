@@ -10,7 +10,6 @@ class _Candidate:
     route: Tuple[int, ...]
     hist: Tuple[int, ...]
     cost: float
-    has_nonzero: bool
 
 
 def _trim_hist(hist: Tuple[int, ...], max_hist: int) -> Tuple[int, ...]:
@@ -21,6 +20,7 @@ def _trim_hist(hist: Tuple[int, ...], max_hist: int) -> Tuple[int, ...]:
 
 def _step_cost(
     q_matrix: List[List[float]],
+    q_row: List[float],
     pos: int,
     hist: Tuple[int, ...],
     value: int,
@@ -28,7 +28,7 @@ def _step_cost(
     row = q_matrix[pos]
     hist_start = pos - len(hist)
     j_start = pos - len(row) + 1
-    total = 0.0
+    total = q_row[pos] * value
 
     for offset, q_ij in enumerate(row):
         j = j_start + offset
@@ -42,6 +42,7 @@ def _step_cost(
 
 def _greedy_lookahead_cost(
     q_matrix: List[List[float]],
+    q_row: List[float],
     pos: int,
     hist: Tuple[int, ...],
     dits: int,
@@ -58,7 +59,7 @@ def _greedy_lookahead_cost(
         best_cost = float("inf")
 
         for value in range(dits):
-            cost = _step_cost(q_matrix, next_pos, lookahead_hist, value)
+            cost = _step_cost(q_matrix, q_row, next_pos, lookahead_hist, value)
             if cost < best_cost:
                 best_cost = cost
                 best_value = value
@@ -71,11 +72,12 @@ def _greedy_lookahead_cost(
 
 def _variable_contribution(
     q_matrix: List[List[float]],
+    q_row: List[float],
     solution: List[int],
     index: int,
     value: int,
 ) -> float:
-    total = 0.0
+    total = q_row[index] * value
     own_row = q_matrix[index]
     own_j_start = index - len(own_row) + 1
 
@@ -99,52 +101,30 @@ def _variable_contribution(
     return float(total)
 
 
-def _repair_zero_solution(
-    q_matrix: List[List[float]],
-    solution: List[int],
-    dits: int,
-) -> List[int]:
-    if any(solution):
-        return solution
-
-    best_solution = solution[:]
-    best_cost = float("inf")
-
-    for index in range(len(solution)):
-        for value in range(1, dits):
-            trial = solution[:]
-            trial[index] = value
-            cost = _variable_contribution(q_matrix, trial, index, value)
-            if cost < best_cost:
-                best_cost = cost
-                best_solution = trial
-
-    return best_solution
-
-
 def _local_search(
     q_matrix: List[List[float]],
+    q_row: List[float],
     solution: List[int],
     dits: int,
     passes: int,
 ) -> List[int]:
-    solution = _repair_zero_solution(q_matrix, solution, dits)
-
     for _ in range(passes):
         improved = False
 
         for index, old_value in enumerate(solution):
-            old_contribution = _variable_contribution(q_matrix, solution, index, old_value)
+            old_contribution = _variable_contribution(
+                q_matrix, q_row, solution, index, old_value
+            )
             best_value = old_value
             best_delta = 0.0
 
             for value in range(dits):
                 if value == old_value:
                     continue
-                if value == 0 and old_value != 0 and sum(solution) == old_value:
-                    continue
 
-                new_contribution = _variable_contribution(q_matrix, solution, index, value)
+                new_contribution = _variable_contribution(
+                    q_matrix, q_row, solution, index, value
+                )
                 delta = new_contribution - old_contribution
 
                 if delta < best_delta:
@@ -163,6 +143,7 @@ def _local_search(
 
 def solver_dynamic_programming_heuristic(
     q_matrix: List[List[float]],
+    q_row: List[float],
     dits: int,
     n_neighbors: int,
     beam_width: int = 256,
@@ -190,13 +171,15 @@ def solver_dynamic_programming_heuristic(
     n = len(q_matrix)
     if n == 0:
         raise ValueError("q_matrix must contain at least one variable")
+    if len(q_row) != n:
+        raise ValueError("q_matrix y q_row deben tener la misma longitud")
 
     interaction_width = max(len(row) - 1 for row in q_matrix)
     max_hist = min(n - 1, max(n_neighbors, interaction_width))
-    candidates = [_Candidate(route=(), hist=(), cost=0.0, has_nonzero=False)]
+    candidates = [_Candidate(route=(), hist=(), cost=0.0)]
 
     for pos in range(n):
-        best_by_state: Dict[Tuple[Tuple[int, ...], bool], _Candidate] = {}
+        best_by_state: Dict[Tuple[int, ...], _Candidate] = {}
 
         for candidate in candidates:
             for value in range(dits):
@@ -204,20 +187,20 @@ def solver_dynamic_programming_heuristic(
                 new_candidate = _Candidate(
                     route=candidate.route + (value,),
                     hist=new_hist,
-                    cost=candidate.cost + _step_cost(q_matrix, pos, candidate.hist, value),
-                    has_nonzero=candidate.has_nonzero or value != 0,
+                    cost=candidate.cost
+                    + _step_cost(q_matrix, q_row, pos, candidate.hist, value),
                 )
-                state = (new_hist, new_candidate.has_nonzero)
-                current_best = best_by_state.get(state)
+                current_best = best_by_state.get(new_hist)
 
                 if current_best is None or new_candidate.cost < current_best.cost:
-                    best_by_state[state] = new_candidate
+                    best_by_state[new_hist] = new_candidate
 
         ranked_candidates = sorted(
             best_by_state.values(),
             key=lambda candidate: candidate.cost
             + _greedy_lookahead_cost(
                 q_matrix=q_matrix,
+                q_row=q_row,
                 pos=pos + 1,
                 hist=candidate.hist,
                 dits=dits,
@@ -227,29 +210,19 @@ def solver_dynamic_programming_heuristic(
         )
         candidates = ranked_candidates[:beam_width]
 
-        if candidates and not any(candidate.has_nonzero for candidate in candidates):
-            first_nonzero = next(
-                (candidate for candidate in ranked_candidates if candidate.has_nonzero),
-                None,
-            )
-            if first_nonzero is not None:
-                candidates[-1] = first_nonzero
-
-    feasible_candidates = [candidate for candidate in candidates if candidate.has_nonzero]
-    if not feasible_candidates:
-        solution = _repair_zero_solution(q_matrix, list(candidates[0].route), dits)
-    else:
-        solution = list(min(feasible_candidates, key=lambda candidate: candidate.cost).route)
+    solution = list(min(candidates, key=lambda candidate: candidate.cost).route)
 
     solution = _local_search(
         q_matrix=q_matrix,
+        q_row=q_row,
         solution=solution,
         dits=dits,
         passes=local_search_passes,
     )
 
     return SolutionClass.from_solution_list(
-        qudo_instance_list=q_matrix,
+        qudo_instance_matrix=q_matrix,
+        qudo_instance_row=q_row,
         solution_list=solution,
         dits=dits,
         execution_time=time()-initial_time

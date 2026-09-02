@@ -1,6 +1,8 @@
 from numbers import Integral
 
 import numpy as np
+
+
 def qubo_value_from_lists(x, lists_tri):
     """
     Evaluates E(x) = sum_{(i,j) present in lists_tri} Q[i,j] * x[i] * x[j]
@@ -32,6 +34,28 @@ def qubo_value_from_lists(x, lists_tri):
                 total += q_ij * int(x[i]) * int(x[j])
     return float(total)
 
+def qudo_value(
+    x: list[int],
+    q_matrix: list[list[float]],
+    q_row: list[float],
+) -> float:
+    if len(x) != len(q_matrix) or len(x) != len(q_row):
+        raise ValueError(
+            "x, q_matrix y q_row deben tener la misma longitud"
+        )
+
+    total = 0.0
+
+    for i, row in enumerate(q_matrix):
+        j_start = i - len(row) + 1
+
+        for offset, coefficient in enumerate(row):
+            j = j_start + offset
+            total += coefficient * x[i] * x[j]
+
+        total += q_row[i] * x[i]
+
+    return float(total)
 
 def estimate_tau_max(
     n_variables: int,

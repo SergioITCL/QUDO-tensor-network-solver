@@ -1,17 +1,32 @@
-from typing import List, Tuple
+from re import L
 from time import time
 
 import numpy as np
-import torch
 import tensorkrowch as tk
+import torch
 
-from qudo_solver.auxiliar_functions import qubo_value_from_lists
+from qudo_solver.auxiliar_functions import (
+    estimate_tau_max,
+    qudo_value,
+)
+from qudo_solver.data_generator.qudo_problem_generator import (
+    normalize_problem,
+)
 from qudo_solver.qudo_solver_core.solution import SolutionClass
-from qudo_solver.solvers.tensorkrowch_tn.tensorkrowch_nodes import new_initial_tensor_, node_control, node_final, node_initial, node_intermediate, node_last_superposition
+from qudo_solver.solvers.tensorkrowch_tn.tensorkrowch_nodes import (
+    new_initial_tensor_,
+    node_control,
+    node_final,
+    node_initial,
+    node_intermediate,
+    node_last_superposition,
+)
+
 
 def solver_tensorkrowch(
-    Q_matrix: List[List[float]], 
-    tau: float, 
+    Q_matrix: list[list[float]], 
+    Q_row: list[float],
+    tau: float | None, 
     dits: int, 
     n_neighbors: int
     ) -> SolutionClass:
@@ -29,11 +44,22 @@ def solver_tensorkrowch(
     """
     initial_time = time()
     # Initialize variables and create a copy of the Q matrix
-    n_variables = len(Q_matrix)
+    Q_matrix_normalized, Q_row_normalized = normalize_problem(Q_matrix, Q_row)
+    # Q_matrix = Q_list
+    n_variables = len(Q_matrix_normalized)
+    solution = np.zeros(n_variables, dtype=int)
+
+    if tau is None:
+        tau = estimate_tau_max(
+            n_variables=n_variables,
+            dits=dits,
+            n_neighbors=n_neighbors,
+        )
+    n_variables = len(Q_matrix_normalized)
     solution = np.zeros(n_variables, dtype=int)
 
     # Generation the tensor network
-    tensor_network_matrix = tensor_network_generator(Q_matrix, dits, n_neighbors, tau)
+    tensor_network_matrix = tensor_network_generator(Q_matrix_normalized, Q_row_normalized,  dits, n_neighbors, tau)
     # Contraction of the tensor network
     result, intermediate_tensors = tensor_network_contraction(tensor_network_matrix)
 
@@ -53,7 +79,7 @@ def solver_tensorkrowch(
             tensor_ = intermediate_tensor[tuple(sol_aux[1:])].flatten()
 
         tensor = tk.Node(tensor = tensor_, name = 'aux_tensor', axes_names = ['up']) 
-        new_tensor = new_initial_tensor_(Q_matrix[node], sol_aux, dits, tau)
+        new_tensor = new_initial_tensor_(Q_matrix_normalized[node], Q_row_normalized[node], sol_aux, dits, tau)
         tensor['up'] ^ new_tensor['down']
         contracted_tensor = tk.contract_between_(tensor, new_tensor).tensor
         assert contracted_tensor is not None
@@ -61,24 +87,26 @@ def solver_tensorkrowch(
         intermediate_tensors.pop(0)
 
     # Last digit calculation
-    cost = qubo_value_from_lists(solution, Q_matrix)
+    cost = qudo_value(list(solution), Q_matrix_normalized, Q_row_normalized)
     solution_2 = solution.copy()
     for dit in range(1, dits):
         solution_2[-1] = dit
-        cost_2 = qubo_value_from_lists(solution_2, Q_matrix)
+        cost_2 = qudo_value(list(solution_2), Q_matrix_normalized, Q_row_normalized)
         # If a better solution is found, update the solution and cost
         if cost_2 < cost:
             solution[-1] = dit
             cost = cost_2
     return SolutionClass.from_solution_list(
-        qudo_instance_list=Q_matrix,
+        qudo_instance_matrix=Q_matrix,
+        qudo_instance_row=Q_row,
         solution_list=list(solution),
         dits=dits,
         execution_time=time() - initial_time
     )
 
 def tensor_network_generator(
-    Q_matrix: List[List[float]], 
+    Q_matrix: list[list[float]], 
+    Q_row: list[float],
     dits: int, 
     n_neighbors: int, 
     tau: float
@@ -100,7 +128,7 @@ def tensor_network_generator(
     
     for row in range(n_variables):
         last_node_activation = False
-        initial_node = node_initial(dits, Q_matrix[row][-1], tau, row, 0)
+        initial_node = node_initial(dits, Q_matrix[row][-1], Q_row[row], tau, row, 0)
         tensor_network_matrix[row].append(initial_node)
 
         if row >= n_neighbors and row != (n_variables - 1):
@@ -108,7 +136,7 @@ def tensor_network_generator(
             tensor_network_matrix[row].append(last_node)
             last_node_activation = True
 
-        for column, Q_row_column in enumerate(Q_matrix[row][:-1]):
+        for column, Q_matrix_row_column in enumerate(Q_matrix[row][:-1]):
 
             if last_node_activation == True and column == 0:
                 continue
@@ -117,7 +145,7 @@ def tensor_network_generator(
                 tensor_network_matrix[row].append(last_node)
                 
             else:
-                intermediate_node = node_intermediate(dits, Q_row_column, tau, row, column + 1)
+                intermediate_node = node_intermediate(dits, Q_matrix_row_column, tau, row, column + 1)
                 tensor_network_matrix[row].append(intermediate_node)
 
         if row != n_variables - 1:
@@ -131,8 +159,8 @@ def tensor_network_generator(
     return tensor_network_matrix
 
 def tensor_network_contraction(
-    tensor_list: List[List[tk.Node]]
-    ) -> Tuple[tk.Node, List[tk.Node]]:
+    tensor_list: list[list[tk.Node]]
+    ) -> tuple[tk.Node, list[tk.Node]]:
     """
     This function is designed to contract a tensor network starting from the bottom, while preserving the intermediate tensors during the process. 
     The contraction is performed layer by layer, specifically from right to left within each layer.

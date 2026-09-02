@@ -1,14 +1,27 @@
-from typing import List
-import numpy as np
 from time import time
 
-from qudo_solver.auxiliar_functions import estimate_tau_max, qubo_value_from_lists
-from qudo_solver.data_generator.qudo_problem_generator import normalize_list_of_lists
+import numpy as np
+
+from qudo_solver.auxiliar_functions import (
+    estimate_tau_max,
+    qudo_value,
+)
+from qudo_solver.data_generator.qudo_problem_generator import (
+    normalize_problem,
+)
 from qudo_solver.qudo_solver_core.solution import SolutionClass
-from qudo_solver.solvers.matrix_method.matrix_method_nodes import last_tensor, new_initial_tensor, node_0, node_grow, node_intermediate
+from qudo_solver.solvers.matrix_method.matrix_method_nodes import (
+    last_tensor,
+    new_initial_tensor,
+    node_0,
+    node_grow,
+    node_intermediate,
+)
+
 
 def solver_matrix_method(
-    Q_list: List[List[float]], 
+    Q_list: list[list[float]], 
+    Q_row: list[float],
     dits: int, 
     n_neighbors: int,
     tau: float | None = None, 
@@ -28,7 +41,8 @@ def solver_matrix_method(
     
     initial_time = time()
     # Initialize variables and create a copy of the Q matrix
-    Q_matrix = normalize_list_of_lists(Q_list)
+    Q_matrix, Q_row_normalized = normalize_problem(Q_list, Q_row)
+    
     # Q_matrix = Q_list
     n_variables = len(Q_matrix)
     solution = np.zeros(n_variables, dtype=int)
@@ -41,7 +55,12 @@ def solver_matrix_method(
         )
     # Generate the tensor network
   
-    tensor_network = tensor_network_generator(Q_matrix, dits, n_neighbors, tau)
+    tensor_network = tensor_network_generator(
+        Q_matrix=Q_matrix, 
+        Q_row=Q_row_normalized, 
+        dits=dits, 
+        n_neighbors=n_neighbors, 
+        tau=tau)
 
     # Perform the tensor network contraction
 
@@ -57,16 +76,16 @@ def solver_matrix_method(
         else:
             sol_aux = solution[node - n_neighbors + 1:node]
 
-        new_tensor = new_initial_tensor(Q_matrix[node], dits, intermediate_tensors[2].shape[0], sol_aux, n_neighbors, tau, solution[node - n_neighbors])
+        new_tensor = new_initial_tensor(Q_matrix[node], Q_row_normalized[node], dits, intermediate_tensors[2].shape[0], sol_aux, n_neighbors, tau, solution[node - n_neighbors])
         solution[node] = np.argmax(abs(new_tensor @ intermediate_tensors[2]))
         intermediate_tensors.pop(0)
    
     # Iterate over all possible solutions for the last digit
-    cost = qubo_value_from_lists(solution, Q_matrix)
+    cost = qudo_value(list(solution), Q_matrix, Q_row_normalized)
     solution2 = solution.copy()
     for dit in range(1, dits):
         solution2[-1] = dit
-        cost2 = qubo_value_from_lists(solution2, Q_matrix)
+        cost2 = qudo_value(list(solution2), Q_matrix, Q_row_normalized)
         
         # If a better solution is found, update the solution and cost
         if cost2 < cost:
@@ -74,14 +93,16 @@ def solver_matrix_method(
             cost = cost2
 
     return SolutionClass.from_solution_list(
-        qudo_instance_list=Q_list,
+        qudo_instance_matrix=Q_list,
+        qudo_instance_row=Q_row,
         solution_list=list(solution),
         dits=dits,
         execution_time=time()-initial_time
     )
 
 def tensor_network_generator(
-    Q_matrix: List[List[float]], 
+    Q_matrix: list[list[float]], 
+    Q_row: list[float],
     dits: int, 
     n_neighbors: int, 
     tau: float):
@@ -101,21 +122,21 @@ def tensor_network_generator(
     intermediate_tensors = []
 
     # Generate the first node
-    tensor = node_0(Q_matrix[0][0], dits, tau)
+    tensor = node_0(Q_matrix[0][0], Q_row[0], dits, tau)
 
     intermediate_tensors.append(tensor)
 
     # Generate the intermediate nodes
     for variable in range(1, n_variables - 1):
         if variable < n_neighbors:
-            tensor = node_grow(Q_matrix[variable], dits, variable, tau)
+            tensor = node_grow(Q_matrix[variable], Q_row[variable], dits, variable, tau)
             
         else:  
-            tensor = node_intermediate(Q_matrix[variable], dits, n_neighbors, tau)
+            tensor = node_intermediate(Q_matrix[variable], Q_row[variable], dits, n_neighbors, tau)
         intermediate_tensors.append(tensor)
 
     # Generate the last tensor
-    tensor = last_tensor(Q_matrix[-1], dits, tau)
+    tensor = last_tensor(Q_matrix[-1], Q_row[-1], dits, tau)
     intermediate_tensors.append(tensor)
 
     return intermediate_tensors

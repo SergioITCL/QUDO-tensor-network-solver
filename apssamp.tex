@@ -1,0 +1,1537 @@
+% ****** Start of file apssamp.tex ******
+%
+%   This file is part of the APS files in the REVTeX 4.2 distribution.
+%   Version 4.2a of REVTeX, December 2014
+%
+%   Copyright (c) 2014 The American Physical Society.
+%
+%   See the REVTeX 4 README file for restrictions and more information.
+%
+% TeX'ing this file requires that you have AMS-LaTeX 2.0 installed
+% as well as the rest of the prerequisites for REVTeX 4.2
+%
+% See the REVTeX 4 README file
+% It also requires running BibTeX. The commands are as follows:
+%
+%  1)  latex apssamp.tex
+%  2)  bibtex apssamp
+%  3)  latex apssamp.tex
+%  4)  latex apssamp.tex
+%
+\documentclass[%
+ reprint,
+%superscriptaddress,
+%groupedaddress,
+%unsortedaddress,
+%runinaddress,
+%frontmatterverbose, 
+%preprint,
+%preprintnumbers,
+%nofootinbib,
+%nobibnotes,
+%bibnotes,
+ amsmath,amssymb,
+ aps,
+ pra,showkeys,
+%prb,
+%rmp,
+%prstab,
+%prstper,
+%floatfix,
+]{revtex4-2}
+
+\usepackage{graphicx}% Include figure files
+\usepackage{dcolumn}% Align table columns on decimal point
+\usepackage{braket}
+% \usepackage{orcidlink}
+\usepackage[colorinlistoftodos, textsize=small]{todonotes}
+\usepackage{bm}% bold math
+\usepackage{bbm}% bold math
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{subcaption}
+\usepackage[hidelinks,breaklinks]{hyperref}
+% \usepackage{hyperref}% add hypertext capabilities (moved below)
+%\usepackage[mathlines]{lineno}% Enable numbering of text and display math
+%\linenumbers\relax % Commence numbering lines
+\newtheorem{theorem}{Theorem}
+%\usepackage[showframe,%Uncomment any one of the following lines to test 
+%%scale=0.7, marginratio={1:1, 2:3}, ignoreall,% default settings
+%%text={7in,10in},centering,
+%%margin=1.5in,
+%%total={6.5in,8.75in}, top=1.2in, left=0.9in, includefoot,
+%%height=10in,a5paper,hmargin={3cm,0.8in},
+%]{geometry}
+
+\begin{document}
+
+\preprint{APS/2309.10509}
+
+\title{Quantum-inspired Tensor Network for QUBO, QUDO and Tensor QUDO Problems with $k$-neighbors}% Force line breaks with \\
+
+\author{Sergio Muñiz Subiñas}
+ \email{sergio.muniz@itcl.es}
+\affiliation{Instituto Tecnológico de Castilla y León, Burgos, Spain}
+% \orcidlink{0009-0008-7590-0149}
+
+\author{Alejandro Mata Ali}
+ \email{alejandro.mata@itcl.es}
+\affiliation{Instituto Tecnológico de Castilla y León, Burgos, Spain}
+% \orcidlink{0009-0006-7289-8827}
+
+\author{Jorge Martínez Martín}
+ \email{jorge.martinez@itcl.es}
+\affiliation{Instituto Tecnológico de Castilla y León, Burgos, Spain}
+% \orcidlink{0009-0004-9336-3165}
+
+\author{Miguel Franco Hernando}
+ \email{miguel.franco@itcl.es}
+\affiliation{Instituto Tecnológico de Castilla y León, Burgos, Spain}
+% \orcidlink{0009-0009-9059-6832}
+
+\author{Javier Sedano}
+ \email{javier.sedano@itcl.es}
+\affiliation{Instituto Tecnológico de Castilla y León, Burgos, Spain}
+% \orcidlink{0000-0002-4191-8438}
+
+\author{Ángel Miguel García-Vico}
+ \email{agvico@ujaen.es}
+\affiliation{Andalusian Research Institute in Data Science and Computational Intelligence (DaSCI), University of Jaén, 23071 Jaén, Spain}
+% \orcidlink{0000-0003-1583-2128}
+
+\date{\today}% It is always \today, today,
+             %  but any date may be explicitly specified
+
+\begin{abstract}
+This work presents a novel tensor network algorithm for solving Quadratic Unconstrained Binary Optimization (QUBO) problems, Quadratic Unconstrained Discrete Optimization (QUDO) problems, and Tensor Quadratic Unconstrained Discrete Optimization (T-QUDO) problems. The algorithm proposed is based on the MeLoCoToN methodology, which solves combinatorial optimization problems by employing superposition, imaginary time evolution, and projective measurements. Additionally, two different approaches are presented to solve the QUBO and QUDO problems with $k$-neighbors interactions in a linear chain, one based on 4-order tensor contraction and the other based on matrix-vector sparse multiplication. The algorithms are evaluated against exact dynamic programming and a beam dynamic-programming method. The results show that the proposed approach becomes increasingly competitive as the interaction range $k$ and the variable dimension $d$ increase, achieving a more favorable solution-quality/runtime trade-off than the heuristic baselines over the evaluated instances. These results indicate that tensor-network contractions can provide a useful alternative for discrete quadratic optimization problems with bounded-range interactions.
+\end{abstract}
+
+
+\keywords{Tensor networks, QUBO, QUDO, Combinatorial optimization}%Use showkeys class option if keyword
+                              %display desired
+\maketitle
+
+% \tableofcontents
+\section{Introduction}\label{sec:introduction}
+Combinatorial optimization is a branch of mathematics that plays a central role in a wide range of real-world problems, including scheduling~\cite{flex_jssp}, logistics~\cite{VRP}, and resource allocation~\cite{Assignment}. Many of these problems are classified as NP-hard problems~\cite{combinatorial_optimization_theory_papa,combinatorial_optimization_theory_garey}, which implies that exact methods are computationally infeasible for large-scale instances. Consequently, the development of algorithms capable of producing near-optimal solutions constitutes an important objective of contemporary research.
+
+An interesting family of problems is the class of quadratic optimization problems~\cite{quadratic}, in which the decision variables are restricted to take values from a finite set of discrete numbers. Many important combinatorial problems, such as the Traveling Salesman Problem (TSP) or the Knapsack Problem, can be formulated in this way~\cite{gonzálezbermejo2022gpsnewtspformulation, knapsack_qubo}, underscoring the practical relevance of this class of problems. Within the family of quadratic integer optimization problems, several variants can be distinguished. When variables are restricted to binary values, the problem is known as Quadratic Unconstrained Binary Optimization (QUBO)~\cite{quadratic_qubo}. If variables can take arbitrary integer values from a finite set, the formulation is known as Quadratic Unconstrained Discrete Optimization (QUDO) or Quadratic Integer Optimization (QIO).
+
+General QUBO and QUDO instances can be addressed using exact methods
+such as branch-and-bound and branch-and-cut~\cite{
+brach_and_bound,branch_cut}, or using heuristic and metaheuristic
+methods such as simulated annealing~\cite{simmulated_annealing_kirk},
+tabu search~\cite{tabu_search_glover}, and genetic
+algorithms~\cite{genetic_holland}. However, more specialized algorithms can be
+exploited when interactions are restricted to variables separated by at
+most $k$ positions along a linear chain. Such problems can be solved
+using dynamic programming or transfer-matrix methods, whose computational and memory requirements are
+exponential in the interaction width $k$ and in the variable dimension
+$d$, but linear in the number of variables $n$~\cite{DynamicProgramming, TransferMatrixIsing}. This dependence makes the
+interaction range and the number of possible values per variable the
+main limiting factors, even when the chain contains a large number of
+variables.
+
+The method employed in this work is based on tensor networks \cite{tensornetworksnutshell,lecturesquantumtensornetworks,Orus_TN}, a widely developed mathematical formalism in condensed matter physics~\cite{Orus_Many_body}. Tensor networks are particularly powerful because they enable the efficient representation and manipulation of high‑dimensional data structures. Their strength lies in the ability to exploit the locality and constrained connectivity patterns inherent in the problem. In this study, the adopted tensor network technique is Modulated Logical Combinatorial Tensor Network (MeLoCoToN)~\cite{melocoton}, a methodology originally inspired by quantum computation concepts such as superposition and imaginary time evolution, but implemented entirely in a classical computational setting.
+
+Previous work has applied this methodology to
+tridiagonal, or one-neighbor, QUBO, QUDO, and T-QUDO
+problems~\cite{QUBO_tridiaonal}. This work extends this construction to interactions of range $k$
+along a linear chain. First, a tensor network representation is derived
+for general dense pairwise QUDO problems and then specialize it to the
+bounded-range case. Two contraction schemes are considered: a
+\textbf{Sparse Matrix-Vector Contraction} (SMVC) and a \textbf{Staircase Tensor Contraction} (STC). The former benefits from highly optimized
+linear-algebra operations, whereas the latter exposes the local tensor
+structure and has a different computational and memory dependence on
+$k$ and $d$. 
+The proposed methods are evaluated against an exact dynamic programming algorithm, two approximate approaches, namely beam search dynamic programming and tabu search, and the mathematical optimization solver SCIP. Exact
+dynamic programming is used to verify optimality on tractable
+instances, while the heuristic baselines enable comparisons on larger
+configurations. The experiments investigate solution quality, execution
+time, and memory requirements as functions of the number of variables
+$n$, interaction range $k$, and variable dimension $d$. Within the evaluated range, the relative advantage of the proposed tensor-network approach becomes more pronounced as $k$ and $d$ increase. This advantage is primarily observed in the solution-quality/runtime trade-off: for the more demanding instances, approximate methods achieve larger relative errors within comparable runtimes, whereas the tensor-network method generally remains close to the optimum.
+
+Briefly, the main contributions of this work are:
+\begin{enumerate}
+    \item An exact and explicit tensor-network formulation for general QUBO,
+    QUDO, and T-QUDO problems, together with its specialization
+    to $k$-neighbor interactions along a linear chain.
+    
+    \item Two contraction schemes, SMVC and STC, for the resulting
+    $k$-neighbor tensor networks, including an analysis of their computational
+    and memory complexities and a systematic comparison across problem sizes.
+
+    \item An explicit method for determining the imaginary-time parameter
+    $\tau$ as a function of $n$, $k$ and $d$, aimed at balancing
+    solution quality and numerical stability while avoiding overflow during the tensor network contraction.
+    \item A systematic comparison of the proposed tensor network methods
+    with exact dynamic programming, beam dynamic programming, tabu search,
+    and SCIP in terms of solution quality, execution time, and scaling with
+    the number of variables $n$, interaction range $k$, and local dimension $d$.
+\end{enumerate}
+Additionally, it is provided an open-source implementation of both algorithms and the experimentation of the paper in the GitHub repository \href{https://github.com/SergioITCL/QUDO-tensor-network-solver}{https://github.com/SergioITCL/QUDO-tensor-network-solver}.
+
+The remainder of this paper is organized as follows: Sec.~\ref{sec:background} presents the necessary background and formal definitions of QUBO, QUDO, and T-QUDO, and a briefly explanation of the bra-ket notation and of the MeLoCoToN methodology. Sec.~\ref{sec:tn_equation} describes the tensor network formulation used in this work for QUBO, QUDO and T-QUDO problems, the calculation algorithm and their computational complexity. Sec.~\ref{sec:experiments} reports the experimental evaluation and comparisons with a baseline solver. Finally, Sec.~\ref{sec:conclusions} concludes the paper with perspectives for future research.
+
+
+\section{Problem Formulation and Background}\label{sec:background}
+To provide the necessary context, this section reviews the formulations of QUBO, QUDO, and Tensor-QUDO problems. It also provides a brief overview of bra-ket notation and summarizes the MeLoCoToN methodology, including its fundamental principles and its application to combinatorial optimization problems.
+
+\subsection{QUBO, QUDO and Tensor-QUDO formulations}\label{ssec:qubo_qudo_formulations}
+The Quadratic Unconstrained Binary Optimization (QUBO) problem consists
+of finding a binary vector $\vec{x}\in\{0,1\}^n$ that minimizes a
+quadratic cost function of the form
+\begin{equation}
+C(\vec{x}) =
+\sum_{\substack{i,j=0\\ i\leq j}}^{n-1}
+Q_{ij}x_i x_j.
+\end{equation}
+Here, the coefficients $Q_{ij}$ define the interactions between the
+binary variables. Since $x_i^2=x_i$ for $x_i\in\{0,1\}$, linear terms
+can be incorporated into the diagonal coefficients $Q_{ii}$.
+
+The Quadratic Unconstrained Discrete Optimization (QUDO) problem
+generalizes QUBO by allowing each variable to take integer values $x_i\in\{0,1,\ldots,d-1\}$. In this case, the identity $x_i^2=x_i$
+does not hold in general, and therefore linear terms cannot be absorbed
+into the diagonal quadratic coefficients. The cost function is written as
+\begin{equation}
+C(\vec{x}) =
+\sum_{\substack{i,j=0\\ i\leq j}}^{n-1}
+Q_{ij}x_i x_j
++
+\sum_{i=0}^{n-1}D_i x_i,
+\end{equation}
+where $Q_{ij}$ are the quadratic interaction coefficients and
+$D_i$ are the linear coefficients.
+\todo[inline]{Revisar Alejandro}
+Tensor-QUDO (T-QUDO) further generalizes this formulation by replacing
+the quadratic interaction function with an arbitrary pairwise cost
+associated with the values taken by two variables. Its objective
+function is
+\begin{equation}\label{eq:tqudo}
+C(\vec{x}) =
+\sum_{\substack{i,j=0\\ i\leq j}}^{n-1}
+\hat{Q}_{i,j,x_i,x_j},
+\end{equation}
+where $\hat{Q}$ is a fourth-order cost tensor whose entries specify the
+contribution associated with assigning values $x_i$ and $x_j$ to
+variables $i$ and $j$, respectively. QUBO and QUDO can be recovered as
+particular cases of this formulation. For QUDO, the tensor
+elements can be defined as
+\begin{equation}
+\hat{Q}_{i,j,a,b} =
+\begin{cases}
+Q_{ij}ab, & i<j,\\
+Q_{ii}a^2 + D_i a, & i=j \text{ and } a=b,
+\end{cases}
+\end{equation}
+for $a,b\in\{0,\ldots,d-1\}$.
+
+Previous work considered the nearest-neighbor case on a linear
+chain~\cite{QUBO_tridiaonal}, corresponding to interactions only between
+each variable and itself or its immediate neighbors. In the QUDO
+formulation, this corresponds to a tridiagonal interaction matrix $Q$;
+in the T-QUDO formulation, only tensor blocks associated with
+$\hat{Q}_{i,i,:,:}$ and $\hat{Q}_{i,i+1,:,:}$ are nonzero.
+
+More generally, in the $k$-neighbor problem considered in this work,
+variables are arranged along a linear chain and interactions are
+restricted to pairs satisfying
+\begin{equation}
+Q_{ij}=0 \qquad \text{for } |i-j|>k.
+\end{equation}
+The analogous condition applies to the corresponding interaction blocks
+of $\hat{Q}$.
+
+General instances of these optimization problems can be addressed using
+exact methods such as branch-and-bound~\cite{brach_and_bound} and
+branch-and-cut~\cite{branch_cut}, as well as heuristic and
+metaheuristic methods such as simulated
+annealing~\cite{simmulated_annealing_kirk}, tabu
+search~\cite{tabu_search_glover} and genetic
+algorithms~\cite{genetic_holland}. For the $k$-neighbor chain, however,
+the bounded interaction range can be exploited using dynamic programming. A standard dynamic-programming
+formulation needs to retain only the assignments of the previous $k$
+variables, resulting in at most $d^k$ boundary states. Consequently, an
+exact implementation has time complexity $O(nd^{k+1})$ and working
+memory $O(d^k)$. Exact and beam variants of this approach are used
+as baselines in Sec.~\ref{sec:experiments}.
+
+\subsection{Bra-ket notation}\label{ssec:braket_notation}
+In the tensor-network formalism, bra-ket notation provides a compact
+representation of vectors, tensors, and linear operators. Only the
+notation required in this work is introduced here; a more detailed
+treatment can be found in Ref.~\cite{cohen}.
+
+A ket $\ket{\psi}$ denotes a vector in a complex vector space, represented
+as a column vector once a basis is chosen. The corresponding bra
+$\bra{\psi}$ denotes its Hermitian conjugate. Given two vectors
+$\ket{\phi}$ and $\ket{\psi}$, their inner product is written as
+\begin{equation}
+    \braket{\phi|\psi},
+\end{equation}
+and produces a scalar. In contrast, their outer product,
+\begin{equation}
+    \ket{\phi}\bra{\psi},
+\end{equation}
+defines a rank-one linear operator, represented by a matrix in a chosen
+basis.
+
+Consider a discrete variable that can take \(d\) possible values. A \(d\)-dimensional vector space \(\mathcal{H}_d\), with an orthonormal basis, can be associated with this variable.
+\begin{equation}
+    \left\{\ket{0},\ket{1},\ldots,\ket{d-1}\right\}.
+\end{equation}
+Each basis vector $\ket{x}$ corresponds to one possible value of the
+variable and is represented by a column vector whose $x$-th component is
+one and whose remaining components are zero. An arbitrary vector in
+$\mathcal{H}_d$ can therefore be written as
+\begin{equation}
+    \ket{\psi}
+    =
+    \sum_{x=0}^{d-1}\alpha_x\ket{x},
+    \qquad
+    \alpha_x\in\mathbb{C}.
+\end{equation}
+
+For $n$ discrete variables, each taking $d$ possible values, the
+corresponding vector space is the tensor product
+\begin{equation}
+    \mathcal{H}
+    =
+    \mathcal{H}_d^{\otimes n}
+    =
+    \mathcal{H}_d\otimes\mathcal{H}_d\otimes\cdots\otimes\mathcal{H}_d,
+\end{equation}
+whose dimension is
+\begin{equation}
+    \dim(\mathcal{H})=d^n.
+\end{equation}
+Its standard product basis consists of all possible tensor products of
+the local basis vectors,
+\begin{equation}
+    \ket{\vec{x}}
+    =
+    \ket{x_0x_1\ldots x_{n-1}}
+    =
+    \ket{x_0}\otimes\ket{x_1}\otimes\cdots\otimes\ket{x_{n-1}},
+\end{equation}
+
+An arbitrary vector in $\mathcal{H}$ can then be expanded as
+\begin{equation}
+    \ket{\psi}
+    =
+    \sum_{x_0=0}^{d-1}\cdots
+    \sum_{x_{n-1}=0}^{d-1}
+    \alpha_{x_0,\ldots,x_{n-1}}
+    \ket{x_0x_1\ldots x_{n-1}},
+\end{equation}
+The coefficients $\alpha_{x_0,\ldots,x_{n-1}}\in\mathbb{C}$ form an order-$n$
+tensor, which provides the connection between this notation and the
+tensor-network representation used throughout this work.
+
+If the state satisfies the condition of being expressible as a tensor product of individual subsystems, it can be written as
+\begin{equation}
+    \ket{\psi}
+    =
+    \bigotimes_{i=0}^{n-1}
+    \left(
+        \sum_{x_i=0}^{d-1}
+        \alpha_{i,x_i}\ket{x_i}
+    \right),
+    \qquad
+    \alpha_{i,x_i}\in\mathbb{C}.
+\end{equation}
+
+\subsection{MeLoCoToN formalism}\label{ssec:melocoton formalism}
+Modulated Logical Combinatorial Tensor Network
+(MeLoCoToN)~\cite{melocoton} provides a systematic procedure for
+representing a combinatorial problem as a tensor network.
+The resulting tensor network is an exact representation of the
+problem, although its exact contraction is not necessarily
+computationally efficient.
+
+Consider a discrete optimization problem
+
+\begin{equation}
+\boldsymbol{x}^{*}
+\in
+\arg\min_{\boldsymbol{x}\in\mathcal{X}}
+C(\boldsymbol{x}),
+\end{equation}
+
+where $\mathcal{X}$ is the finite set of possible configurations and
+$C(\boldsymbol{x})$ is the objective function. For a parameter
+$\tau>0$, MeLoCoToN associates each configuration with the non-normalized
+weight
+
+\begin{equation}
+\label{eq: weight of combination}
+w_{\tau}(\boldsymbol{x})
+=
+e^{-\tau C(\boldsymbol{x})}.
+\end{equation}
+
+The parameter $\tau$ plays a role analogous to an inverse temperature,
+or imaginary-time evolution parameter. Increasing $\tau$ increases the
+relative weight of configurations with smaller objective values.
+
+The diagonal operator containing the weights of all assignments is
+
+\begin{equation}
+\label{eq:melocoton_operator}
+T(\tau)
+=
+\sum_{\boldsymbol{x}\in\mathcal{X}}
+e^{-\tau C(\boldsymbol{x})}
+\ket{\boldsymbol{x}}\bra{\boldsymbol{x}}.
+\end{equation}
+
+
+MeLoCoToN constructs this operator by first expressing the objective
+function as a classical logical or arithmetic circuit and then
+replacing each operation in that circuit with its corresponding
+tensor. Connecting these local tensors produces a tensor network whose
+contraction represents Eq.~\eqref{eq:melocoton_operator}.
+
+To determine the value of a particular variable $x_i$, all variable indices except the one associated with $x_i$ are contracted. To perform these contractions, superposition tensors are connected to each of the remaining variable indices. This operation, referred to as a half partial trace in the MeLoCoToN formalism, produces the vector
+
+\begin{equation}
+\label{eq:melocoton_marginal}
+\ket{P^i(\tau)}
+=
+\sum_{j=0}^{d_i-1}
+P^i_j(\tau)\ket{j},
+\end{equation}
+
+where
+
+\begin{equation}
+\label{eq:melocoton_weight}
+P^i_j(\tau)
+=
+\sum_{\substack{
+\boldsymbol{x}\in\mathcal{X}\\
+x_i=j
+}}
+e^{-\tau C(\boldsymbol{x})}.
+\end{equation}
+
+The coefficients $P^i_j(\tau)$ are non-normalized marginal weights,
+rather than probabilities.
+
+For a finite value of $\tau$, a candidate value for variable $x_i$
+is selected as
+
+\begin{equation}
+\label{eq:melocoton_argmax}
+x_i(\tau)
+\in
+\arg\max_{j\in\{0,\ldots,d_i-1\}}
+P^i_j(\tau).
+\end{equation}
+
+After selecting $x_i(\tau)$, its value is fixed in the remaining tensor
+network before determining the next variable. Therefore, for $i>0$,
+the marginal weights are computed conditionally on the previously
+selected values. Repeating this process for all variables produces a
+candidate solution
+
+\begin{equation}
+\boldsymbol{x}(\tau)
+=
+\bigl(x_0(\tau),\ldots,x_{n-1}(\tau)\bigr).
+\end{equation}
+
+The sequential procedure can reuse intermediate contraction results.
+After selecting and fixing $x_i(\tau)$, only the part of the tensor
+network affected by this assignment must be updated; partial
+contractions involving the remaining unchanged tensors can be stored
+and reused when determining $x_{i+1}(\tau)$. Consequently, it is not
+necessary to contract the complete tensor network independently for
+each variable. This reuse reduces the computational overhead of the
+sequential selection procedure.
+
+The resulting vector $\boldsymbol{x}(\tau)$ is a finite-$\tau$
+approximation. As $\tau$ increases, configurations with lower objective
+values acquire greater relative weight. In the limit
+$\tau\rightarrow\infty$, the sequential conditional selection
+converges to a global minimizer.
+
+
+\section{Tensor network algorithm for the general QUDO problem}\label{sec:tn_general_qudo}
+This section describes the tensor-network algorithm for general QUDO
+problems. Section~\ref{ssec:gen deduction} derives the tensor-network
+representation and explains the
+sequential contraction procedure used to determine the candidate solution. Section~\ref{ssec:gen complexity} then presents the
+contraction scheme and analyzes its computational and memory
+complexities. This analysis shows that the exact contraction of the
+dense QUDO tensor network scales exponentially with the number of variables,
+motivating the bounded-range formulation considered in
+Sec.~\ref{sec: kneigh qudo}.
+
+\subsection{Tensor network deduction}\label{ssec:gen deduction}
+Following the MeLoCoToN formalism, the objective is to construct a
+tensor network representing the weighted vector
+
+\begin{equation}
+\label{eq:general-qudo-weighted-vector}
+\ket{\psi(\tau)}
+=
+\sum_{\boldsymbol{x}\in\{0,\ldots,d-1\}^{n}}
+e^{-\tau C(\boldsymbol{x})}
+\ket{\boldsymbol{x}}.
+\end{equation}
+
+The coefficient associated with each configuration is determined by its
+objective value defined in Eq. \ref{eq: weight of combination}. Consequently, configurations with lower objective values receive greater relative weights as $\tau$ increases.
+
+The network construction is divided into three components: an initial
+superposition layer, a layer containing the self-interactions terms, and a
+staircase structure containing the pairwise interactions.
+Fig.~\ref{fig:qudo-tn} shows the complete construction of a dense
+five-variable instance.
+
+The initial layer represents the uniform superposition of all possible configurations. Mathematically, it denotes the
+unnormalized vector
+
+\begin{equation}
+\label{eq:qudo-initial-vector}
+\begin{aligned}
+\ket{\psi_0}
+&=
+\bigotimes_{i=0}^{n-1}
+\left(
+    \sum_{x_i=0}^{d-1}\ket{x_i}
+\right) \\
+&=
+\sum_{\boldsymbol{x}\in\{0,\ldots,d-1\}^{n}}
+\ket{\boldsymbol{x}}.
+\end{aligned}
+\end{equation}
+
+For simplicity, all variables are assumed to have the same dimension
+$d$. The construction can be extended to variables with different
+dimensions $d_i$ by changing the dimension of the corresponding local
+indices.
+
+The self-interaction factors associated with the diagonal and linear terms are
+defined as
+
+\begin{equation}
+\label{eq:qudo-unary-factor}
+\phi_{ii}(x_i)
+=
+e^{-\tau\left(Q_{ii}x_i^2+D_ix_i\right)}.
+\end{equation}
+
+Applying these factors to the initial vector produces
+
+\begin{equation}
+\label{eq:qudo-unary-vector}
+\ket{\psi_1}
+=
+\bigotimes_{i=0}^{n-1}
+\left(
+    \sum_{x_i=0}^{d-1}
+    \phi_{ii}(x_i)\ket{x_i}
+\right).
+\end{equation}
+
+The pairwise interaction between variables $x_i$ and $x_j$ is represented by the factor
+
+\begin{equation}
+\label{eq:qudo-pairwise-factor}
+\phi_{ij}(x_i,x_j)
+=
+e^{-\tau Q_{ij}x_ix_j}.
+\end{equation}
+
+In the tensor network, every self-interaction factor is implemented by an
+$S^{ii}$ tensor, whereas every pairwise factor is implemented by an
+$S^{ij}$ tensor. The copy tensors $C$ propagate the value of a
+variable between the interaction tensors while enforcing equality
+between the connected indices. Precise component-wise definitions of
+these tensors are given in Appendix~\ref{appendix:section-1}.
+
+After applying all self-interaction and pairwise factors, the resulting vector is
+
+\begin{equation}
+\label{eq:qudo-final-vector}
+\begin{aligned}
+\ket{\psi_2(\tau)}
+&=
+\sum_{\boldsymbol{x}}
+\left[
+    \prod_{i=0}^{n-1}
+    \left(
+        \phi_{ii}(x_i)
+        \prod_{j=i+1}^{n-1}
+        \phi_{ij}(x_i,x_j)
+    \right)
+\right]
+\ket{\boldsymbol{x}} \\
+&=
+\sum_{\boldsymbol{x}}
+e^{-\tau C(\boldsymbol{x})}
+\ket{\boldsymbol{x}}.
+\end{aligned}
+\end{equation}
+
+The candidate solution is extracted from this weighted vector using the
+sequential conditional-contraction procedure described in
+Sec.~\ref{ssec:melocoton formalism}. In particular, contracting all variable
+indices except that associated with $x_i$ produces the marginal vector
+defined in Eq.~\eqref{eq:melocoton_marginal}. Its largest component
+determines the candidate value of $x_i$ according to
+Eq.~\eqref{eq:melocoton_argmax}. Then, that value is fixed, and the process is repeated iteratively to determine each subsequent variable.
+
+The tensor network representation avoids explicitly constructing the
+full coefficient tensor with $d^n$ entries. Nevertheless, the exact
+contraction of the dense network remains exponential in the number of
+variables.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.95\linewidth]{Images/QUDO_TN.pdf}
+    \caption{Tensor network for a dense QUDO problem with five
+    variables. The $S^{ii}$ tensors implement the self-interaction factors,
+    the $S^{ij}$ tensors implement the pairwise interactions, and
+    the $C$ tensors propagate variable values between interactions.
+    All variable indices except the index associated with $x_0$ are
+    contracted to obtain $\ket{P^0(\tau)}$.}
+    \label{fig:qudo-tn}
+\end{figure}
+
+
+
+\subsection{Calculation and computational complexity analysis}\label{ssec:gen complexity}
+
+\begin{figure}
+    \centering
+\includegraphics[width=\linewidth]{Images/TN_complexity.pdf}
+    \caption{a) Contraction scheme of the last row MPS. b) Contraction scheme between the last row tensor and the MPO of the layer above. c) Contraction scheme between a row tensor and the MPO of the layer above in the k-neighbours case.}
+    \label{fig: qudo_complexity}
+\end{figure}
+
+To compute the solution values, the tensor network must be contracted. To contract this tensor network, the contraction scheme consists in contracting the last row of the network from right to left, as shown in Fig.~\ref{fig: qudo_complexity} a, and then contracting it with the previous row, also from right to left as shown in Fig.~\ref{fig: qudo_complexity} b, following a similar approach to~\cite{TSP_TN}. To obtain the best performance, the contraction must take into account the sparsity of the tensors. Each $S$ tensor with more than two indices has only $\mathcal{O}(d^2)$ non-zero elements, and $C$ tensors have only $d$ non-zero elements. This is due to the value transmission constraints. The income value in a tensor must be the same in the outcome of the same direction. The contraction of the one- and two-indices tensors is less costly and is performed at the start, so they are neglected in the analysis.
+
+To determine the first variable value, it is necessary to contract the entire tensor network. The contraction of the last tensor of the last row requires $\mathcal{O}(d^3)$ operations in the sparse format, versus $\mathcal{O}(d^4)$ in the full dense format. Contracting the $n-2$ last tensors of the layer requires
+\begin{equation}
+    \mathcal{O}\left(\sum_{m=1}^{n-3} d^2 d^m\right)=\mathcal{O}\left(d^{n-1}\right).
+\end{equation}
+In the full dense case, it would be
+\begin{equation}
+    \mathcal{O}\left(\sum_{m=1}^{n-3} d^3 d^m\right)=\mathcal{O}\left(d^{n}\right).
+\end{equation}
+The first tensor of the row is contracted in $\mathcal{O}(d^n)$ in both formats, so this is the total complexity of this step. The contraction of the last row with the previous one is more complex. The following considers the contraction of the $m$-th row, now a large $m$-tensor, with the previous row, with $m$ tensors. In the contraction scheme, the large tensor is contracted with the previous row from right to left, to reduce the number of free indices.
+
+First, the last tensor of the row, which has $\mathcal{O}(d)$ non-zero elements, is contracted with the large tensor in $\mathcal{O}(d^m)$. Each contraction of the large tensor with a tensor of the previous row is performed again in $\mathcal{O}(d^m)$ operations, due to the contraction of two indices of the large tensor with the row tensor of $\mathcal{O}(d^2)$ non-zero elements. The total complexity of contracting the large tensor with a complete row is $\mathcal{O}(md^m)$ taking advantage of the sparsity. If it is contracted in a full dense format, it grows to $\mathcal{O}(d^{m+2})$. Adding the operations for all the $n$ layers, the contraction of the entire tensor network requires $\mathcal{O}(nd^{n-1})$ operations in sparse format and $\mathcal{O}(nd^{n+1})$ in full dense format, making the last two layers the bottleneck of the contraction. The following variables require smaller tensor networks, so the determination of the $m$-th variable, without reuse of intermediate computations, requires $\mathcal{O}((n-m)d^{n-1-m})$ operations with sparsity and $\mathcal{O}((n-m)d^{n+1-m})$ with full dense format. The total complexity of the algorithm is the same of the first variable determination due to this exponential reduction, with and without reuse of intermediate computations. The difference between both formats is negligible in complexity, but important in practical applications and for further algorithms in this work. Solving the general case exactly is feasible only for a very reduced number of variables due to the exponential complexity. The computational complexity of contracting the general QUDO problem of Fig. \ref{fig: qudo_tn} is $\mathcal{O}(nd^{n-1})$, and this is also the complexity of the whole algorithm.
+
+The spatial complexity of the initial tensor network nodes is $\mathcal{O}\left(n^2d^2\right)$, because it is a lattice of $\mathcal{O}(n^2)$ tensors of $\mathcal{O}(d^2)$ non-zero elements. The tensor of the last row contracted has $n-1$ indices of dimension $d$, so it has $\mathcal{O}(d^{n-1})$ elements. This is the most costly tensor of contraction and can be rewritten in the following contraction steps. This means that the total spatial complexity of one determination step is $\mathcal{O}\left(d^{n-1}\right)$. If there is no reuse of intermediate computations, this is the total spatial complexity of the algorithm. However, with the reuse of intermediate computations, there is a need to store the tensor obtained after each row contraction step. The $m$-th row has $m$ indices, so its size is $\mathcal{O}(d^m)$. Then, the total size for storing all of them is $\mathcal{O}\left(\sum_{m=0}^{n-1} d^m\right)=\mathcal{O}\left(d^{n-1}\right)$, which is the total spatial complexity.
+
+%The contraction of the last row (of $n-1$ indices) has a cost of $\mathcal{O}(d^{n})$, and contracting it with the previous one requires $\mathcal{O}((n-1)d^{n})$. The $m$-th row has $m$ tensors, its contraction with the following requires $\mathcal{O}(md^{m+1})$, and there are $n$ rows to contract, so summing all their costs results in $\mathcal{O}(nd^{n})$ in the determination of the first variable. Using reuse of intermediate computations, the determination of the following is less costly, keeping the complexity as $\mathcal{O}(nd^{n})$, so the bottleneck is the first.
+
+\section{Tensor network algorithm for the $k$-neighbors QUDO problem}\label{sec: kneigh qudo}
+The exact contraction of a dense QUDO tensor network has time and
+memory requirements that grow exponentially with the number of
+variables, making it impractical even for moderately sized instances.
+Therefore, this work focuses on a structured subclass in which the variables are arranged along a linear chain, with each variable interacting only with variables located at most \(k\) positions away. More precisely,
+$Q_{ij}=0$ whenever $|i-j|>k$, and the cost function can be written as
+\begin{equation}
+C(\vec{x}) =
+\sum_{i=0}^{n-1}
+\sum_{j=i}^{\min(i+k,n-1)}
+Q_{ij}x_i x_j
++
+\sum_{i=0}^{n-1}D_i x_i .
+\end{equation}
+
+Although the size of the solution space remains $d^n$, the bounded
+interaction range makes this variant computationally more tractable.
+For fixed values of $k$ and $d$, it permits an exact contraction whose
+cost is linear in the number of variables $n$, while remaining
+exponential in the interaction width $k$ and the local dimension $d$.
+The same locality can also be exploited by dynamic programming, which
+is included as an exact baseline in the experimental evaluation.
+
+This section presents two different contractions of the $k$-neighbors QUDO tensor network: the Staircase Tensor Contraction (STC) and the Sparse Matrix-Vector Contraction (SMVC). The former preserves the local higher-order tensor structure and evaluates the network through a sequence of tensor contractions. The latter transforms the contraction of rows of tensors in a sequence of matrix–vector operations. Both formulations represent the same objective function but differ in their elementary operations, memory requirements, and ability to exploit structural sparsity.
+
+\todo[inline]{Revisar después de modificar esta sección}
+After introducing these two formulations, this section describes the
+normalization and parameter-selection strategies used to prevent
+numerical overflow during contraction. It then presents exact and
+heuristic dynamic-programming algorithms as baselines that exploit the
+same bounded interaction range. Finally, the time and memory
+complexities of both tensor-network implementations are analyzed,
+including the effects of structural sparsity and the reuse of
+intermediate contraction results.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.95\linewidth]{Images/QUDO_TN_vecinos.pdf}
+    \caption{Tensor network for a $k$-neighbors QUDO problem with five
+    variables and $k=2$. The mathematical definition of each tensor is
+    provided in Appendix~\ref{appendix:section-1}.}
+    \label{fig:qudo-tn-neighbors}
+\end{figure}
+
+\subsection{Staircase Tensor Contraction (STC)}\label{ssec:tensor_network_formulation}
+In the $k$-neighbors QUDO problem, interactions are restricted to variables separated by at most $k$ positions. Applying this constraint to the dense tensor network of Fig.~\ref{fig:qudo-tn} yields the staircase-shaped network shown in Fig.~\ref{fig:qudo-tn-neighbors}, motivating the term Staircase Tensor Contraction (STC).
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.95\linewidth]
+        {Images/QUDO_vecinos_tensor.pdf}
+    \caption{Schematic tensor-network representation of a
+    five-variable $k$-neighbors QUDO problem for
+    (a) $k=1$, (b) $k=2$, and (c) $k=3$.}
+    \label{fig:qudo-tensor-neighbors}
+\end{figure}
+
+The network is further simplified by absorbing each superposition tensor
+and each self-interaction tensor $S^{ii}$ into the adjacent copy and
+pairwise-interaction tensors. Fig.~\ref{fig:qudo-tensor-neighbors}
+shows the resulting tensor networks for interaction ranges $k=1$, $k=2$,
+and $k=3$. As $k$ increases,  the number of intermediate tensors increases, raising the computational cost of the
+contraction. Nevertheless, for sufficiently small $k$, the network can
+be contracted exactly. By following the staircase structure with an
+appropriate contraction order, STC evaluates the complete network with
+a computational complexity of $\mathcal{O}(knd^k)$, as derived in
+Sec.~\ref{ssec:kneigh complexity}.
+\subsection{Sparse Matrix-Vector Contraction (SMVC)}\label{ssec:matrix_vector_formulation}
+
+The second implementation reorganizes the same tensor network of Fig.~\ref{fig:qudo-tn-neighbors} into a
+matrix-based form. The local tensors within each row are grouped
+into composite tensors, allowing the entire row to be represented by a
+single matrix. Consequently, the tensor-network contraction is reduced
+to a sequence of matrix--vector multiplications that can be performed
+using highly optimized linear-algebra libraries. 
+Fig.~\ref{fig: qudo_matrix_vecinos} illustrates the mapping from the
+higher-order tensor network to the corresponding matrix--vector
+representation.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.85\linewidth]{Images/QUDO_vecinos_matrix.pdf}
+    \caption{Schematic representation of the 5 variable $k$-neighbors QUDO tensor network for 1 a), 2 b) and 3 c) neighbors and its representation in the form of a succession of matrices d).}
+    \label{fig: qudo_matrix_vecinos}
+\end{figure}
+
+\subsection{Techniques to prevent numerical overflow}\label{ssec:tau-selection}
+
+Increasing the imaginary-time parameter $\tau$ enhances the relative
+weight of low-energy configurations and therefore generally improves
+the quality of the solutions returned by the algorithm. However, large
+values of $\tau$ increase the dynamic range of the exponential factors
+$\exp\!\left(-\tau Q_{ij}x_i x_j\right)$ and may lead to numerical
+overflow. Consequently, $\tau$ should be chosen as large as possible
+while preserving numerical stability. Two complementary strategies are
+used for this purpose: layer-wise normalization during contraction and
+the automatic selection of a numerically stable value of $\tau$.
+
+\subsubsection{Layer-wise normalization.}\label{sssec:Layer-wise normalization}
+Whenever one layer of the tensor network is contracted with the layer
+above it, the resulting intermediate tensor or vector is normalized
+before the next contraction is performed. This operation prevents the
+magnitude of the intermediate entries from growing progressively
+throughout the network. Since all entries are multiplied by a common
+factor, their relative weights remain unchanged, and the solution
+returned by the algorithm is therefore preserved.
+
+\subsubsection{Automatic selection of the imaginary-time parameter}\label{sssec:Automatic selection of the imaginary-time parameter}
+
+To avoid manually tuning $\tau$ for every problem instance, it is possible to estimate a numerically stable value from the problem
+parameters $n$, $k$, and $d$. This procedure assumes a normalized QUDO instance; therefore, the
+coefficients defining the QUDO problem, $Q_{ij}$ and $D_i$, are
+normalized before $\tau$ is determined. Since all coefficients are rescaled by the
+same positive factor, this transformation preserves the optimal
+solution, although it introduces an additional preprocessing cost.
+
+\paragraph{Estimation of the local energy scale.}
+
+Although $k$ denotes the interaction range throughout this work, its
+maximum possible value for an instance with $n$ variables is $n-1$.
+Therefore, the effective interaction range is defined as
+\begin{equation}
+    k_{\mathrm{eff}}=\min(k,n-1).
+    \label{eq:effective-interaction-range}
+\end{equation}
+
+The number of independent coefficients in the corresponding band of
+the interaction matrix, including the diagonal terms, is
+\begin{equation}
+    N_Q
+    =
+    \sum_{i=0}^{n-1}
+    \min(i+1,k_{\mathrm{eff}}+1)
+    =
+    \frac{
+        (k_{\mathrm{eff}}+1)
+        (2n-k_{\mathrm{eff}})
+    }{2}.
+    \label{eq:number-q-coefficients}
+\end{equation}
+
+For the normalized random instances considered in this work, the
+characteristic magnitude of an interaction coefficient is estimated as
+\begin{equation}
+    \lvert Q_{ij}\rvert_{\mathrm{typ}}
+    \simeq
+    \sqrt{\frac{3}{N_Q}}.
+    \label{eq:typical-q-coefficient}
+\end{equation}
+
+Since each variable satisfies $x_i\in\{0,\ldots,d-1\}$, the largest
+possible value of $x_i x_j$ is $(d-1)^2$. Moreover, each variable
+contributes to at most $k_{\mathrm{eff}}+1$ local terms when the
+diagonal term is included. The characteristic local energy scale is
+therefore estimated as
+\begin{equation}
+    E_{\mathrm{loc}}
+    =
+    (k_{\mathrm{eff}}+1)
+    \sqrt{\frac{3}{N_Q}}
+    (d-1)^2.
+    \label{eq:local-energy-scale}
+\end{equation}
+
+The value of $\tau$ employed in the experiments is then selected as
+\begin{equation}
+    \boxed{
+        \tau=\frac{\alpha}{E_{\mathrm{loc}}}
+    }.
+    \label{eq:tau-selection}
+\end{equation}
+
+\paragraph{Floating-point stability criterion.}
+
+Here, $\alpha$ is a numerical scaling constant chosen according to the
+floating-point range of the implementation. After scaling by
+$E_{\mathrm{loc}}$, the magnitude of an exponential factor is
+approximately bounded by $e^\alpha$. Consequently, the contraction of
+two consecutive layers may involve products as large as
+\begin{equation}
+    e^\alpha e^\alpha = e^{2\alpha}.
+\end{equation}
+
+For IEEE 754 double-precision arithmetic, the largest representable
+floating-point number is approximately
+$1.8\times10^{308}\simeq e^{709.78}$. Hence, $\alpha$ must satisfy
+$2\alpha<709.78$ to prevent overflow in these products. In this work,
+$\alpha=300$ is used, yielding a maximum expected product of order
+$e^{600}$ and leaving a numerical safety margin for the additions
+performed during tensor contraction.
+
+
+\subsection{Calculation and computational complexity analysis}\label{ssec:kneigh complexity}
+It is important to keep in mind that, in the matrix method, the bond dimension depends on the number of neighbors, as $d^{k}$. For example, to translate the tensor $M^3$ in Fig. \ref{fig: qudo_matrix_vecinos} c with $6 = 3 \cdot 2$ indices into the matrix $N^3$, it is necessary to create a matrix $d^3 \times d^3$. Therefore, contracting the whole chain is equivalent to computing $n$ matrix-vector multiplications. Since determining each variable in the QUDO solution requires the contraction of a tensor chain, in principle, $n-1$ chains must be contracted. However, using the technique of taking advantage of the intermediate calculations explained in \cite{melocoton, TSP_TN}, only one contraction of the whole tensor network is needed. The same idea can be applied to the tensor method.
+
+For the method based on matrix-vector multiplication, the computational complexity of contracting the tensor network and of the algorithm is $\mathcal{O}(nd^{2k})$.  It requires contracting $n$ times a vector with a $d^k\times d^k$ matrix in the determination of the first variable, and the following is simply a single matrix-vector multiplication of dimensions $d\times d$ per variable. This is acceptable for problems where each variable interacts only with a small number of neighbors. However, taking into account that each tensor has $k-1$ pairs of input-ouput indices with the same value, the tensors are sparse and have $\mathcal{O}(d^{k+1})$ elements, so each multiplication requires only $\mathcal{O}(d^{k+1})$ operations. With the $n$ multiplications for the complete contraction, the computational complexity per variable is $\mathcal{O}(nd^{k+1})$, being the total $\mathcal{O}(n^2d^{k+1})$ without reuse and $\mathcal{O}(nd^{k+1})$ with reuse of intermediate computations. The spatial complexity of this method is $\mathcal{O}(nd^{k+1})$, because the first tensors generated have the more non-zero elements than the following contracted vectors.
+
+The complexity of contracting the stair structured tensor network in Fig. \ref{fig: qudo_tensor_vecinos} is more difficult to determine. In the case $k=1$, it is directly verified that the computational complexity of the algorithm using sparsity is $\mathcal{O}(nd^{2})$ and for $k=2$ is $\mathcal{O}(nd^{3})$. In cases where $k \geq 3$, the computational complexity of contracting the tensor network by rows, from bottom to top, is $\mathcal{O}(nkd^{k})$. Fig. \ref{fig: qudo_complexity} a shows how the last row is contracted. This row is made up of $k$ nodes, so the computational complexity of contracting the whole row is $\mathcal{O}(d^{k})$, resulting in a tensor like the one shown in the bottom of Fig. \ref{fig: qudo_complexity} with $k$ indices. The process of contracting this tensor with the tensor of the row above can be seen in Fig. \ref{fig: qudo_complexity} b. The contraction with the last tensor of the row requires $\mathcal{O}(d^{k})$ operations, each contraction in the row also requires $\mathcal{O}(d^{k})$ operations, and the last one requires $\mathcal{O}(d^{k+1})$ operations. The sum is $\mathcal{O}(kd^{k}+d^{k+1})$ operations, and for the $n$ rows, it grows to $\mathcal{O}(knd^{k}+nd^{k+1})$. Taking that $k$ is a parameter that can grow with the size of the problem, the complexity of the contraction of the tensor network can be reduced to $\mathcal{O}(knd^{k})$ using the sparsity of the tensors. Without sparsity, the contraction complexity is $\mathcal{O}(knd^{k+2})$. This process must be repeated for each variable, reducing the size of the tensor network. With reuse of intermediate computations, the total complexity of the algorithm is $\mathcal{O}(knd^{k})$, and without reuse, it is $\mathcal{O}(kn^2d^{k})$.
+
+% The computational complexity of this process is $\mathcal{O}(kd^{k+2})$, because in the worst case it is necessary to contract two indices between a 4-index tensor with a $k$-tensor, and this happens $k$ times. This process has to be repeated for each row, which finally gives a computational complexity of $\mathcal{O}(knd^{k+2})$. Using reuse of intermediate computations, the following steps are cheaper, so this is the computational complexity of the algorithm.
+
+The spatial complexity of this method implies that the $\mathcal{O}(knd^2)$ elements of the initial tensors and then the $\mathcal{O}(d^{k})$ elements of the last row tensor contracted with the last two tensors of the previous row, so the total spatial complexity is $\mathcal{O}\left(knd^2+d^{k}\right)$. Finally, reusing intermediate computations, it needs storing $n$ intermediate tensors, the spatial complexity is $\mathcal{O}(nd^{k})$.
+
+When comparing the complexities of both methods without the use of sparsity, it can be proven that each method performs better under different numbers of neighbors and dimensions of the variables, but the tensor-based method always scales better for $k>4$. For $d=2$, both algorithms have the same scaling at $k=4$, matrix-based is better for $k<4$ and tensor-based is better for $k>4$. For $d=3$, both algorithms have the same scaling at $k=3$, matrix-based is better for $k<3$ and tensor-based is better for $k>3$. For $d>3$, matrix-based is better for $k<3$ and tensor-based is better for $k\geq 3$. However, with the use of the sparsity, the matrix-vector method is always cheaper in computational complexity. The main advantage of the tensor method is that it has lower spatial complexity, which can be interesting in certain types of instances, and the possibility of using compression methods to approximate the solution.
+
+
+
+
+\subsection{Tensor QUDO extension}\label{ssec: tensor_qudo}
+This algorithm can be extended to a more general problem, the Tensor Quadratic Unconstrained Discrete Optimization (T-QUDO) formulation. This problem has been approached in~\cite{melocoton} with a circular tensor network. However, it can be solved with exactly the same type of tensor network as in the QUDO case presented in Figs. \ref{fig: qudo_tn}, \ref{fig: qudo_tensor_vecinos}, and \ref{fig: qudo_matrix_vecinos}.
+
+This time, each tensor receives the same input and passes the same output as in the QUDO case, the only change is the value of the tensor elements to implement the cost function \eqref{eq:tqudo}. Now, the tensor elements of $S^{ij}$ implement the product terms $\phi_{ij}(x_i,x_j) = e^{-\tau C_{i,j,x_i,x_j}}$ and the tensor elements of $S^{ii}$ implement the product terms $\phi_{ii}(x_i)=e^{-\tau D_{i,x_i}}$. The rest of the algorithm implementation and operation is the same.
+
+
+
+\subsection{Exact explicit equations}\label{ssec: exact explicit}
+Given these two tensor network constructions, it is possible to extract an exact and explicit equation for the problem. Given the $P^i$ tensor represented by the tensor network, the position of its largest element corresponds to the optimal value for the $i$-th variable. This means that it is possible to extract the searched value from it. However, to obtain a simple and exact equation, the value of $\tau$ must tend to infinity, which allows to avoid having to impose the results of the previous variables. $\vec{\omega}^i(\tau)$ is defined as the vector-valued function defined by the tensor network representing $P^i$, depending only on the value of $\tau$ and the definition of the problem. This implies the equation
+\begin{equation}
+    x_i =\arg \max_{j} \left(\lim_{\tau\rightarrow\infty} \omega^i_j(\tau)\right).
+\end{equation}
+However, by binarizing the variable $x_i$ into its bits $x_{i,j}$, the problem solution equation is
+\begin{equation}
+    x_{i,j} = \lim_{\tau\rightarrow\infty} H(\Omega_{i,j}(\tau)),
+\end{equation}
+being $\Omega_{i,j}(\tau)$ the tensor network obtained by contracting the tensor network of $\vec{\omega}^i$ with a $(-1,1)$ vector in the $j$-th bit index for the $i$-th variable and $H(\cdot)$ the Heaviside step function.
+
+
+\begin{table*}[t]
+    \centering
+    \caption{
+    Computational and spatial complexities of the methods considered
+    for a QUDO problem with $n$ variables, $d$ values per variable,
+    and interaction range $k$. The heuristic dynamic-programming
+    method retains at most $b\leq d^k$ boundary states.
+    }
+    \label{tab:complexity}
+    \small
+    \setlength{\tabcolsep}{5pt}
+    \renewcommand{\arraystretch}{1.25}
+
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{llcccc}
+        \toprule
+        Problem class &
+        Method &
+        Time complexity &
+        Working memory &
+        Optimality guarantee \\
+        \midrule
+
+        General QUDO &
+        Structure-aware TN contraction &
+        $\mathcal{O}\!\left(d^{n-1}(d+n)\right)$ &
+        $\mathcal{O}\!\left(n^2d^2+d^{n-1}\right)$ &
+        Exact contraction \\
+
+        \midrule
+
+        $k$-neighbor QUDO &
+        Matrix method, no reuse of calculations &
+        $\mathcal{O}\!\left(n^2 d^{k+1}\right)$ &
+        $\mathcal{O}\!\left(n d^{k+1}\right)$ &
+        Finite-$\tau$ approximation \\
+
+        $k$-neighbor QUDO &
+        Matrix method, reuse of calculations&
+        $\mathcal{O}\!\left(n d^{k+1}\right)$ &
+        $\mathcal{O}\!\left(n d^{k+1}\right)$ &
+        Finite-$\tau$ approximation \\
+
+        $k$-neighbor QUDO &
+        TN method, no reuse of calculations &
+        $\mathcal{O}\!\left(k n^2 d^k\right)$ &
+        $\mathcal{O}\!\left(knd^2 + d^k\right)$ &
+        Finite-$\tau$ approximation \\
+
+        $k$-neighbor QUDO &
+        TN method, reuse of calculations&
+        $\mathcal{O}\!\left(knd^k\right)$ &
+        $\mathcal{O}\!\left(nd^k\right)$ &
+        Finite-$\tau$ approximation \\
+
+        $k$-neighbor QUDO &
+        Exact dynamic programming &
+        $\mathcal{O}\!\left(nd^{k+1}\right)$ &
+        $\mathcal{O}\!\left(d^k\right)$ &
+        Exact \\
+
+        $k$-neighbor QUDO &
+        Heuristic dynamic programming &
+        $\mathcal{O}\!\left(nbd\right)$ &
+        $\mathcal{O}(bd)$ &
+        Approximate \\
+
+        \bottomrule
+    \end{tabular}%
+    }
+    \end{table*}
+
+In the exact dynamic-programming method, each state represents an
+assignment to the last $k$ variables. There are $d^k$ possible states,
+and each state can be extended with $d$ possible values for the next
+variable. This gives a time complexity of
+$\mathcal{O}(nd^{k+1})$. Only two consecutive layers of scores are
+required during the forward pass, resulting in
+$\mathcal{O}(d^k)$ working memory. Recovering the complete assignment
+using backpointers requires $\mathcal{O}(nd^k)$ additional storage.
+
+The heuristic dynamic-programming method retains at most $b$ boundary
+states after each step, where $b\leq d^k$. Each retained state is
+extended with the $d$ possible values of the next variable, giving a
+time complexity of $\mathcal{O}(nbd)$. Its working memory is
+$\mathcal{O}(bd)$ before pruning and $\mathcal{O}(b)$ after pruning.
+Storing the corresponding backpointers for solution reconstruction
+requires $\mathcal{O}(nb)$ memory. When $b=d^k$, the heuristic method
+reduces to exact dynamic programming.
+
+\section{Dynamic-programming baselines for the $k$-neighbors QUDO problem}\label{sec:dynamic-programming}
+
+The bounded interaction range of the $k$-neighbors QUDO problem makes it
+possible to process the variables sequentially while retaining only the
+configurations of the last $k$ variables. Once a variable is separated by
+more than $k$ positions from the current variable, its value cannot
+affect any subsequent interaction and therefore does not need to be
+stored. This property leads naturally to both an exact
+dynamic-programming algorithm and a beam variant with a bounded
+number of retained states.
+
+\subsection{Exact dynamic programming}\label{ssec:exact dynamic}
+The exact algorithm processes the variables in the order
+$x_0,x_1,\ldots,x_{n-1}$. At step $i$, each state contains an assignment
+to the previous $\min(k,i)$ variables,
+\begin{equation}
+    \mathbf{s}_i =
+    \left(x_{\max(0,i-k)},\ldots,x_{i-1}\right),
+\end{equation}
+together with the minimum partial cost associated with that boundary
+assignment. For every possible value $a\in\{0,\ldots,d-1\}$ of the new
+variable $x_i$, the cost added to the corresponding partial solution is
+\begin{equation}
+    \Delta C_i(\mathbf{s}_i,a)
+    =
+    Q_{ii}a^2 + D_i a
+    +
+    \sum_{j=\max(0,i-k)}^{i-1}Q_{ji}x_j a .
+    \label{eq:dp-increment}
+\end{equation}
+The new boundary state is obtained by appending $a$ and, whenever the
+state contains more than $k$ variables, removing its oldest value:
+\begin{equation}
+    \mathbf{s}_{i+1}
+    =
+    \operatorname{tail}_k(\mathbf{s}_i,a).
+\end{equation}
+If several transitions produce the same new state, only the transition
+with the lowest accumulated cost is retained. Starting from the empty
+state with zero cost, this procedure is repeated until all variables
+have been processed. The minimum value in the final layer gives the
+global optimum, while the corresponding assignment can be recovered by
+storing and following backpointers.
+
+Since there are at most $d^k$
+boundary states and each one can be extended with $d$ possible values,
+the time complexity is $\mathcal{O}(nd^{k+1})$. Only two consecutive
+layers are required to compute the optimum, resulting in
+$\mathcal{O}(d^k)$ working memory, although recovering the complete
+assignment using backpointers requires $\mathcal{O}(nd^k)$ additional
+storage.
+
+\subsection{Beam dynamic programming}\label{sec:beam dynamic programming}
+The beam dynamic programming algorithm follows the same sequential construction and
+uses the same incremental cost in Eq.~\eqref{eq:dp-increment}, but limits
+the number of boundary states retained after each step. More precisely,
+after generating and merging all candidate states, only the $b$ states
+with the lowest accumulated partial costs are preserved, where
+$b\leq d^k$. The remaining states are discarded and cannot contribute
+to later solutions. This pruning reduces the computational and memory
+requirements but removes the guarantee of finding the global optimum,
+since a discarded partial assignment may lead to a better complete
+solution after subsequent variables are processed. At most $b$ states
+are extended with $d$ possible values at each of the $n$ steps, giving
+a time complexity of $\mathcal{O}(nbd)$. The working memory is
+$\mathcal{O}(bd)$ before pruning and $\mathcal{O}(b)$ after pruning,
+whereas storing backpointers for solution reconstruction requires
+$\mathcal{O}(nb)$ memory. The parameter $b$ therefore controls the
+trade-off between execution time, memory consumption, and solution
+quality. When $b=d^k$, no boundary state is removed and the heuristic
+method reduces to exact dynamic programming.
+
+\section{Experimentation}\label{sec:experiments}
+
+This section presents a series of experiments designed to evaluate the
+accuracy and computational performance of the proposed algorithms. For
+consistency with the QUBO case, the linear coefficients $D_i$ are set to zero. The matrix-based method is implemented using
+NumPy~\cite{numpy}, whereas the tensor-based method is implemented in
+TensorKrowch~\cite{tensorkrowch}. 
+
+The experimental evaluation is divided into two parts. First, the
+accuracy and reliability of the proposed methods are assessed using
+exact dynamic programming as the reference, and their performance is
+compared with the heuristic dynamic-programming method. Second,
+the computational scaling of the matrix-based, tensor-based, exact
+dynamic-programming, and heuristic dynamic-programming methods are
+studied as a function of the number of variables $n$, the interaction
+range $k$, and the local dimension $d$.
+
+All methods are evaluated on the same randomly generated $k$-neighbors
+QUDO instances, whose interaction coefficients are independently drawn
+from the continuous uniform distribution $\mathcal{U}(-10,10)$. For each
+configuration, the accuracy experiment aggregates 50 independently
+generated instances, whereas the scaling experiments aggregate three.
+Each method is executed once per instance. The experiments were run on
+an HP Victus 16-r0xxx laptop equipped with a 13th-generation Intel Core
+i7-13700H processor (14 cores and 20 logical processors) and 32~GB of
+RAM, under Ubuntu on WSL2. The accuracy table reports arithmetic means
+over the 50 instances; the corresponding sample standard deviations are
+computed in the processed results. The scaling plots report the median
+execution time over the three instances. No within-instance timing
+repetitions or variability bands are included.
+
+
+\subsection{Accuracy and reliability}\label{ssec:accuracy-evaluation}
+
+The first experiment evaluates the accuracy and reliability of the
+matrix-based and tensor-based methods using exact dynamic programming as
+the reference. Since exact dynamic programming guarantees the global
+optimum for the $k$-neighbors QUDO problem, it provides a direct means
+of measuring the quality of the approximate solutions. The proposed
+methods are also compared with heuristic dynamic programming to assess
+their relative trade-off between solution quality and execution time.
+
+Let $C^*$ denote the optimal cost obtained by exact dynamic programming
+and $C_{\mathrm{alg}}$ the cost returned by the algorithm under
+evaluation. The relative error is defined as
+\begin{equation}
+    \epsilon_{\mathrm{rel}}
+    =
+    \frac{\left|C_{\mathrm{alg}}-C^*\right|}
+    {\max\left(\left|C^*\right|,\varepsilon_0\right)},
+    \label{eq:relative-error}
+\end{equation}
+The small constant $\varepsilon_0$ prevents division by zero when the
+optimal cost is zero or numerically close to zero. For
+$\left|C^*\right|>\varepsilon_0$, this expression reduces to the
+standard relative error and is invariant under a common rescaling of
+the objective values. Thus, $\epsilon_{\mathrm{rel}}=0$ indicates that
+the algorithm has recovered an optimal objective value, whereas larger
+values indicate a greater deviation from the optimum. 
+
+Table~\ref{tab:experimental-summary} summarizes the results of this
+experiment for different values of the number of variables $n$, the
+interaction range $k$, and the local dimension $d$. Each row aggregates
+50 independently generated instances evaluated by all methods.
+The table reports the relative error and execution time of the
+matrix-based, tensor-based, and heuristic dynamic-programming methods.
+The exact dynamic-programming solution is used only as the reference
+optimum and therefore has zero relative error by definition.
+
+These results make it possible to compare both the accuracy and
+computational cost of the approximate methods. In particular, they show
+how often each method approaches or recovers the exact solution and the
+additional execution time required to obtain that level of accuracy.
+This comparison is especially relevant for configurations in which
+exact dynamic programming becomes computationally expensive, as it
+allows the relative advantages of the tensor-network methods and the
+dynamic-programming heuristic to be identified.
+
+\begin{table*}[t]
+    \centering
+    \caption{
+    Comparison against exact dynamic programming on random
+    $k$-neighbor QUDO instances. Each row aggregates 50 independently
+    generated instances. Lower relative error and execution time are
+    better.
+    }
+    \label{tab:experimental-summary}
+    \small
+    \setlength{\tabcolsep}{3.5pt}
+    \renewcommand{\arraystretch}{1.2}
+
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{rrrr|rrrr}
+        \toprule
+        &&&&
+        \multicolumn{4}{c}{Matrix method} \\
+        \cmidrule(lr){5-8}
+
+        $d$ & $k$ & $n$ & Instances &
+        Optimal (\%) &
+        Mean error (\%) &
+        Max. error (\%) &
+        Time (s) \\
+        \midrule
+
+        2 & 2 & 500  & 50 &
+        100 & 0 & 0 & 0.056777 \\
+
+        2 & 2 & 1000 & 50 &
+        100 & 0 & 0 & 0.111302 \\
+
+        \midrule
+
+        2 & 4 & 500 & 50 &
+        96 & $5.63\times10^{-5}$ & 0.00174 & 0.062504 \\
+
+        2 & 4 & 1000 & 50 &
+        86 & $7.05\times10^{-5}$ & 0.00174 & 0.176653 \\
+
+        \midrule
+
+        4 & 2 & 500 & 50 &
+        76 & $4.36\times10^{-4}$ & 0.00534 & 0.065795 \\
+
+        4 & 2 & 1000 & 50 &
+        44 & $5.09\times10^{-4}$ & 0.00266 & 0.186410 \\
+
+        \midrule
+
+        4 & 4 & 500 & 50 &
+        58 & $6.85\times10^{-4}$ & 0.00460 & 0.152316 \\
+
+        4 & 4 & 1000 & 50 &
+        30 & $7.83\times10^{-4}$ & 0.00283 & 0.269871 \\
+
+        \bottomrule
+    \end{tabular}%
+    }
+\end{table*}
+
+
+\subsection{Computational scaling}\label{ssec:computational-scaling}
+
+The second part of the experimental evaluation studies the computational
+scaling of the tensor, matrix, and exact dynamic-programming methods.
+The execution time is analyzed as a function of the interaction range
+$k$, the local dimension $d$, and the number of variables $n$. These
+experiments complement the theoretical complexity analysis presented in
+Sec.~\ref{sssec:kneigh complexity} and reveal the practical influence of
+implementation-dependent constant factors.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.9\textwidth]
+        {Images/experiment_3_kd_t.png}
+    \caption{Execution time of the tensor, matrix, and exact
+    dynamic-programming methods as a function of (a) the interaction
+    range $k$, with $n=100$ and $d=2$, and (b) the local dimension $d$,
+    with $n=1000$ and $k=2$. In both experiments, $\tau=400$.}
+    \label{fig:scaling-kd}
+\end{figure*}
+
+Figure~\ref{fig:scaling-kd} examines the dependence of the execution
+time on $k$ and $d$ while the remaining problem parameters are fixed.
+For small interaction ranges, exact dynamic programming and the matrix
+formulation have lower execution times than the tensor formulation.
+However, the cost of exact dynamic programming increases rapidly with
+$k$, because the number of boundary states grows as $d^k$. The
+matrix-based method also becomes progressively more expensive, whereas
+the tensor formulation exhibits a slower increase over the evaluated
+range. Consequently, the tensor method becomes competitive with the
+other methods for sufficiently large interaction ranges.
+
+A similar behavior is observed when increasing the local dimension
+$d$. The execution time of all methods increases because each variable
+can take a larger number of values. The matrix method remains the
+fastest implementation over the evaluated range, reflecting the
+efficiency of optimized matrix--vector operations. Nevertheless, the
+execution times of exact dynamic programming and the tensor method grow
+more rapidly, and the tensor formulation eventually becomes faster than
+exact dynamic programming for the largest tested dimensions. These
+results show that asymptotic complexity alone does not determine the
+fastest implementation: the crossover points also depend on constant
+factors, the data structures employed, and the ability of each method
+to exploit sparsity.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]
+        {Images/experiment_4.png}
+    \caption{Execution time as a function of the number of variables
+    $n$ for different local dimensions $d$, with fixed interaction
+    range $k=2$. The panels show the matrix, tensor, and exact
+    dynamic-programming methods, respectively.}
+    \label{fig:scaling-n-d}
+\end{figure*}
+
+Figure~\ref{fig:scaling-n-d} studies the dependence on the number of
+variables for $d\in\{2,\ldots,8\}$ and a fixed interaction range.
+For every fixed value of $d$, the execution time grows approximately
+linearly with $n$ for all three methods. This behavior is consistent
+with their theoretical complexities, in which $n$ appears as a linear
+factor when $k$ and $d$ are fixed. Increasing $d$ mainly increases the
+slope of the curves, with a particularly visible effect for the tensor
+and exact dynamic-programming methods. The matrix formulation has the
+smallest execution time for every configuration considered in this
+experiment, although all three implementations retain approximately
+linear scaling with the number of variables.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]
+        {Images/experiment_5.png}
+    \caption{Execution time as a function of the number of variables
+    $n$ for different interaction ranges $k$, with fixed local
+    dimension $d=2$. The panels show the matrix, tensor, and exact
+    dynamic-programming methods, respectively.}
+    \label{fig:scaling-n-k}
+\end{figure*}
+
+The influence of the interaction range is examined further in
+Fig.~\ref{fig:scaling-n-k}, where $n$ is varied for
+$k\in\{2,\ldots,10\}$ at fixed local dimension. Once again, the
+execution time is approximately linear in $n$ for each fixed value of
+$k$. However, the slope increases with the interaction range because
+more interactions must be incorporated into each contraction or
+dynamic-programming transition. This increase is especially pronounced
+for exact dynamic programming, whose state space grows as $d^k$. At the
+largest tested interaction range, the tensor formulation becomes faster
+than exact dynamic programming, whereas the matrix implementation
+retains the lowest execution time throughout the evaluated
+configurations.
+
+Overall, the experiments confirm two distinct scaling behaviors. For
+fixed $k$ and $d$, all methods scale approximately linearly with the
+number of variables. In contrast, increasing either the interaction
+range or the local dimension produces a substantially stronger increase
+in execution time. Although the matrix formulation is the fastest
+implementation for most of the tested configurations, the tensor method
+becomes increasingly competitive as $k$ grows and can outperform exact
+dynamic programming for the largest interaction ranges. This behavior
+is consistent with the theoretical analysis and motivates the use of
+tensor-network formulations for problems with larger local interaction
+structures.
+
+\begin{table*}[t]
+    \centering
+    \caption{
+    Comparison of TN, Beam DP, Tabu search, and SCIP for random
+    $k$-neighbor QUDO instances with $n=500$. Errors are mean relative
+    errors, with the best result in each row highlighted in bold.
+    Runtime ratios are computed with respect to TN; values below one
+    indicate a faster method.
+    }
+    \label{tab:n500-method-comparison}
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \renewcommand{\arraystretch}{1.15}
+
+    \begin{tabular*}{\textwidth}{
+        @{\extracolsep{\fill}}ccrrrrrrrr@{}
+    }
+        \toprule
+        & &
+        \multicolumn{1}{c}{TN} &
+        \multicolumn{3}{c}{Beam DP} &
+        \multicolumn{2}{c}{Tabu search} &
+        \multicolumn{2}{c}{SCIP} \\
+        \cmidrule(lr){3-3}
+        \cmidrule(lr){4-6}
+        \cmidrule(lr){7-8}
+        \cmidrule(l){9-10}
+
+        $d$ & $k$ &
+        Error (\%) &
+        Error (\%) &
+        $b/d^k$ &
+        Beam/TN &
+        Error (\%) &
+        Tabu/TN &
+        Error (\%) &
+        SCIP/TN \\
+        \midrule
+
+        2 & 2 &
+        \textbf{0} &
+        \textbf{0} &
+        1.000 &
+        0.119 &
+        1.29 &
+        1.014 &
+        100 &
+        1.047 \\
+
+        2 & 3 &
+        1.98 &
+        \textbf{0} &
+        1.000 &
+        0.241 &
+        1.60 &
+        1.015 &
+        100 &
+        1.046 \\
+
+        2 & 4 &
+        $1.50\times10^{-4}$ &
+        \textbf{0} &
+        1.000 &
+        0.477 &
+        2.02 &
+        1.021 &
+        100 &
+        1.054 \\
+
+        \midrule
+
+        4 & 2 &
+        $4.43\times10^{-4}$ &
+        \textbf{0} &
+        1.000 &
+        0.752 &
+        3.24 &
+        1.011 &
+        97.6 &
+        1.091 \\
+
+        4 & 3 &
+        $\mathbf{7.03\times10^{-4}}$ &
+        1.20 &
+        0.375 &
+        1.066 &
+        3.58 &
+        1.011 &
+        99.9 &
+        1.136 \\
+
+        4 & 4 &
+        $\mathbf{1.02\times10^{-3}}$ &
+        2.03 &
+        0.156 &
+        1.036 &
+        2.02 &
+        1.007 &
+        78.5 &
+        1.059 \\
+
+        \midrule
+
+        6 & 2 &
+        $\mathbf{1.58\times10^{-3}}$ &
+        1.82 &
+        0.472 &
+        1.028 &
+        3.71 &
+        1.012 &
+        96.5 &
+        1.058 \\
+
+        6 & 3 &
+        $\mathbf{1.97\times10^{-3}}$ &
+        4.97 &
+        0.097 &
+        1.048 &
+        3.57 &
+        1.010 &
+        99.4 &
+        1.051 \\
+
+        6 & 4 &
+        $\mathbf{2.62\times10^{-3}}$ &
+        4.48 &
+        0.046 &
+        1.173 &
+        1.56 &
+        1.003 &
+        68.7 &
+        1.039 \\
+
+        \bottomrule
+    \end{tabular*}
+\end{table*}
+
+\begin{table}[t]
+    \centering
+    \caption{Runtime comparison between the matrix-based method and SCIP. 
+    The success rate indicates the fraction of instances for which SCIP reached 
+    the reference solution. Runtime and speedup values are medians computed over 
+    the successful instances.}
+    \label{tab:matrix_scip_comparison}
+    \begin{tabular}{rrrrrrrr}
+    \toprule
+    $n$ & $d$ & $k$ &
+    Reached & Success &
+    Matrix (s) & SCIP (s) & Speedup \\
+    \midrule
+    500 & 2 & 2 & 50/50 & 100.0\% & 0.074057 &  0.218883 &   2.981$\times$ \\
+    500 & 2 & 4 & 50/50 & 100.0\% & 0.082066 &  1.481276 &  17.799$\times$ \\
+    500 & 4 & 4 &  2/50 &   4.0\% & 0.197800 & 46.519322 & 232.276$\times$ \\
+    500 & 6 & 4 &  1/50 &   2.0\% & 0.387996 & 35.750896 & 106.924$\times$ \\
+    \bottomrule
+    \end{tabular}
+    \end{table}
+    
+\section{Conclusions}\label{sec:conclusions}
+This paper presents a tensor network algorithm that solves QUBO, QUDO and Tensor-QUDO problems using the MeLoCoToN. It has been concluded that the tensor network of a dense QUDO problem has a computational complexity of $\mathcal{O}(nd^{n-1})$, which cannot be efficiently contracted. For this reason, a simpler problem with fewer density has been proposed, such as the $k$-neighbors QUDO. Two different tensor networks have been proposed, one based on tensors with up to 4 indices, the other based on matrices and vectors, and a novel methodology for reducing the required memory. The computational complexity of both implementations for a number of neighbors $k$ has been studied as $\mathcal{O}(nd^{k+1})$ (matrix method) and $\mathcal{O}(nkd^{k})$ (tensor method). In order to compare both algorithms, a series of experiments have been carried out without sparsity implementation, proving that the tensor-based method scales better as $k$ and $d$ grow. However, for problems where $k$ and $d$ take small values, the matrix-based method is faster even in this implementation. Furthermore, there is a comparison between the relative error of the results with an OR-TOOLS solver, concluding that, for most of the instances of problems, the tensor network algorithm performs equal to or better.
+
+Future research lines may include the investigation of an efficient algorithm to determine the optimal value $\tau$ to scale the resolution and avoid the described overflow limitation. Another line may be the determination of an efficient tensor network that solves the case of $k$ interactions other than the nearest neighbors, which could be applied to several known problems. This could be approached by taking advantage of the symmetries of the problem. Also, the relation between this problem and the Ising model in physics could allow this tensor network algorithm to find the ground state of interesting physical systems. Finally, the application of compression methods in approximate representations can also be studied in order to scale the algorithm for larger or more complex problems.
+
+\section*{Acknowledgment}
+The research has been funded by the Ministry of Science and Innovation and CDTI under ECOSISTEMAS DE INNOVACIÓN project ECO-20241017 (EIFEDE) and ICECyL (Junta de Castilla y León) under project CCTT5/23/BU/0002 (QUANTUMCRIP). This project has been funded by the Spanish Ministry of Science, Innovation and Universities under the project PID2023-149511OB-I00.
+
+
+% The \nocite command causes all entries in a bibliography to be printed out
+% whether or not they are actually referenced in the text. This is appropriate
+% for the sample file to show the different styles of references, but authors
+% most likely will not want to use it.
+\nocite{*}
+
+\bibliography{apssamp}% Produces the bibliography via BibTeX.
+\newpage
+\appendix
+
+
+\section{Tensor network definition}\label{appendix:section-1}
+This Appendix provides the definition of the tensors used in this paper. The notation follows the conventions established in \cite{melocoton}, which should be consulted for a complete understanding. Essentially, there are five different types of tensor, shown in Fig. \ref{fig: tensor_structures}, the internal logic of each is explained below.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\linewidth]{Images/tensor-definitions.pdf}
+    \caption{Tensor index naming convention.}
+    \label{fig: tensor_structures}
+\end{figure}
+
+\paragraph{Initial superposition tensor}
+
+$ $
+
+The tensor $+$ corresponding to Fig. \ref{fig: tensor_structures} a, is defined as $+_{d}$
+\begin{equation}
+    \begin{gathered}
+        +_{i} = 1.
+    \end{gathered}
+\end{equation}
+
+\paragraph{Partial trace superposition tensor}
+
+$ $
+
+
+The tensor $P^+$ corresponding to Fig. \ref{fig: tensor_structures} b, is another superposition tensor as $+$. However, there is a distinction to make it clear that they are used in two different places in the tensor network. It is defined as $P^+_{d}$,
+\begin{equation}
+    \begin{gathered}
+        P^+_{i} = 1.
+    \end{gathered}
+\end{equation}
+
+
+
+\paragraph{Non-cross interaction imaginary time evolution tensor}
+
+$ $
+
+
+This tensor implements the imaginary time evolution of the QUDO interaction $Q_{ll}$ and $D_l$, shown in Fig. \ref{fig: tensor_structures} c. The tensor is defined as $S^l_{d\times d}$,  
+\begin{equation}
+    \begin{gathered}
+        \mu = i,\\
+        S^l_{i\mu} = e^{- (\tau Q_{ll} i^2+D_li)}.
+    \end{gathered}
+\end{equation}
+
+\paragraph{Last row cross interaction imaginary time evolution tensor}
+
+$ $
+
+
+This tensor implements the imaginary time evolution of the QUDO interaction of the last variable $Q_{n-1,m}$, shown in Fig. \ref{fig: tensor_structures} d. The tensor is defined as $S^{n-1,m}_{d\times d \times d}$,  
+\begin{equation}
+    \begin{gathered}
+        \mu = i \\
+        S^{n-1,m}_{i\mu j} = e^{- \tau Q_{n-1,m} ij}.
+    \end{gathered}
+\end{equation}
+
+\paragraph{3-index control tensor}
+
+$ $
+
+
+This tensor, shown in Fig. \ref{fig: tensor_structures} e, receives the information from $i$ and sends it without modifying it through $\mu$ and $\nu$. It is defined as $C_{d\times d\times d}$,
+\begin{equation}
+    \begin{gathered}
+        \mu = \nu = i \\
+        C_{i\mu \nu} = 1.
+    \end{gathered}
+\end{equation}
+
+
+
+\paragraph{Cross interaction imaginary time evolution tensor}
+
+$ $
+
+
+This tensor implements the imaginary time evolution of the qubo interaction $Q_{lm}$ (Fig. \ref{fig: tensor_structures} f). The tensor is defined as $S^{lm}_{d\times d \times d \times d}$,  
+\begin{equation}
+    \begin{gathered}
+        \mu = i \\
+        \nu = j\\
+        S^{lm}_{i\mu j \nu} = e^{- \tau Q_{lm} ij}.
+    \end{gathered}
+\end{equation}
+
+\end{document}
+%
+% ****** End of file apssamp.tex ******

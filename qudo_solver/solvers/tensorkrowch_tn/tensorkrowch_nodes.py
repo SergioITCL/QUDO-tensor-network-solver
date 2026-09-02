@@ -1,6 +1,7 @@
+import numpy as np
 import tensorkrowch as tk
 import torch
-import numpy as np
+
 
 def node_last_superposition(dits, row, column) -> tk.Node:
     """ Template to generate tensor network nodes of one qudit
@@ -15,7 +16,7 @@ def node_last_superposition(dits, row, column) -> tk.Node:
     node = tk.Node(tensor = torch.tensor(aux_array, dtype=torch.float64), name = f'A_({row},{column})', axes_names = ['left'])
     return node
 
-def node_initial(dits: int, Q_element, tau: float, row:int, column:int) -> tk.Node:
+def node_initial(dits: int, Q_element, Q_row_element, tau: float, row:int, column:int) -> tk.Node:
     """ Template that generates the first layer of the tensor network.
 
     Args:
@@ -30,7 +31,7 @@ def node_initial(dits: int, Q_element, tau: float, row:int, column:int) -> tk.No
     """
     tensor = torch.zeros((dits), dtype=torch.float64)
     for dit in range(dits):
-        tensor[dit] = np.exp(-tau * Q_element * dit**2)
+        tensor[dit] = np.exp(-tau * (Q_element * dit**2 + Q_row_element * dit))
     node = tk.Node(tensor = tensor, name = f'A_({row},{column})', axes_names = ['right'])
     return node
 
@@ -71,7 +72,7 @@ def node_intermediate(dits: int, Q_element:float, tau:float, row:int, column:int
             down= up
             right = left
             if up * left != 0:
-                tensor[left, right, up, down] = np.exp(-tau * Q_element * up * left)
+                tensor[left, right, up, down] = np.exp(-tau * (Q_element * up * left))
             else:
                 tensor[left, right, up, down] = 1
     node = tk.Node(tensor = tensor, name = f'A_({row},{column})', axes_names=['left','right','up','down'])
@@ -95,7 +96,7 @@ def node_final(dits:int, Q_element:float, tau:float, row,  column) -> tk.Node:
         for left in range(dits):
             right=left
             if up * left != 0:
-                tensor[left, right,up] = np.exp(-tau * Q_element * up * left)
+                tensor[left, right,up] = np.exp(-tau * (Q_element * up * left))
             else:
                 tensor[left, right,up] = 1
 
@@ -103,7 +104,7 @@ def node_final(dits:int, Q_element:float, tau:float, row,  column) -> tk.Node:
 
     return node
 
-def new_initial_tensor_(Q_matrix_row, sol_aux, dits: int, tau: float) -> tk.Node:
+def new_initial_tensor_(Q_matrix_row: list[float], Q_row_row: float, sol_aux, dits: int, tau: float) -> tk.Node:
     """Function that generates the vector tensor of the solution
     Args:
         tn (tk.TensorNetwork): tensorkrowch object that represents the tensor network. 
@@ -115,7 +116,7 @@ def new_initial_tensor_(Q_matrix_row, sol_aux, dits: int, tau: float) -> tk.Node
     """
     tensor = torch.zeros((dits, dits), dtype = torch.float64)
     for down in range(dits):
-        tensor[down, down] = np.exp(-tau * (Q_matrix_row[-1] * down**2))
+        tensor[down, down] = np.exp(-tau * (Q_matrix_row[-1] * down**2 + Q_row_row * down))
         for index, sol in enumerate(sol_aux):
             tensor[down, down] *=  np.exp(-tau * Q_matrix_row[index] * sol * down)
     node = tk.Node(tensor = tensor, name = 'A_extra', axes_names = ['right', 'down'])
