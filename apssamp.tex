@@ -144,7 +144,7 @@ bounded-range case. Two contraction schemes are considered: a
 linear-algebra operations, whereas the latter exposes the local tensor
 structure and has a different computational and memory dependence on
 $k$ and $d$. 
-The proposed methods are evaluated against an exact dynamic programming algorithm, two approximate approaches, namely beam search dynamic programming and tabu search, and the mathematical optimization solver SCIP. Exact
+The proposed methods are evaluated against an exact dynamic programming algorithm, two approximate approaches, namely beam dynamic programming and tabu search, and the mathematical optimization solver SCIP. Exact
 dynamic programming is used to verify optimality on tractable
 instances, while the heuristic baselines enable comparisons on larger
 configurations. The experiments investigate solution quality, execution
@@ -158,7 +158,7 @@ Briefly, the main contributions of this work are:
     to $k$-neighbor interactions along a linear chain.
     
     \item Two contraction schemes, SMVC and STC, for the resulting
-    $k$-neighbor tensor networks, including an analysis of their computational
+    $k$-neighbor tensor network, including an analysis of their computational
     and memory complexities and a systematic comparison across problem sizes.
 
     \item An explicit method for determining the imaginary-time parameter
@@ -1022,89 +1022,78 @@ method reduces to exact dynamic programming.
 
 \section{Experimentation}\label{sec:experiments}
 
-This section presents a series of experiments designed to evaluate the
-accuracy and computational performance of the proposed algorithms. For
-consistency with the QUBO case, the linear coefficients $D_i$ are set to zero. The matrix-based method is implemented using
-NumPy~\cite{numpy}, whereas the tensor-based method is implemented in
-TensorKrowch~\cite{tensorkrowch}. 
+This section evaluates the solution quality and computational performance
+of the proposed tensor-network algorithms. The implementation of
+the Sparse Matrix--Vector Contraction (SMVC) scheme is implemented in
+NumPy~\cite{numpy}, whereas the Staircase Tensor Contraction (STC)
+implementation uses TensorKrowch~\cite{tensorkrowch}. Exact dynamic
+programming (Exact DP) is employed whenever a certified optimum is
+required. Beam dynamic programming (Beam DP), tabu search, and SCIP are
+included as approximate or general-purpose reference methods.
 
-The experimental evaluation is divided into two parts. First, the
-accuracy and reliability of the proposed methods are assessed using
-exact dynamic programming as the reference, and their performance is
-compared with the heuristic dynamic-programming method. Second,
-the computational scaling of the matrix-based, tensor-based, exact
-dynamic-programming, and heuristic dynamic-programming methods are
-studied as a function of the number of variables $n$, the interaction
-range $k$, and the local dimension $d$.
+The evaluation comprises four complementary experiments. First, the
+accuracy of SMVC is measured against Exact DP on instances without
+linear terms. Second, SMVC is compared with Beam DP, tabu search, and
+SCIP under approximately matched runtime budgets on instances containing
+both quadratic and linear coefficients. Third, the runtime scaling of
+SMVC, STC, and Exact DP is studied as a function of $n$, $k$, and $d$.
+Finally, SCIP is given a longer time limit and its time to reach the
+objective value returned by SMVC is measured.
 
-All methods are evaluated on the same randomly generated $k$-neighbors
-QUDO instances, whose interaction coefficients are independently drawn
-from the continuous uniform distribution $\mathcal{U}(-10,10)$. For each
-configuration, the accuracy experiment aggregates 50 independently
-generated instances, whereas the scaling experiments aggregate three.
-Each method is executed once per instance. The experiments were run on
-an HP Victus 16-r0xxx laptop equipped with a 13th-generation Intel Core
-i7-13700H processor (14 cores and 20 logical processors) and 32~GB of
-RAM, under Ubuntu on WSL2. The accuracy table reports arithmetic means
-over the 50 instances; the corresponding sample standard deviations are
-computed in the processed results. The scaling plots report the median
-execution time over the three instances. No within-instance timing
-repetitions or variability bands are included.
+The random quadratic coefficients $Q_{ij}$ are independently sampled
+from $\mathcal{U}(-10,10)$. In the experiments containing linear terms,
+the coefficients $D_i$ are sampled independently from the same
+distribution. All methods in a given comparison receive the same
+instance. The imaginary-time parameter $\tau$ is selected automatically
+using the procedure described in
+Sec.~\ref{sssec:Automatic selection of the imaginary-time parameter}.
 
+The experiments were run on an HP Victus 16-r0xxx laptop equipped with
+a 13th-generation Intel Core i7-13700H processor, with 14 physical cores,
+20 logical processors, and 32~GB of RAM, under Ubuntu on WSL2. The
+accuracy experiments use 50 independently generated instances per
+configuration. The scaling experiments use three instances per
+configuration and report the median execution time. Unless stated
+otherwise, each method is timed once per instance; consequently, the
+timing results characterize the observed implementation performance but
+do not include confidence intervals or within-instance timing
+variability.
 
-\subsection{Accuracy and reliability}\label{ssec:accuracy-evaluation}
+\subsection{Accuracy with respect to the exact optimum}
+\label{ssec:accuracy-evaluation}
 
-The first experiment evaluates the accuracy and reliability of the
-matrix-based and tensor-based methods using exact dynamic programming as
-the reference. Since exact dynamic programming guarantees the global
-optimum for the $k$-neighbors QUDO problem, it provides a direct means
-of measuring the quality of the approximate solutions. The proposed
-methods are also compared with heuristic dynamic programming to assess
-their relative trade-off between solution quality and execution time.
-
-Let $C^*$ denote the optimal cost obtained by exact dynamic programming
-and $C_{\mathrm{alg}}$ the cost returned by the algorithm under
-evaluation. The relative error is defined as
+Let $C^*$ denote the optimal objective value obtained with Exact DP and
+let $C_{\mathrm{alg}}$ denote the objective value returned by the method
+under evaluation. The relative error is defined as
 \begin{equation}
     \epsilon_{\mathrm{rel}}
     =
     \frac{\left|C_{\mathrm{alg}}-C^*\right|}
     {\max\left(\left|C^*\right|,\varepsilon_0\right)},
+    \qquad
+    \varepsilon_0=10^{-9}.
     \label{eq:relative-error}
 \end{equation}
-The small constant $\varepsilon_0$ prevents division by zero when the
-optimal cost is zero or numerically close to zero. For
-$\left|C^*\right|>\varepsilon_0$, this expression reduces to the
-standard relative error and is invariant under a common rescaling of
-the objective values. Thus, $\epsilon_{\mathrm{rel}}=0$ indicates that
-the algorithm has recovered an optimal objective value, whereas larger
-values indicate a greater deviation from the optimum. 
+The constant $\varepsilon_0$ prevents division by zero when the optimum
+is zero or numerically close to zero. An error of zero therefore
+indicates recovery of the optimal objective value, up to the numerical
+tolerance used in the comparison.
 
-Table~\ref{tab:experimental-summary} summarizes the results of this
-experiment for different values of the number of variables $n$, the
-interaction range $k$, and the local dimension $d$. Each row aggregates
-50 independently generated instances evaluated by all methods.
-The table reports the relative error and execution time of the
-matrix-based, tensor-based, and heuristic dynamic-programming methods.
-The exact dynamic-programming solution is used only as the reference
-optimum and therefore has zero relative error by definition.
-
-These results make it possible to compare both the accuracy and
-computational cost of the approximate methods. In particular, they show
-how often each method approaches or recovers the exact solution and the
-additional execution time required to obtain that level of accuracy.
-This comparison is especially relevant for configurations in which
-exact dynamic programming becomes computationally expensive, as it
-allows the relative advantages of the tensor-network methods and the
-dynamic-programming heuristic to be identified.
+The first accuracy experiment considers QUDO instances with $D_i=0$,
+which isolates the effect of the quadratic interactions and permits a
+direct comparison with the QUBO-like setting. Table
+\ref{tab:experimental-summary} reports the percentage of instances for
+which SMVC recovers the optimum, its mean and maximum relative errors,
+and its mean execution time. Each row aggregates 50 independently
+generated instances.
 
 \begin{table*}[t]
     \centering
     \caption{
-    Comparison against exact dynamic programming on random
-    $k$-neighbor QUDO instances. Each row aggregates 50 independently
-    generated instances. Lower relative error and execution time are
-    better.
+    Accuracy and execution time of SMVC relative to Exact DP on random
+    $k$-neighbor QUDO instances with $D_i=0$. Each row aggregates 50
+    independently generated instances. Lower relative error and
+    execution time are better.
     }
     \label{tab:experimental-summary}
     \small
@@ -1115,7 +1104,7 @@ dynamic-programming heuristic to be identified.
     \begin{tabular}{rrrr|rrrr}
         \toprule
         &&&&
-        \multicolumn{4}{c}{Matrix method} \\
+        \multicolumn{4}{c}{SMVC} \\
         \cmidrule(lr){5-8}
 
         $d$ & $k$ & $n$ & Instances &
@@ -1160,119 +1149,50 @@ dynamic-programming heuristic to be identified.
     }
 \end{table*}
 
+SMVC recovers the exact optimum in all instances with $d=2$ and $k=2$.
+The optimum-recovery rate decreases as either the local dimension, the
+interaction range, or the number of variables increases. Nevertheless,
+the mean relative error remains below $10^{-3}\%$ for every
+configuration in Table~\ref{tab:experimental-summary}, and the largest
+observed error is $0.00534\%$. Thus, failure to reproduce the exact
+objective value does not generally imply a large degradation in
+solution quality. The execution time also increases with $n$, $k$, and
+$d$, as expected from the size of the contracted boundary space.
 
-\subsection{Computational scaling}\label{ssec:computational-scaling}
+\subsection{Comparison under matched runtime budgets}
+\label{ssec:matched-budget-comparison}
 
-The second part of the experimental evaluation studies the computational
-scaling of the tensor, matrix, and exact dynamic-programming methods.
-The execution time is analyzed as a function of the interaction range
-$k$, the local dimension $d$, and the number of variables $n$. These
-experiments complement the theoretical complexity analysis presented in
-Sec.~\ref{sssec:kneigh complexity} and reveal the practical influence of
-implementation-dependent constant factors.
+The second experiment evaluates whether the accuracy of SMVC can be
+reproduced by conventional approximate methods using a comparable
+amount of computation. These instances contain both quadratic
+coefficients $Q_{ij}$ and linear coefficients $D_i$, independently
+sampled from $\mathcal{U}(-10,10)$. Exact DP is again used exclusively
+to obtain the reference optimum.
 
-\begin{figure*}[t]
-    \centering
-    \includegraphics[width=0.9\textwidth]
-        {Images/experiment_3_kd_t.png}
-    \caption{Execution time of the tensor, matrix, and exact
-    dynamic-programming methods as a function of (a) the interaction
-    range $k$, with $n=100$ and $d=2$, and (b) the local dimension $d$,
-    with $n=1000$ and $k=2$. In both experiments, $\tau=400$.}
-    \label{fig:scaling-kd}
-\end{figure*}
+For each instance, SMVC is executed first. Its measured execution time
+defines the runtime budget assigned to tabu search and SCIP. The Beam DP
+width is calibrated on the first instance of each $(d,k,n)$
+configuration by selecting the largest width whose measured runtime
+does not exceed the SMVC time by more than $10\%$. The resulting width
+is then held fixed for the remaining instances of that configuration.
+The calibration runs themselves are not included in the reported Beam
+DP execution time.
 
-Figure~\ref{fig:scaling-kd} examines the dependence of the execution
-time on $k$ and $d$ while the remaining problem parameters are fixed.
-For small interaction ranges, exact dynamic programming and the matrix
-formulation have lower execution times than the tensor formulation.
-However, the cost of exact dynamic programming increases rapidly with
-$k$, because the number of boundary states grows as $d^k$. The
-matrix-based method also becomes progressively more expensive, whereas
-the tensor formulation exhibits a slower increase over the evaluated
-range. Consequently, the tensor method becomes competitive with the
-other methods for sufficiently large interaction ranges.
-
-A similar behavior is observed when increasing the local dimension
-$d$. The execution time of all methods increases because each variable
-can take a larger number of values. The matrix method remains the
-fastest implementation over the evaluated range, reflecting the
-efficiency of optimized matrix--vector operations. Nevertheless, the
-execution times of exact dynamic programming and the tensor method grow
-more rapidly, and the tensor formulation eventually becomes faster than
-exact dynamic programming for the largest tested dimensions. These
-results show that asymptotic complexity alone does not determine the
-fastest implementation: the crossover points also depend on constant
-factors, the data structures employed, and the ability of each method
-to exploit sparsity.
-
-\begin{figure*}[t]
-    \centering
-    \includegraphics[width=\textwidth]
-        {Images/experiment_4.png}
-    \caption{Execution time as a function of the number of variables
-    $n$ for different local dimensions $d$, with fixed interaction
-    range $k=2$. The panels show the matrix, tensor, and exact
-    dynamic-programming methods, respectively.}
-    \label{fig:scaling-n-d}
-\end{figure*}
-
-Figure~\ref{fig:scaling-n-d} studies the dependence on the number of
-variables for $d\in\{2,\ldots,8\}$ and a fixed interaction range.
-For every fixed value of $d$, the execution time grows approximately
-linearly with $n$ for all three methods. This behavior is consistent
-with their theoretical complexities, in which $n$ appears as a linear
-factor when $k$ and $d$ are fixed. Increasing $d$ mainly increases the
-slope of the curves, with a particularly visible effect for the tensor
-and exact dynamic-programming methods. The matrix formulation has the
-smallest execution time for every configuration considered in this
-experiment, although all three implementations retain approximately
-linear scaling with the number of variables.
-
-\begin{figure*}[t]
-    \centering
-    \includegraphics[width=\textwidth]
-        {Images/experiment_5.png}
-    \caption{Execution time as a function of the number of variables
-    $n$ for different interaction ranges $k$, with fixed local
-    dimension $d=2$. The panels show the matrix, tensor, and exact
-    dynamic-programming methods, respectively.}
-    \label{fig:scaling-n-k}
-\end{figure*}
-
-The influence of the interaction range is examined further in
-Fig.~\ref{fig:scaling-n-k}, where $n$ is varied for
-$k\in\{2,\ldots,10\}$ at fixed local dimension. Once again, the
-execution time is approximately linear in $n$ for each fixed value of
-$k$. However, the slope increases with the interaction range because
-more interactions must be incorporated into each contraction or
-dynamic-programming transition. This increase is especially pronounced
-for exact dynamic programming, whose state space grows as $d^k$. At the
-largest tested interaction range, the tensor formulation becomes faster
-than exact dynamic programming, whereas the matrix implementation
-retains the lowest execution time throughout the evaluated
-configurations.
-
-Overall, the experiments confirm two distinct scaling behaviors. For
-fixed $k$ and $d$, all methods scale approximately linearly with the
-number of variables. In contrast, increasing either the interaction
-range or the local dimension produces a substantially stronger increase
-in execution time. Although the matrix formulation is the fastest
-implementation for most of the tested configurations, the tensor method
-becomes increasingly competitive as $k$ grows and can outperform exact
-dynamic programming for the largest interaction ranges. This behavior
-is consistent with the theoretical analysis and motivates the use of
-tensor-network formulations for problems with larger local interaction
-structures.
+Table~\ref{tab:n500-method-comparison} summarizes the results for
+$n=500$. The error columns report the mean relative error with respect
+to Exact DP. The quantity $b/d^k$ is the fraction of the complete
+dynamic-programming frontier retained by Beam DP. Runtime ratios are
+computed relative to SMVC on the same instances; a ratio below one
+denotes a method faster than SMVC.
 
 \begin{table*}[t]
     \centering
     \caption{
-    Comparison of TN, Beam DP, Tabu search, and SCIP for random
-    $k$-neighbor QUDO instances with $n=500$. Errors are mean relative
-    errors, with the best result in each row highlighted in bold.
-    Runtime ratios are computed with respect to TN; values below one
-    indicate a faster method.
+    Comparison of SMVC, Beam DP, tabu search, and SCIP on random
+    $k$-neighbor QUDO instances with $n=500$. Each configuration
+    contains 50 instances. Errors are mean relative errors, with the
+    lowest value in each row highlighted in bold. Runtime ratios are
+    computed relative to SMVC.
     }
     \label{tab:n500-method-comparison}
     \small
@@ -1284,7 +1204,7 @@ structures.
     }
         \toprule
         & &
-        \multicolumn{1}{c}{TN} &
+        \multicolumn{1}{c}{SMVC} &
         \multicolumn{3}{c}{Beam DP} &
         \multicolumn{2}{c}{Tabu search} &
         \multicolumn{2}{c}{SCIP} \\
@@ -1297,11 +1217,11 @@ structures.
         Error (\%) &
         Error (\%) &
         $b/d^k$ &
-        Beam/TN &
+        Beam/SMVC &
         Error (\%) &
-        Tabu/TN &
+        Tabu/SMVC &
         Error (\%) &
-        SCIP/TN \\
+        SCIP/SMVC \\
         \midrule
 
         2 & 2 &
@@ -1402,27 +1322,204 @@ structures.
     \end{tabular*}
 \end{table*}
 
+For the binary configurations, the calibrated beam contains the complete
+frontier, since $b/d^k=1$. Beam DP therefore reduces to Exact DP and
+recovers the optimum while remaining faster than SMVC. This regime does
+not represent an approximation of the full dynamic program.
+
+For $d=4$ and $d=6$, the complete frontier no longer fits within the
+matched runtime budget for most values of $k$. The retained fraction
+decreases to $0.046$ in the largest configuration. In this regime,
+Beam DP produces mean errors between $1.20\%$ and $4.97\%$, whereas
+SMVC remains between $7.03\times10^{-4}\%$ and
+$2.62\times10^{-3}\%$. Tabu search generally respects the requested
+runtime budget closely, but its mean errors remain substantially larger
+than those of SMVC. These results show that, for the more demanding
+configurations, SMVC provides a more favorable accuracy--runtime
+trade-off than the two heuristic baselines.
+
+The short SMVC-matched budget is particularly restrictive for SCIP:
+part of this budget is consumed by model construction and general-purpose
+solver initialization. Consequently, the SCIP column in
+Table~\ref{tab:n500-method-comparison} should be interpreted as a
+strict equal-time comparison, not as a characterization of the
+solution quality SCIP can reach with a conventional optimization time
+limit. This distinction motivates the separate time-to-target
+experiment reported below.
+
+\subsection{Computational scaling}\label{ssec:computational-scaling}
+
+The scaling experiments study the execution time of SMVC, STC, and
+Exact DP as a function of the interaction range $k$, the local dimension
+$d$, and the number of variables $n$. Each plotted point is the median
+of three independently generated instances. These experiments
+complement the complexity analysis in Sec.~\ref{ssec:kneigh complexity}
+by exposing implementation-dependent overheads and crossover points.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.9\textwidth]
+        {Images/experiment_3_kd_t.png}
+    \caption{
+    Median execution time of STC and SMVC over three random instances:
+    (a) as a function of the interaction range $k$, with $n=100$ and
+    $d=2$; and (b) as a function of the local dimension $d$, with
+    $n=100$ and $k=2$. The parameter $\tau$ is selected automatically
+    for each configuration.
+    }
+    \label{fig:scaling-kd}
+\end{figure*}
+
+Figure~\ref{fig:scaling-kd} compares the two tensor-network
+implementations directly. For small and intermediate values of $k$,
+SMVC is faster because its contractions are expressed using optimized
+matrix--vector operations. Its runtime, however, increases sharply for
+the largest interaction ranges. STC grows more gradually with $k$ and
+becomes faster than SMVC at $k=13$ and $k=14$ in the evaluated data.
+
+When $d$ is varied at fixed $k=2$, SMVC remains faster throughout the
+tested interval $d\in\{2,\ldots,29\}$. The execution time of STC also
+increases with $d$, but the crossover observed as a function of $k$
+does not occur over this range of local dimensions. This illustrates
+that the practical advantage of STC is primarily associated with the
+different dependence on the interaction range, rather than with a
+uniform advantage for all large values of $d$.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]
+        {Images/experiment_4.png}
+    \caption{
+    Median execution time as a function of $n$ for
+    $d\in\{2,\ldots,8\}$ and fixed $k=2$. The panels show SMVC, STC,
+    and Exact DP, respectively. Each point aggregates three random
+    instances.
+    }
+    \label{fig:scaling-n-d}
+\end{figure*}
+
+Figure~\ref{fig:scaling-n-d} examines the dependence on $n$ for fixed
+$k=2$. For every fixed value of $d$, the three implementations exhibit
+approximately linear growth with $n$, consistently with the theoretical
+complexities, in which $n$ enters as a linear factor when $k$ and $d$
+are fixed.
+
+Exact DP is the fastest implementation for the smallest local
+dimensions. Its runtime grows more strongly with $d$, however, and SMVC
+becomes faster for the larger tested dimensions. STC has the largest
+runtime throughout this experiment because, at $k=2$, its tensor
+construction and contraction overhead is not compensated by its more
+favorable dependence on the interaction range. The figure therefore
+shows that asymptotic complexity alone does not determine the fastest
+method for moderate values of $k$ and $d$.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]
+        {Images/experiment_5.png}
+    \caption{
+    Median execution time as a function of $n$ for
+    $k\in\{2,\ldots,10\}$ and fixed $d=2$. The panels show SMVC, STC,
+    and Exact DP, respectively. Each point aggregates three random
+    instances.
+    }
+    \label{fig:scaling-n-k}
+\end{figure*}
+
+Figure~\ref{fig:scaling-n-k} varies $n$ and $k$ at fixed $d=2$. Again,
+the runtime is approximately linear in $n$ for every fixed interaction
+range. The slope increases with $k$ because the number of active
+boundary configurations and local interactions grows.
+
+Exact DP is fastest at the smallest values of $k$, but its
+$d^k$ boundary-state dependence causes a rapid increase in runtime.
+SMVC overtakes Exact DP as $k$ increases and remains the fastest method
+over the upper part of the tested range. STC is slower than SMVC in
+this experiment, although its growth with $k$ is sufficiently moderate
+for it to become faster than Exact DP at the largest tested interaction
+range. Together with Fig.~\ref{fig:scaling-kd}, these results indicate
+that STC becomes competitive only once the exponential growth of the
+other representations is large enough to offset its higher
+implementation overhead.
+
+Overall, the scaling experiments reveal two distinct regimes. For fixed
+$k$ and $d$, the methods scale approximately linearly with $n$.
+Increasing $k$ or $d$, by contrast, expands the boundary space and has a
+much stronger effect on runtime. SMVC is preferable over most of the
+tested parameter range, while STC becomes competitive at the largest
+interaction ranges. Exact DP is highly effective when $d^k$ is small,
+but its cost increases rapidly as the boundary dimension grows.
+
+\subsection{SCIP time to the SMVC target}
+\label{ssec:scip-time-to-target}
+
+The matched-budget experiment gives SCIP only the execution time used
+by SMVC, which can be too short for a general-purpose solver to
+construct and process its model. A separate experiment therefore
+measures the wall-clock time required by SCIP to obtain an objective
+value at least as good as the one returned by SMVC.
+
+For each configuration, SMVC is first executed on 50 random instances.
+SCIP is then run with a maximum wall-clock time of 60~s per instance.
+A run is considered successful if SCIP reaches the SMVC objective
+within a tolerance of $10^{-9}$. Runs that do not reach the target
+within 60~s are treated as right-censored observations and are excluded
+from the SCIP time-to-target and speedup statistics. Consequently, the
+reported SCIP medians and speedups summarize only successful runs and
+must be interpreted together with the success rate.
+
 \begin{table}[t]
     \centering
-    \caption{Runtime comparison between the matrix-based method and SCIP. 
-    The success rate indicates the fraction of instances for which SCIP reached 
-    the reference solution. Runtime and speedup values are medians computed over 
-    the successful instances.}
+    \caption{
+    Wall-clock time required by SCIP to reach the SMVC objective value.
+    The SMVC time is the median over all 50 instances. SCIP time and
+    speedup are medians over successful runs only; unsuccessful runs are
+    right-censored at 60~s. A speedup above one means that SCIP required
+    more time than SMVC.
+    }
     \label{tab:matrix_scip_comparison}
+    \resizebox{\columnwidth}{!}{%
     \begin{tabular}{rrrrrrrr}
     \toprule
     $n$ & $d$ & $k$ &
     Reached & Success &
-    Matrix (s) & SCIP (s) & Speedup \\
+    SMVC (s) & SCIP (s) & Speedup \\
     \midrule
     500 & 2 & 2 & 50/50 & 100.0\% & 0.074057 &  0.218883 &   2.981$\times$ \\
     500 & 2 & 4 & 50/50 & 100.0\% & 0.082066 &  1.481276 &  17.799$\times$ \\
     500 & 4 & 4 &  2/50 &   4.0\% & 0.197800 & 46.519322 & 232.276$\times$ \\
     500 & 6 & 4 &  1/50 &   2.0\% & 0.387996 & 35.750896 & 106.924$\times$ \\
     \bottomrule
-    \end{tabular}
-    \end{table}
-    
+    \end{tabular}%
+    }
+\end{table}
+
+For $d=2$, SCIP reaches the SMVC target on all instances, but its median
+time to target is respectively $2.981$ and $17.799$ times the SMVC
+runtime for $k=2$ and $k=4$. The difference becomes more pronounced as
+the local dimension increases. For $(d,k)=(4,4)$, SCIP reaches the
+target on only two of the 50 instances; for $(d,k)=(6,4)$, it reaches
+the target on only one. Even among these successful runs, SCIP requires
+substantially more time than SMVC.
+
+The low success rates for the two largest configurations also imply
+that their SCIP time and speedup medians are based on very small,
+non-representative subsets. They must therefore not be extrapolated to
+the censored instances. The robust conclusion is instead given by the
+success counts: within 60~s, SCIP fails to reproduce the SMVC objective
+on 48 of 50 instances for $(d,k)=(4,4)$ and on 49 of 50 instances for
+$(d,k)=(6,4)$.
+
+Taken together, the accuracy, equal-time, scaling, and time-to-target
+experiments show that the proposed tensor-network approach is most
+useful when the boundary space $d^k$ is too large for Exact DP or a
+full-width beam to remain inexpensive. SMVC provides the best practical
+performance over most of the evaluated configurations, while STC has a
+higher fixed overhead but a more favorable dependence on large
+interaction ranges. The results therefore support selecting the
+contraction scheme according to the problem parameters rather than
+assuming that one implementation is uniformly preferable.
+
 \section{Conclusions}\label{sec:conclusions}
 This paper presents a tensor network algorithm that solves QUBO, QUDO and Tensor-QUDO problems using the MeLoCoToN. It has been concluded that the tensor network of a dense QUDO problem has a computational complexity of $\mathcal{O}(nd^{n-1})$, which cannot be efficiently contracted. For this reason, a simpler problem with fewer density has been proposed, such as the $k$-neighbors QUDO. Two different tensor networks have been proposed, one based on tensors with up to 4 indices, the other based on matrices and vectors, and a novel methodology for reducing the required memory. The computational complexity of both implementations for a number of neighbors $k$ has been studied as $\mathcal{O}(nd^{k+1})$ (matrix method) and $\mathcal{O}(nkd^{k})$ (tensor method). In order to compare both algorithms, a series of experiments have been carried out without sparsity implementation, proving that the tensor-based method scales better as $k$ and $d$ grow. However, for problems where $k$ and $d$ take small values, the matrix-based method is faster even in this implementation. Furthermore, there is a comparison between the relative error of the results with an OR-TOOLS solver, concluding that, for most of the instances of problems, the tensor network algorithm performs equal to or better.
 

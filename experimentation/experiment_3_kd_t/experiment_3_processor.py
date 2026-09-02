@@ -1,4 +1,4 @@
-"""Generate the k/d runtime plot from experiment 3 results."""
+"""Generate the runtime plot and LaTeX table from experiment 3 results."""
 
 import json
 from pathlib import Path
@@ -13,6 +13,7 @@ from matplotlib import pyplot as plt
 EXPERIMENT_DIR = Path(__file__).resolve().parent
 RESULTS_PATH = EXPERIMENT_DIR / "results" / "experiment_3_kd_t.json"
 OUTPUT_PATH = EXPERIMENT_DIR / "processed_results" / "experiment_3_kd_t.png"
+LATEX_PATH = EXPERIMENT_DIR / "processed_results" / "experiment_3_kd_t.tex"
 
 METHODS = {
     "tensor_method": ("tensor method", "#e76f7a"),
@@ -57,7 +58,35 @@ def main() -> None:
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(OUTPUT_PATH, dpi=200, bbox_inches="tight")
     plt.close(figure)
+
+    table_rows = []
+    for series in ("k", "d"):
+        series_results = [result for result in results if result["series"] == series]
+        for value in sorted({result["value"] for result in series_results}):
+            selected = [result for result in series_results if result["value"] == value]
+            sample = selected[0]
+            times = [
+                median(result[method]["execution_time"] for result in selected)
+                for method in ("tensor_method", "matrix_method", "dynamic_programming")
+            ]
+            table_rows.append(
+                f"{series} & {value} & {sample['dits']} & {sample['n_neighbors']} & "
+                f"{times[0]:.6f} & {times[1]:.6f} & {times[2]:.6f} \\\\\n"
+            )
+
+    latex = (
+        "\\begin{table*}[t]\n\\centering\n\\scriptsize\n"
+        "\\caption{Median execution time over three random instances when "
+        "varying $k$ or $d$ at fixed $n=100$.}\n"
+        "\\label{tab:experiment-3-runtime}\n"
+        "\\begin{tabular}{lrrrrrr}\n\\toprule\n"
+        "Varied parameter & Value & $d$ & $k$ & STC (s) & SMVC (s) & Exact DP (s) \\\\\n"
+        "\\midrule\n" + "".join(table_rows) +
+        "\\bottomrule\n\\end{tabular}\n\\end{table*}\n"
+    )
+    LATEX_PATH.write_text(latex, encoding="utf-8")
     print(f"Gráfica guardada en: {OUTPUT_PATH}")
+    print(f"Tabla LaTeX guardada en: {LATEX_PATH}")
 
 
 if __name__ == "__main__":

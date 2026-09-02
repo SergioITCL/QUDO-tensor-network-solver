@@ -1,4 +1,4 @@
-"""Generate the runtime plots from experiment 4 results."""
+"""Generate the runtime plots and LaTeX table from experiment 4 results."""
 
 import json
 from pathlib import Path
@@ -13,6 +13,7 @@ from matplotlib import pyplot as plt
 EXPERIMENT_DIR = Path(__file__).resolve().parent
 RESULTS_PATH = EXPERIMENT_DIR / "results" / "experiment_4.json"
 OUTPUT_PATH = EXPERIMENT_DIR / "processed_results" / "experiment_4.png"
+LATEX_PATH = EXPERIMENT_DIR / "processed_results" / "experiment_4.tex"
 
 
 def get_median_times(results: list[dict], dits: int, method: str):
@@ -57,7 +58,32 @@ def main() -> None:
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(OUTPUT_PATH, dpi=200, bbox_inches="tight")
     plt.close(figure)
+
+    table_rows = []
+    for dits in dits_values:
+        n_values, matrix_times = get_median_times(results, dits, "matrix_method")
+        _, tensor_times = get_median_times(results, dits, "tensor_method")
+        _, exact_times = get_median_times(results, dits, "dynamic_programming")
+        for n, matrix, tensor, exact in zip(
+            n_values, matrix_times, tensor_times, exact_times
+        ):
+            table_rows.append(
+                f"{dits} & {n} & {matrix:.6f} & {tensor:.6f} & {exact:.6f} \\\\\n"
+            )
+
+    latex = (
+        "\\begin{table*}[t]\n\\centering\n\\scriptsize\n"
+        "\\caption{Median execution time over three random instances as a "
+        "function of $n$ and $d$, with fixed $k=2$.}\n"
+        "\\label{tab:experiment-4-runtime}\n"
+        "\\begin{tabular}{rrrrr}\n\\toprule\n"
+        "$d$ & $n$ & SMVC (s) & STC (s) & Exact DP (s) \\\\\n"
+        "\\midrule\n" + "".join(table_rows) +
+        "\\bottomrule\n\\end{tabular}\n\\end{table*}\n"
+    )
+    LATEX_PATH.write_text(latex, encoding="utf-8")
     print(f"Gráfica guardada en: {OUTPUT_PATH}")
+    print(f"Tabla LaTeX guardada en: {LATEX_PATH}")
 
 
 if __name__ == "__main__":

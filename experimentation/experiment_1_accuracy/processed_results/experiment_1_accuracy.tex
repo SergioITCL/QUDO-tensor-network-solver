@@ -1,0 +1,19 @@
+\begin{table*}[t]
+\centering
+\caption{Accuracy and execution time of SMVC relative to Exact DP on random $k$-neighbor QUDO instances. Each row aggregates 50 independently generated instances.}
+\label{tab:experiment-1-accuracy}
+\begin{tabular}{rrrrrrrr}
+\toprule
+$d$ & $k$ & $n$ & Instances & Optimal (\%) & Mean error (\%) & Max. error (\%) & Time (s) \\
+\midrule
+2 & 2 & 500 & 50 & 100 & 0 & 0 & 0.066836 \\
+2 & 2 & 1000 & 50 & 94 & 3.98 & 99.5 & 0.127053 \\
+2 & 4 & 500 & 50 & 86 & $1.50 \times 10^{-4}$ & 0.00222 & 0.072173 \\
+2 & 4 & 1000 & 50 & 78 & $1.01 \times 10^{-4}$ & 0.00113 & 0.137850 \\
+4 & 2 & 500 & 50 & 64 & $4.43 \times 10^{-4}$ & 0.00472 & 0.131493 \\
+4 & 2 & 1000 & 50 & 42 & $4.11 \times 10^{-4}$ & 0.00228 & 0.147980 \\
+4 & 4 & 500 & 50 & 54 & 0.00102 & 0.00693 & 0.163735 \\
+4 & 4 & 1000 & 50 & 24 & 0.0012 & 0.00403 & 0.274491 \\
+\bottomrule
+\end{tabular}
+\end{table*}

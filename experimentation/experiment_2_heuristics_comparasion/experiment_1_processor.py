@@ -1,4 +1,4 @@
-"""Post-process Experiment 1 raw JSON files into tables and PNG figures."""
+"""Post-process Experiment 2 raw JSON files into tables and PNG figures."""
 from __future__ import annotations
 
 import csv
@@ -40,6 +40,17 @@ def sample_std(values):
         return 0.0
     value_mean = average(values)
     return math.sqrt(sum((value - value_mean) ** 2 for value in values) / (len(values) - 1))
+
+
+def latex_number(value):
+    if value is None or not math.isfinite(value):
+        return "--"
+    if value == 0:
+        return "0"
+    if abs(value) < 1e-2 or abs(value) >= 1e3:
+        mantissa, exponent = f"{value:.2e}".split("e")
+        return f"${mantissa} \\times 10^{{{int(exponent)}}}$"
+    return f"{value:.3g}"
 
 
 def collect_rows():
@@ -134,7 +145,47 @@ def write_tables(rows):
             f"{row['mean_relative_error_pct']:.3g}% | {row['max_relative_error_pct']:.3g}% | {row['mean_time_s']:.6f} |\n"
         )
     markdown_path.write_text("".join(lines), encoding="utf-8")
-    return csv_path, markdown_path
+
+    selected = {
+        (row["d"], row["k"], row["method"]): row
+        for row in rows
+        if row["n_variables"] == 500 and row["instance_type"] == "random"
+    }
+    latex_rows = []
+    configurations = sorted({(d, k) for d, k, _ in selected})
+    for d, k in configurations:
+        smvc = selected[(d, k, "Matrix method")]
+        beam = selected[(d, k, "Heuristic")]
+        tabu = selected[(d, k, "Tabu search")]
+        scip = selected[(d, k, "SCIP")]
+        smvc_time = smvc["mean_time_s"]
+        latex_rows.append(
+            f"{d} & {k} & {latex_number(smvc['mean_relative_error_pct'])} & "
+            f"{latex_number(beam['mean_relative_error_pct'])} & "
+            f"{beam['beam_width'] / d**k:.3f} & "
+            f"{beam['mean_time_s'] / smvc_time:.3f} & "
+            f"{latex_number(tabu['mean_relative_error_pct'])} & "
+            f"{tabu['mean_time_s'] / smvc_time:.3f} & "
+            f"{latex_number(scip['mean_relative_error_pct'])} & "
+            f"{scip['mean_time_s'] / smvc_time:.3f} \\\\\n"
+        )
+
+    latex_path = OUTPUT_DIR / "experiment_2_comparison.tex"
+    latex = (
+        "\\begin{table*}[t]\n\\centering\n\\small\n"
+        "\\caption{Comparison of SMVC, Beam DP, Tabu search, and SCIP for "
+        "random $k$-neighbor QUDO instances with $n=500$.}\n"
+        "\\label{tab:experiment-2-comparison}\n"
+        "\\resizebox{\\textwidth}{!}{%\n"
+        "\\begin{tabular}{rrrrrrrrrr}\n\\toprule\n"
+        "$d$ & $k$ & SMVC error (\\%) & Beam error (\\%) & $b/d^k$ & "
+        "Beam/SMVC & Tabu error (\\%) & Tabu/SMVC & SCIP error (\\%) & "
+        "SCIP/SMVC \\\\\n\\midrule\n"
+        + "".join(latex_rows)
+        + "\\bottomrule\n\\end{tabular}%\n}\n\\end{table*}\n"
+    )
+    latex_path.write_text(latex, encoding="utf-8")
+    return csv_path, markdown_path, latex_path
 
 
 def plot_method_label(method, points):
@@ -221,7 +272,7 @@ def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     rows = collect_rows()
     outputs = (*write_tables(rows), *make_plots(rows))
-    print("Processed Experiment 1 results:")
+    print("Processed Experiment 2 results:")
     for output in outputs:
         print(f"  - {output}")
 

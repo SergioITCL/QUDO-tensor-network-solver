@@ -106,6 +106,7 @@ def write_outputs(summaries: list[dict], instances: list[dict]) -> tuple[Path, .
     summary_csv = OUTPUT_DIR / "configuration_summary.csv"
     instance_csv = OUTPUT_DIR / "instance_results.csv"
     markdown = OUTPUT_DIR / "configuration_summary.md"
+    latex_path = OUTPUT_DIR / "configuration_summary.tex"
     _write_csv(summary_csv, SUMMARY_FIELDS, summaries)
     _write_csv(instance_csv, INSTANCE_FIELDS, instances)
 
@@ -133,7 +134,35 @@ def write_outputs(summaries: list[dict], instances: list[dict]) -> tuple[Path, .
             f"{row['n_target_not_reached']} |\n"
         )
     markdown.write_text("".join(lines), encoding="utf-8")
-    return summary_csv, instance_csv, markdown
+
+    latex_rows = []
+    for row in summaries:
+        target = row["median_time_to_target"]
+        ratio = row["median_time_ratio"]
+        latex_rows.append(
+            f"{row['n']} & {row['dits']} & {row['k']} & "
+            f"{row['n_target_reached']}/{row['n_instances']} & "
+            f"{100 * row['target_success_rate']:.1f} & "
+            f"{row['median_matrix_time']:.6f} & "
+            f"{target:.6f} & {ratio:.3f} \\\\\n"
+            if target is not None and ratio is not None
+            else f"{row['n']} & {row['dits']} & {row['k']} & "
+            f"{row['n_target_reached']}/{row['n_instances']} & "
+            f"{100 * row['target_success_rate']:.1f} & "
+            f"{row['median_matrix_time']:.6f} & -- & -- \\\\\n"
+        )
+    latex = (
+        "\\begin{table*}[t]\n\\centering\n"
+        "\\caption{SCIP time required to reach the SMVC target cost.}\n"
+        "\\label{tab:experiment-6-time-to-target}\n"
+        "\\begin{tabular}{rrrrrrrr}\n\\toprule\n"
+        "$n$ & $d$ & $k$ & Reached & Success (\\%) & SMVC median (s) & "
+        "SCIP median (s) & Ratio \\\\\n\\midrule\n"
+        + "".join(latex_rows)
+        + "\\bottomrule\n\\end{tabular}\n\\end{table*}\n"
+    )
+    latex_path.write_text(latex, encoding="utf-8")
+    return summary_csv, instance_csv, markdown, latex_path
 
 
 def main() -> None:
