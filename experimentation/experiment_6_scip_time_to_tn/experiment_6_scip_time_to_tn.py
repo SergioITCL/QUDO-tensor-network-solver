@@ -18,20 +18,9 @@ from qudo_solver.data_generator.qudo_problem_generator import (
     qudo_problem_generation,
 )
 from qudo_solver.solvers.scip import solver_scip_time_to_target
+from experimentation.experiment_config import experiment_path, load_experiment
 
-N_VARIABLES = [500]
-CONFIGURATIONS = [
-    (2, 2),
-    (2, 4),
-    (4, 4),
-    (6, 4),
-]
-N_RANDOM_INSTANCES = 50
-SCIP_MAX_TIME = 60.0
-TARGET_TOLERANCE = 1e-9
-REQUIRE_NONZERO = False
-
-RESULTS_DIR = Path(__file__).resolve().parent / "results"
+CONFIG = load_experiment("experiment_6")
 
 
 def _distribution(values: list[float]) -> dict[str, float | None]:
@@ -99,7 +88,7 @@ def print_summary(n: int, dits: int, n_neighbors: int, summary: dict) -> None:
     print(f"  median: {_format_stat(ratio_stats['median'], 'x')}")
     print(f"  mean:   {_format_stat(ratio_stats['mean'], 'x')}")
     print(
-        f"\nNot reached within {SCIP_MAX_TIME:g} s: "
+        f"\nNot reached within {CONFIG['scip_max_time']:g} s: "
         f"{summary['n_target_not_reached']}/{total}"
     )
     print("=" * 60)
@@ -115,10 +104,11 @@ def run_configuration(n: int, dits: int, n_neighbors: int) -> Path:
     instances = qudo_problem_generation(
         n_variables=n,
         n_neighbors=n_neighbors,
-        n_random_instances=N_RANDOM_INSTANCES,
+        n_random_instances=len(CONFIG["seeds"]),
         n_fixed_instances=0,
+        random_seeds=CONFIG["seeds"],
     )
-    output_path = RESULTS_DIR / (
+    output_path = experiment_path(CONFIG["results_dir"]) / (
         f"experiment_6_params_n{n}_d{dits}_k{n_neighbors}.json"
     )
     experiment_data = {
@@ -127,11 +117,11 @@ def run_configuration(n: int, dits: int, n_neighbors: int) -> Path:
             "n_variables": n,
             "dits": dits,
             "n_neighbors": n_neighbors,
-            "n_random_instances": N_RANDOM_INSTANCES,
-            "seeds": list(range(N_RANDOM_INSTANCES)),
-            "scip_max_time": SCIP_MAX_TIME,
-            "target_tolerance": TARGET_TOLERANCE,
-            "require_nonzero": REQUIRE_NONZERO,
+            "n_random_instances": len(CONFIG["seeds"]),
+            "seeds": CONFIG["seeds"],
+            "scip_max_time": CONFIG["scip_max_time"],
+            "target_tolerance": CONFIG["target_tolerance"],
+            "require_nonzero": CONFIG["require_nonzero"],
             "tau_policy": "estimate_tau_max",
             "tau": tau,
             "censoring": (
@@ -163,10 +153,10 @@ def run_configuration(n: int, dits: int, n_neighbors: int) -> Path:
             dits=dits,
             n_neighbors=n_neighbors,
             target_cost=matrix_cost,
-            max_time=SCIP_MAX_TIME,
-            require_nonzero=REQUIRE_NONZERO,
+            max_time=CONFIG["scip_max_time"],
+            require_nonzero=CONFIG["require_nonzero"],
             seed=instance["seed"],
-            target_tolerance=TARGET_TOLERANCE,
+            target_tolerance=CONFIG["target_tolerance"],
         )
 
         if target_result.solution is None:
@@ -188,7 +178,7 @@ def run_configuration(n: int, dits: int, n_neighbors: int) -> Path:
         ratio_lower_bound = (
             None
             if reached
-            else SCIP_MAX_TIME / matrix_result.execution_time
+            else CONFIG["scip_max_time"] / matrix_result.execution_time
         )
 
         experiment_data["results"].append(
@@ -240,8 +230,8 @@ def run_configuration(n: int, dits: int, n_neighbors: int) -> Path:
 
 
 def main() -> None:
-    for n in N_VARIABLES:
-        for dits, n_neighbors in CONFIGURATIONS:
+    for n in CONFIG["n_variables"]:
+        for dits, n_neighbors in CONFIG["configurations"]:
             run_configuration(n, dits, n_neighbors)
 
 

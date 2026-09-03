@@ -9,10 +9,9 @@ import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
-EXPERIMENT_DIR = Path(__file__).resolve().parent
-RESULTS_PATH = EXPERIMENT_DIR / "results" / "experiment_3_kd_t.json"
-OUTPUT_PATH = EXPERIMENT_DIR / "processed_results" / "experiment_3_kd_t.png"
-LATEX_PATH = EXPERIMENT_DIR / "processed_results" / "experiment_3_kd_t.tex"
+from experimentation.experiment_config import experiment_path, load_experiment
+
+CONFIG = load_experiment("experiment_3")
 
 METHODS = {
     "tensor_method": ("tensor method", "#e76f7a"),
@@ -37,7 +36,11 @@ def get_median_times(results: list[dict], series: str, method: str):
 
 
 def main() -> None:
-    payload = json.loads(RESULTS_PATH.read_text(encoding="utf-8"))
+    results_path = experiment_path(CONFIG["results_dir"]) / CONFIG["output_file"]
+    output_dir = experiment_path(CONFIG["processed_results_dir"])
+    output_path = output_dir / "experiment_3_kd_t.png"
+    latex_path = output_dir / "experiment_3_kd_t.tex"
+    payload = json.loads(results_path.read_text(encoding="utf-8"))
     results = payload["results"]
     figure, axes = plt.subplots(1, 2, figsize=(10, 4))
 
@@ -54,8 +57,8 @@ def main() -> None:
         axis.legend()
 
     figure.tight_layout()
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    figure.savefig(OUTPUT_PATH, dpi=200, bbox_inches="tight")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    figure.savefig(output_path, dpi=200, bbox_inches="tight")
     plt.close(figure)
 
     table_rows = []
@@ -83,9 +86,9 @@ def main() -> None:
         "\\midrule\n" + "".join(table_rows) +
         "\\bottomrule\n\\end{tabular}\n\\end{table*}\n"
     )
-    LATEX_PATH.write_text(latex, encoding="utf-8")
-    print(f"Plot saved to: {OUTPUT_PATH}")
-    print(f"Tabla LaTeX guardada en: {LATEX_PATH}")
+    latex_path.write_text(latex, encoding="utf-8")
+    print(f"Plot saved to: {output_path}")
+    print(f"LaTeX table saved to: {latex_path}")
 
 
 if __name__ == "__main__":

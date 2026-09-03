@@ -7,10 +7,9 @@ from collections import defaultdict
 from pathlib import Path
 from statistics import mean
 
+from experimentation.experiment_config import experiment_path, load_experiment
 
-EXPERIMENT_DIR = Path(__file__).resolve().parent
-RESULTS_PATH = EXPERIMENT_DIR / "results" / "experiment_1_accuracy.json"
-OUTPUT_DIR = EXPERIMENT_DIR / "processed_results"
+CONFIG = load_experiment("experiment_1")
 
 
 def latex_number(value: float) -> str:
@@ -23,7 +22,9 @@ def latex_number(value: float) -> str:
 
 
 def main() -> None:
-    results = json.loads(RESULTS_PATH.read_text(encoding="utf-8"))["results"]
+    results_path = experiment_path(CONFIG["results_dir"]) / CONFIG["output_file"]
+    output_dir = experiment_path(CONFIG["processed_results_dir"])
+    results = json.loads(results_path.read_text(encoding="utf-8"))["results"]
     groups = defaultdict(list)
     for result in results:
         key = (result["dits"], result["n_neighbors"], result["n_variables"])
@@ -54,8 +55,8 @@ def main() -> None:
             }
         )
 
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    csv_path = OUTPUT_DIR / "experiment_1_accuracy.csv"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    csv_path = output_dir / "experiment_1_accuracy.csv"
     with csv_path.open("w", newline="", encoding="utf-8") as stream:
         writer = csv.DictWriter(stream, fieldnames=rows[0].keys())
         writer.writeheader()
@@ -82,8 +83,8 @@ def main() -> None:
         + "".join(latex_rows)
         + "\\bottomrule\n\\end{tabular}\n\\end{table*}\n"
     )
-    (OUTPUT_DIR / "experiment_1_accuracy.tex").write_text(latex, encoding="utf-8")
-    print(f"Processed results saved to: {OUTPUT_DIR}")
+    (output_dir / "experiment_1_accuracy.tex").write_text(latex, encoding="utf-8")
+    print(f"Processed results saved to: {output_dir}")
 
 
 if __name__ == "__main__":

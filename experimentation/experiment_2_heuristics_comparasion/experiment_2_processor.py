@@ -12,11 +12,13 @@ from typing import TypedDict, cast
 
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
+from experimentation.experiment_config import experiment_path, load_experiment
 
 HERE = Path(__file__).resolve().parent
-RESULTS_DIR = HERE / "results"
+CONFIG = load_experiment("experiment_2")
+RESULTS_DIR = experiment_path(CONFIG["results_dir"])
 LEGACY_RESULTS_DIR = HERE.parent / "experiment_1_correctness_vs_optimal" / "results"
-OUTPUT_DIR = HERE / "processed_results"
+OUTPUT_DIR = experiment_path(CONFIG["processed_results_dir"])
 METHODS = (
     ("matrix_method", "Matrix method"),
     ("beam_dynamic_programming", "Beam DP"),

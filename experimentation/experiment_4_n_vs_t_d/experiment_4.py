@@ -17,20 +17,18 @@ if str(PROJECT_ROOT) not in sys.path:
 from qudo_solver.data_generator.qudo_problem_generator import (
     qudo_problem_generation,
 )
+from experimentation.experiment_config import experiment_path, load_experiment
 
-RESULTS_DIR = Path(__file__).resolve().parent / "results"
-N_VARIABLES = list(range(200, 1001, 200))
-DITS_VALUES = list(range(2, 9))
-N_NEIGHBORS = 2
-N_RANDOM_INSTANCES = 3
+CONFIG = load_experiment("experiment_4")
 
 
 def run_configuration(n_variables: int, dits: int) -> list[dict]:
     results = []
     instances = qudo_problem_generation(
         n_variables=n_variables,
-        n_neighbors=N_NEIGHBORS,
-        n_random_instances=N_RANDOM_INSTANCES,
+        n_neighbors=CONFIG["n_neighbors"],
+        n_random_instances=len(CONFIG["seeds"]),
+        random_seeds=CONFIG["seeds"],
         n_fixed_instances=0,
     )
 
@@ -43,7 +41,7 @@ def run_configuration(n_variables: int, dits: int) -> list[dict]:
             q_matrix,
             q_row,
             dits,
-            N_NEIGHBORS,
+            CONFIG["n_neighbors"],
             tau,
         )
         tensor_solution = solver_stc(
@@ -51,20 +49,20 @@ def run_configuration(n_variables: int, dits: int) -> list[dict]:
             q_row,
             tau,
             dits,
-            N_NEIGHBORS,
+            CONFIG["n_neighbors"],
         )
         dynamic_solution = solver_dynamic_programming(
             q_matrix,
             q_row,
             dits,
-            N_NEIGHBORS,
+            CONFIG["n_neighbors"],
         )
 
         results.append(
             {
                 "n_variables": n_variables,
                 "dits": dits,
-                "n_neighbors": N_NEIGHBORS,
+                "n_neighbors": CONFIG["n_neighbors"],
                 "instance_index": index,
                 "instance_type": instance["instance_type"],
                 "seed": instance["seed"],
@@ -96,22 +94,24 @@ def run_configuration(n_variables: int, dits: int) -> list[dict]:
 def main() -> None:
     results = []
 
-    for dits in DITS_VALUES:
-        for n_variables in N_VARIABLES:
+    for dits in CONFIG["dits_values"]:
+        for n_variables in CONFIG["n_variables"]:
             results.extend(run_configuration(n_variables, dits))
 
     payload = {
         "summary": {
-            "n_variables": N_VARIABLES,
-            "dits_values": DITS_VALUES,
-            "n_neighbors": N_NEIGHBORS,
-            "n_random_instances": N_RANDOM_INSTANCES,
+            "n_variables": CONFIG["n_variables"],
+            "dits_values": CONFIG["dits_values"],
+            "n_neighbors": CONFIG["n_neighbors"],
+            "n_random_instances": len(CONFIG["seeds"]),
+            "seeds": CONFIG["seeds"],
         },
         "results": results,
     }
 
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    output_path = RESULTS_DIR / "experiment_4.json"
+    results_dir = experiment_path(CONFIG["results_dir"])
+    results_dir.mkdir(parents=True, exist_ok=True)
+    output_path = results_dir / CONFIG["output_file"]
     output_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     print(f"Results saved to: {output_path}")
 

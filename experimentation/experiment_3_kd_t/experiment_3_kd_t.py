@@ -14,22 +14,18 @@ if str(PROJECT_ROOT) not in sys.path:
 from qudo_solver.data_generator.qudo_problem_generator import (
     qudo_problem_generation,
 )
+from experimentation.experiment_config import experiment_path, load_experiment
 
-RESULTS_DIR = Path(__file__).resolve().parent / "results"
-N_VARIABLES = 100
-K_VALUES = list(range(1, 15))
-DITS_VALUES = list(range(2, 30))
-FIXED_DITS = 2
-FIXED_K = 2
-N_RANDOM_INSTANCES = 3
+CONFIG = load_experiment("experiment_3")
 
 
 def run_configuration(series: str, value: int, dits: int, n_neighbors: int) -> list[dict]:
     results = []
     instances = qudo_problem_generation(
-        n_variables=N_VARIABLES,
+        n_variables=CONFIG["n_variables"],
         n_neighbors=n_neighbors,
-        n_random_instances=N_RANDOM_INSTANCES,
+        n_random_instances=len(CONFIG["seeds"]),
+        random_seeds=CONFIG["seeds"],
         n_fixed_instances=0,
     )
 
@@ -54,7 +50,7 @@ def run_configuration(series: str, value: int, dits: int, n_neighbors: int) -> l
             {
                 "series": series,
                 "value": value,
-                "n_variables": N_VARIABLES,
+                "n_variables": CONFIG["n_variables"],
                 "dits": dits,
                 "n_neighbors": n_neighbors,
                 "instance_index": index,
@@ -84,28 +80,30 @@ def run_configuration(series: str, value: int, dits: int, n_neighbors: int) -> l
 def main() -> None:
     results = []
 
-    for n_neighbors in K_VALUES:
+    for n_neighbors in CONFIG["k_values"]:
         results.extend(
-            run_configuration("k", n_neighbors, FIXED_DITS, n_neighbors)
+            run_configuration("k", n_neighbors, CONFIG["fixed_dits"], n_neighbors)
         )
 
-    for dits in DITS_VALUES:
-        results.extend(run_configuration("d", dits, dits, FIXED_K))
+    for dits in CONFIG["dits_values"]:
+        results.extend(run_configuration("d", dits, dits, CONFIG["fixed_k"]))
 
     payload = {
         "summary": {
-            "n_variables": N_VARIABLES,
-            "k_values": K_VALUES,
-            "dits_values": DITS_VALUES,
-            "fixed_dits": FIXED_DITS,
-            "fixed_k": FIXED_K,
-            "n_random_instances": N_RANDOM_INSTANCES,
+            "n_variables": CONFIG["n_variables"],
+            "k_values": CONFIG["k_values"],
+            "dits_values": CONFIG["dits_values"],
+            "fixed_dits": CONFIG["fixed_dits"],
+            "fixed_k": CONFIG["fixed_k"],
+            "n_random_instances": len(CONFIG["seeds"]),
+            "seeds": CONFIG["seeds"],
         },
         "results": results,
     }
 
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    output_path = RESULTS_DIR / "experiment_3_kd_t.json"
+    results_dir = experiment_path(CONFIG["results_dir"])
+    results_dir.mkdir(parents=True, exist_ok=True)
+    output_path = results_dir / CONFIG["output_file"]
     output_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     print(f"Results saved to: {output_path}")
 

@@ -6,9 +6,9 @@ import csv
 import json
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
-RESULTS_DIR = HERE / "results"
-OUTPUT_DIR = HERE / "processed_results"
+from experimentation.experiment_config import experiment_path, load_experiment
+
+CONFIG = load_experiment("experiment_6")
 
 SUMMARY_FIELDS = (
     "n",
@@ -53,9 +53,10 @@ INSTANCE_FIELDS = (
 
 
 def collect_tables() -> tuple[list[dict], list[dict]]:
-    files = sorted(RESULTS_DIR.glob("experiment_6_params_n*_d*_k*.json"))
+    results_dir = experiment_path(CONFIG["results_dir"])
+    files = sorted(results_dir.glob("experiment_6_params_n*_d*_k*.json"))
     if not files:
-        raise FileNotFoundError(f"No Experiment 6 results found in {RESULTS_DIR}")
+        raise FileNotFoundError(f"No Experiment 6 results found in {results_dir}")
 
     summaries: list[dict] = []
     instances: list[dict] = []
@@ -102,11 +103,12 @@ def _write_csv(path: Path, fields: tuple[str, ...], rows: list[dict]) -> None:
 
 
 def write_outputs(summaries: list[dict], instances: list[dict]) -> tuple[Path, ...]:
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    summary_csv = OUTPUT_DIR / "configuration_summary.csv"
-    instance_csv = OUTPUT_DIR / "instance_results.csv"
-    markdown = OUTPUT_DIR / "configuration_summary.md"
-    latex_path = OUTPUT_DIR / "configuration_summary.tex"
+    output_dir = experiment_path(CONFIG["processed_results_dir"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    summary_csv = output_dir / "configuration_summary.csv"
+    instance_csv = output_dir / "instance_results.csv"
+    markdown = output_dir / "configuration_summary.md"
+    latex_path = output_dir / "configuration_summary.tex"
     _write_csv(summary_csv, SUMMARY_FIELDS, summaries)
     _write_csv(instance_csv, INSTANCE_FIELDS, instances)
 

@@ -11,9 +11,11 @@ import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
-EXPERIMENT_DIR = Path(__file__).resolve().parent
-RESULTS_PATH = EXPERIMENT_DIR / "results" / "experiment_7_memory.json"
-OUTPUT_DIR = EXPERIMENT_DIR / "processed_results"
+from experimentation.experiment_config import experiment_path, load_experiment
+
+CONFIG = load_experiment("experiment_7")
+RESULTS_PATH = experiment_path(CONFIG["results_dir"]) / CONFIG["output_file"]
+OUTPUT_DIR = experiment_path(CONFIG["processed_results_dir"])
 METHODS = {
     "exact_dp": "Exact DP",
     "smvc": "SMVC",

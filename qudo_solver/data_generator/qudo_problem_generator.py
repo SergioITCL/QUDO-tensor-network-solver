@@ -75,6 +75,7 @@ def qudo_problem_generation(
     n_neighbors: int,
     n_random_instances: int,
     n_fixed_instances: int,
+    random_seeds: list[int] | None = None,
 ) -> list[QudoInstance]:
     if n_variables < 1:
         raise ValueError("n_variables must be greater than 0")
@@ -84,10 +85,13 @@ def qudo_problem_generation(
         raise ValueError("The number of instances cannot be negative")
     if n_random_instances + n_fixed_instances == 0:
         raise ValueError("At least one instance must be generated")
+    if random_seeds is not None and len(random_seeds) != n_random_instances:
+        raise ValueError("random_seeds must match n_random_instances")
 
     qudo_instances: list[QudoInstance] = []
 
-    for seed in range(n_random_instances):
+    seeds = random_seeds if random_seeds is not None else range(n_random_instances)
+    for seed in seeds:
         qudo_instances.append(
             {
                 "instance_type": "random",

@@ -10,23 +10,22 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from experimentation.experiment_config import experiment_path, load_experiment
 from qudo_solver.data_generator.qudo_problem_generator import qudo_problem_generation
 from qudo_solver.solvers.dynamic_programming.dynamic_programming_solver import (
     solver_dynamic_programming,
 )
 
-RESULTS_DIR = Path(__file__).resolve().parent / "results"
-N_VARIABLES = (500, 1000)
-CONFIGURATIONS = ((2, 2), (2, 4), (4, 2), (4, 4))
-N_RANDOM_INSTANCES = 50
-
+CONFIG = load_experiment("experiment_1")
+print(CONFIG)
 
 def run_configuration(n_variables: int, dits: int, n_neighbors: int) -> list[dict]:
     results = []
     instances = qudo_problem_generation(
         n_variables=n_variables,
         n_neighbors=n_neighbors,
-        n_random_instances=N_RANDOM_INSTANCES,
+        n_random_instances=len(CONFIG["seeds"]),
+        random_seeds=CONFIG["seeds"],
         n_fixed_instances=0,
     )
 
@@ -59,21 +58,23 @@ def run_configuration(n_variables: int, dits: int, n_neighbors: int) -> list[dic
 
 def main() -> None:
     results = []
-    for dits, n_neighbors in CONFIGURATIONS:
-        for n_variables in N_VARIABLES:
+    for dits, n_neighbors in CONFIG["configurations"]:
+        for n_variables in CONFIG["n_variables"]:
             results.extend(run_configuration(n_variables, dits, n_neighbors))
 
     payload = {
         "parameters": {
-            "n_variables": N_VARIABLES,
-            "configurations": CONFIGURATIONS,
-            "n_random_instances": N_RANDOM_INSTANCES,
+            "n_variables": CONFIG["n_variables"],
+            "configurations": CONFIG["configurations"],
+            "n_random_instances": len(CONFIG["seeds"]),
+            "seeds": CONFIG["seeds"],
             "linear_coefficients": "random",
         },
         "results": results,
     }
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    output_path = RESULTS_DIR / "experiment_1_accuracy.json"
+    results_dir = experiment_path(CONFIG["results_dir"])
+    results_dir.mkdir(parents=True, exist_ok=True)
+    output_path = results_dir / CONFIG["output_file"]
     output_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     print(f"Results saved to: {output_path}")
 

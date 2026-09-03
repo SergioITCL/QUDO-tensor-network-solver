@@ -7,7 +7,9 @@ from time import perf_counter
 from qudo_solver.solvers.dynamic_programming.beam_dynamic_programming_solver import (
     solver_beam_dynamic_programming,
 )
-from qudo_solver.solvers.dynamic_programming.dynamic_programming_solver import solver_dynamic_programming
+from qudo_solver.solvers.dynamic_programming.dynamic_programming_solver import (
+    solver_dynamic_programming,
+)
 from qudo_solver.solvers.smvc.smvc import solver_smvc
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -15,6 +17,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 
+from experimentation.experiment_config import experiment_path, load_experiment
 from qudo_solver.auxiliar_functions import estimate_tau_max
 from qudo_solver.data_generator.qudo_problem_generator import (
     qudo_problem_generation,
@@ -23,24 +26,9 @@ from qudo_solver.qudo_solver_core.solution import SolutionClass
 from qudo_solver.solvers.scip import solver_scip_with_metadata
 from qudo_solver.solvers.tabu_search import solver_tabu_search
 
-RESULTS_DIR = Path(__file__).resolve().parent / "results"
-
-N_VARIABLES = [250, 500]  # list(range(10, 1001, 100))
-DITS_VALUES = [2, 4, 6]
-K_VALUES = [2, 3, 4]
-N_RANDOM_INSTANCES = 50
-N_FIXED_INSTANCES = 0
-OPTIMAL_TOLERANCE = 1e-9
-BEAM_LOOKAHEAD_DEPTH = 0
-BEAM_LOCAL_SEARCH_PASSES = 0
-BEAM_MIN_BEAM_WIDTH = 1
-BEAM_MAX_BEAM_WIDTH = 4096
-BEAM_TIME_MATCH_TOLERANCE = 0.10
-BEAM_BEAM_WIDTH_MAX_PROBES = 10
-TABU_TENURE = None
-TABU_CANDIDATE_LIST_SIZE = None
-TABU_DIVERSIFICATION_INTERVAL = 500
-TABU_GREEDY_INITIALIZATION = True
+CONFIG = load_experiment("experiment_2")
+BEAM = CONFIG["beam"]
+TABU = CONFIG["tabu"]
 
 
 def solve_beam_dynamic_programming_with_matching_time(
@@ -49,11 +37,11 @@ def solve_beam_dynamic_programming_with_matching_time(
     dits: int,
     n_neighbors: int,
     target_time: float,
-    lookahead_depth: int = BEAM_LOOKAHEAD_DEPTH,
-    local_search_passes: int = BEAM_LOCAL_SEARCH_PASSES,
-    min_beam_width: int = BEAM_MIN_BEAM_WIDTH,
-    max_beam_width: int = BEAM_MAX_BEAM_WIDTH,
-    max_probes: int = BEAM_BEAM_WIDTH_MAX_PROBES,
+    lookahead_depth: int = BEAM["lookahead_depth"],
+    local_search_passes: int = BEAM["local_search_passes"],
+    min_beam_width: int = BEAM["min_width"],
+    max_beam_width: int = BEAM["max_width"],
+    max_probes: int = BEAM["max_probes"],
 ) -> tuple[SolutionClass, int, float, int]:
     """Return the largest measured beam width within Matrix's time budget."""
     if target_time <= 0.0:
@@ -78,7 +66,7 @@ def solve_beam_dynamic_programming_with_matching_time(
     smallest_infeasible = None
     beam_width = min_beam_width
     maximum_allowed_time = (
-        1.0 + BEAM_TIME_MATCH_TOLERANCE
+        1.0 + BEAM["time_match_tolerance"]
     ) * target_time
 
     while beam_width <= max_beam_width and probes < max_probes:
@@ -204,9 +192,10 @@ def run_experiment(dits: int, n_neighbors: int):
     beam_dynamic_programming_summary = []
     tabu_search_summary = []
     scip_summary = []
-    json_path = RESULTS_DIR / f"experiment_2_params_d{dits}_k{n_neighbors}.json"
+    results_dir = experiment_path(CONFIG["results_dir"])
+    json_path = results_dir / f"experiment_2_params_d{dits}_k{n_neighbors}.json"
 
-    for n_variables in N_VARIABLES:
+    for n_variables in CONFIG["n_variables"]:
         optimal_count = 0
         gaps: list[float] = []
         relative_gaps: list[float] = []
@@ -238,8 +227,9 @@ def run_experiment(dits: int, n_neighbors: int):
         qudo_instances = qudo_problem_generation(
             n_variables=n_variables,
             n_neighbors=n_neighbors,
-            n_random_instances=N_RANDOM_INSTANCES,
-            n_fixed_instances=N_FIXED_INSTANCES,
+            n_random_instances=len(CONFIG["seeds"]),
+            n_fixed_instances=CONFIG["n_fixed_instances"],
+            random_seeds=CONFIG["seeds"],
         )
         for index, instance in enumerate(qudo_instances):
             qudo_problem_matrix = instance["q_matrix"]
@@ -267,11 +257,11 @@ def run_experiment(dits: int, n_neighbors: int):
                 dits=dits,
                 n_neighbors=n_neighbors,
                 time_limit=matrix_method_time_limit,
-                tabu_tenure=TABU_TENURE,
-                candidate_list_size=TABU_CANDIDATE_LIST_SIZE,
-                diversification_interval=TABU_DIVERSIFICATION_INTERVAL,
+                tabu_tenure=TABU["tenure"],
+                candidate_list_size=TABU["candidate_list_size"],
+                diversification_interval=TABU["diversification_interval"],
                 seed=instance["seed"],
-                greedy_initialization=TABU_GREEDY_INITIALIZATION,
+                greedy_initialization=TABU["greedy_initialization"],
                 require_nonzero=False,
             )
             tabu_search_time_match_ratio = (
@@ -293,7 +283,7 @@ def run_experiment(dits: int, n_neighbors: int):
                     n_neighbors=n_neighbors,
                     target_time=matrix_method_time_limit,
                     max_beam_width=min(
-                        BEAM_MAX_BEAM_WIDTH,
+                        BEAM["max_width"],
                         dits**n_neighbors,
                     ),
                 )
@@ -301,7 +291,7 @@ def run_experiment(dits: int, n_neighbors: int):
                 calibration_time_match_ratio = beam_time_match_ratio
                 calibration_within_budget = (
                     beam_time_match_ratio
-                    <= 1.0 + BEAM_TIME_MATCH_TOLERANCE
+                    <= 1.0 + BEAM["time_match_tolerance"]
                 )
                 calibration_seed = instance["seed"]
                 beam_calibration_probes = calibration_probes
@@ -315,8 +305,8 @@ def run_experiment(dits: int, n_neighbors: int):
                     dits=dits,
                     n_neighbors=n_neighbors,
                     beam_width=calibrated_beam_width,
-                    lookahead_depth=BEAM_LOOKAHEAD_DEPTH,
-                    local_search_passes=BEAM_LOCAL_SEARCH_PASSES,
+                    lookahead_depth=BEAM["lookahead_depth"],
+                    local_search_passes=BEAM["local_search_passes"],
                 )
                 beam_time_match_ratio = (
                     beam_solution.execution_time
@@ -501,8 +491,8 @@ def run_experiment(dits: int, n_neighbors: int):
                             else None
                         ),
                         "time_match_ratio": beam_time_match_ratio,
-                        "lookahead_depth": BEAM_LOOKAHEAD_DEPTH,
-                        "local_search_passes": BEAM_LOCAL_SEARCH_PASSES,
+                        "lookahead_depth": BEAM["lookahead_depth"],
+                        "local_search_passes": BEAM["local_search_passes"],
                         "time": beam_solution.execution_time,
                         "cost": beam_solution.cost,
                         "reached_optimal": beam_metrics["reached_optimal"],
@@ -618,34 +608,35 @@ def run_experiment(dits: int, n_neighbors: int):
         "parameters": {
             "dits": dits,
             "n_neighbors": n_neighbors,
-            "n_variables": N_VARIABLES,
+            "n_variables": CONFIG["n_variables"],
             "instance_generation": {
-                "n_random_instances": N_RANDOM_INSTANCES,
-                "n_fixed_instances": N_FIXED_INSTANCES,
+                "n_random_instances": len(CONFIG["seeds"]),
+                "seeds": CONFIG["seeds"],
+                "n_fixed_instances": CONFIG["n_fixed_instances"],
                 "seeds": {
-                    "random": list(range(N_RANDOM_INSTANCES)),
-                    "fixed": list(range(N_FIXED_INSTANCES)),
+                    "random": CONFIG["seeds"],
+                    "fixed": list(range(CONFIG["n_fixed_instances"])),
                 },
             },
-            "optimal_tolerance": OPTIMAL_TOLERANCE,
+            "optimal_tolerance": CONFIG["optimal_tolerance"],
             "beam_dynamic_programming": {
                 "beam_width_strategy": "calibrate_on_first_instance_per_d_k_n",
                 "time_limit_source": "first_matrix_method.execution_time",
-                "minimum_beam_width": BEAM_MIN_BEAM_WIDTH,
-                "maximum_beam_width": BEAM_MAX_BEAM_WIDTH,
+                "minimum_beam_width": BEAM["min_width"],
+                "maximum_beam_width": BEAM["max_width"],
                 "maximum_time_overrun_fraction": (
-                    BEAM_TIME_MATCH_TOLERANCE
+                    BEAM["time_match_tolerance"]
                 ),
-                "maximum_calibration_probes": BEAM_BEAM_WIDTH_MAX_PROBES,
-                "lookahead_depth": BEAM_LOOKAHEAD_DEPTH,
-                "local_search_passes": BEAM_LOCAL_SEARCH_PASSES,
+                "maximum_calibration_probes": BEAM["max_probes"],
+                "lookahead_depth": BEAM["lookahead_depth"],
+                "local_search_passes": BEAM["local_search_passes"],
             },
             "tabu_search": {
                 "time_limit_source": "matrix_method.execution_time",
-                "tabu_tenure": TABU_TENURE,
-                "candidate_list_size": TABU_CANDIDATE_LIST_SIZE,
-                "diversification_interval": TABU_DIVERSIFICATION_INTERVAL,
-                "greedy_initialization": TABU_GREEDY_INITIALIZATION,
+                "tabu_tenure": TABU["tenure"],
+                "candidate_list_size": TABU["candidate_list_size"],
+                "diversification_interval": TABU["diversification_interval"],
+                "greedy_initialization": TABU["greedy_initialization"],
                 "seed_source": "instance.seed",
             },
             "scip": {
@@ -667,8 +658,8 @@ def run_experiment(dits: int, n_neighbors: int):
 
 
 def main():
-    for dits in DITS_VALUES:
-        for n_neighbors in K_VALUES:
+    for dits in CONFIG["dits_values"]:
+        for n_neighbors in CONFIG["k_values"]:
             print(f"Starting experiment for dits={dits}, k={n_neighbors}")
             run_experiment(dits=dits, n_neighbors=n_neighbors)
 

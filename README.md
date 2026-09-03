@@ -9,7 +9,7 @@ Python implementations of exact and approximate methods for QUDO/QUBO problems w
 - Tabu Search.
 - SCIP.
 
-See [`experimentation/README.md`](experimentation/README.md) for the experiment configurations and reproducibility commands.
+All experiment parameters are centralized in [`experimentation/experiments.json`](experimentation/experiments.json). See [`experimentation/README.md`](experimentation/README.md) for reproducibility commands.
 
 ## Requirements
 

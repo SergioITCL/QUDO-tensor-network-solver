@@ -2,6 +2,20 @@
 
 This directory contains the scripts that generate experimental results and the processors that convert JSON results into CSV, Markdown, LaTeX tables, and figures.
 
+## Shared configuration
+
+All experiment parameters are stored in [`experiments.json`](experiments.json). Edit that file to change problem sizes, `(d, k)` configurations, numbers of instances, solver limits, or result directories. Individual experiment scripts load their section from this file.
+
+## Run all experiments
+
+The following command runs every experiment in JSON order and executes its processor immediately afterwards:
+
+```bash
+poetry run python experimentation/run_all_experiments.py
+```
+
+The full campaign can take a long time. Experiments 2, 6, and 7 are the most expensive. To run a single experiment, use the commands in its section below.
+
 Run all commands from the repository root:
 
 ```bash
@@ -20,7 +34,7 @@ For every reproduction, record `git rev-parse HEAD`, `python --version`, depende
 
 ## Instances and seeds
 
-Instances are generated with `qudo_problem_generation` and deterministic integer seeds. Random-instance seeds are `0, 1, ..., N_RANDOM_INSTANCES-1`. Quadratic coefficients are sampled from `U(-10, 10)` and linear coefficients use an independent sequence. `q_matrix` uses a compact lower-triangular representation: each row ends with the diagonal coefficient and contains interactions with previous variables.
+Instances are generated with `qudo_problem_generation` and the explicit integer lists in the `seeds` field of `experiments.json`. Quadratic coefficients are sampled from `U(-10, 10)` and linear coefficients use an independent sequence. `q_matrix` uses a compact lower-triangular representation: each row ends with the diagonal coefficient and contains interactions with previous variables.
 
 The workflow for every experiment is:
 
@@ -128,6 +142,5 @@ Before accepting a reproduction, check that every JSON contains the expected num
 ## Current limitations
 
 - Raw results are not versioned in Git.
-- There is no single command to run the complete campaign.
 - No container or CI workflow validates the full campaign.
 - Experiments 6 and 7 can be expensive.

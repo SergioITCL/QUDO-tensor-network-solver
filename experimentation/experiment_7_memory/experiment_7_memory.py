@@ -11,20 +11,10 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from experimentation.experiment_config import experiment_path, load_experiment
 from qudo_solver.data_generator.qudo_problem_generator import generate_k_random_qudo
 
-RESULTS_DIR = Path(__file__).resolve().parent / "results"
-METHODS = ("exact_dp", "smvc", "stc", "beam_dp", "tabu")
-N_VALUES = (100, 200,300,400,500,600,700,800,900,1000)
-K_VALUES = (2, 4, 6, 8, 10)
-D_VALUES = (2, 4, 6, 8, 10)
-FIXED_N = 50
-FIXED_K = 3
-FIXED_D = 3
-N_RANDOM_INSTANCES = 3
-BEAM_WIDTH = 256
-TABU_ITERATIONS = 100
-SAMPLE_INTERVAL = 0.002
+CONFIG = load_experiment("experiment_7")
 
 
 def current_rss_mib(pid: int) -> float | None:
@@ -66,7 +56,7 @@ def get_solver(method: str, dits: int, n_neighbors: int, seed: int):
         )
 
         return lambda q_matrix, q_row: solver_beam_dynamic_programming(
-            q_matrix, q_row, dits, n_neighbors, beam_width=BEAM_WIDTH
+            q_matrix, q_row, dits, n_neighbors, beam_width=CONFIG["beam_width"]
         )
     if method == "tabu":
         from qudo_solver.solvers.tabu_search import solver_tabu_search
@@ -76,8 +66,8 @@ def get_solver(method: str, dits: int, n_neighbors: int, seed: int):
             q_row,
             dits,
             n_neighbors,
-            time_limit=60.0,
-            max_iterations=TABU_ITERATIONS,
+            time_limit=CONFIG["tabu_time_limit"],
+            max_iterations=CONFIG["tabu_iterations"],
             seed=seed,
         )
     raise ValueError(f"Unknown method: {method}")
@@ -124,7 +114,7 @@ def measure(method: str, n: int, k: int, d: int, seed: int) -> dict:
         memory = current_rss_mib(process.pid)
         if memory is not None:
             peak = max(peak, memory)
-        time.sleep(SAMPLE_INTERVAL)
+        time.sleep(CONFIG["sample_interval"])
 
     output = process.stdout.read().strip().splitlines()
     error = process.stderr.read()
@@ -141,19 +131,19 @@ def measure(method: str, n: int, k: int, d: int, seed: int) -> dict:
 
 
 def configurations():
-    for n in N_VALUES:
-        yield "n", n, n, FIXED_K, FIXED_D
-    for k in K_VALUES:
-        yield "k", k, FIXED_N, k, FIXED_D
-    for d in D_VALUES:
-        yield "d", d, FIXED_N, FIXED_K, d
+    for n in CONFIG["n_values"]:
+        yield "n", n, n, CONFIG["fixed_k"], CONFIG["fixed_d"]
+    for k in CONFIG["k_values"]:
+        yield "k", k, CONFIG["fixed_n"], k, CONFIG["fixed_d"]
+    for d in CONFIG["d_values"]:
+        yield "d", d, CONFIG["fixed_n"], CONFIG["fixed_k"], d
 
 
 def main() -> None:
     results = []
     for series, value, n, k, d in configurations():
-        for seed in range(N_RANDOM_INSTANCES):
-            for method in METHODS:
+        for seed in CONFIG["seeds"]:
+            for method in CONFIG["methods"]:
                 measurement = measure(method, n, k, d, seed)
                 results.append(
                     {
@@ -175,22 +165,24 @@ def main() -> None:
 
     payload = {
         "parameters": {
-            "n_values": N_VALUES,
-            "k_values": K_VALUES,
-            "d_values": D_VALUES,
-            "fixed_n": FIXED_N,
-            "fixed_k": FIXED_K,
-            "fixed_d": FIXED_D,
-            "n_random_instances": N_RANDOM_INSTANCES,
-            "beam_width": BEAM_WIDTH,
-            "tabu_iterations": TABU_ITERATIONS,
-            "sample_interval_s": SAMPLE_INTERVAL,
+            "n_values": CONFIG["n_values"],
+            "k_values": CONFIG["k_values"],
+            "d_values": CONFIG["d_values"],
+            "fixed_n": CONFIG["fixed_n"],
+            "fixed_k": CONFIG["fixed_k"],
+            "fixed_d": CONFIG["fixed_d"],
+            "n_random_instances": len(CONFIG["seeds"]),
+            "seeds": CONFIG["seeds"],
+            "beam_width": CONFIG["beam_width"],
+            "tabu_iterations": CONFIG["tabu_iterations"],
+            "sample_interval_s": CONFIG["sample_interval"],
             "memory_metric": "Linux process RSS in MiB",
         },
         "results": results,
     }
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    output_path = RESULTS_DIR / "experiment_7_memory.json"
+    results_dir = experiment_path(CONFIG["results_dir"])
+    results_dir.mkdir(parents=True, exist_ok=True)
+    output_path = results_dir / CONFIG["output_file"]
     output_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     print(f"Results saved to: {output_path}")
 

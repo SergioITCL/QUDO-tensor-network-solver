@@ -69,3 +69,4 @@ apssamp.tex
 # Experimentation results (JSON + plots)
 experimentation/**/*.json
 experimentation/**/*.png
+!experimentation/experiments.json
