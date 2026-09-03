@@ -50,7 +50,7 @@ def solver_dynamic_programming(
     if not q_matrix:
         raise ValueError("q_matrix must contain at least one variable")
     if len(q_row) != len(q_matrix):
-        raise ValueError("q_matrix y q_row deben tener la misma longitud")
+        raise ValueError("q_matrix and q_row must have the same length")
     if dits < 2:
         raise ValueError("dits must be at least 2")
     if n_neighbors < 0:

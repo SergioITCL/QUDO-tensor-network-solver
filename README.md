@@ -1,58 +1,92 @@
 # QUDO Solver
 
-QUDO Solver provides tensor-network and exact methods to solve QUDO/QUBO (Quadratic Unconstrained Discrete/Binary Optimization) problems. It includes two optimized implementations of the MeLoCoTN method for fixed k-neighbors: one matrix-based `numpy` and one tensor-based using `tensorkrowch`.
+Python implementations of exact and approximate methods for QUDO/QUBO problems with local `k`-neighbor interactions. The main methods used by the experiments are:
 
-- Author: Sergio Muñiz Subiñas (<sergio.muniz@itcl.es>)
-- Organization: ITCL
+- `SMVC`: Sparse Matrix--Vector Contraction, based on NumPy/SciPy.
+- `STC`: Staircase Tensor Contraction, based on PyTorch/TensorKrowch.
+- Exact Dynamic Programming.
+- Beam Dynamic Programming.
+- Tabu Search.
+- SCIP.
 
-## Features
-- Solve QUDO/QUBO with k-neighbors and discrete values of base `d` (bits, trits, ...) using two different methods.
-  - Matrix-based with `numpy`/ (`qubo_k_neighbors_matrix_optimized.py`).
-  - Tensor-based with `tensorkrowch`/`torch` (`qubo_k_neighbors_tensorkrowch_optimized.py`).
-- Exact transfer-matrix optimization in the min-plus semiring (`solver_transfer_matrix`).
-- Alternative solver using `OR-Tools` in `qudo_solver_core/qubo_solvers.py` (`ortools_qudo_solver`).
-
-```python
-from qudo_solver.solvers.transfer_matrix import solver_transfer_matrix
-
-result = solver_transfer_matrix(Q, q, dits=2, n_neighbors=3)
-print(result.solution_list, result.cost)
-```
+See [`experimentation/README.md`](experimentation/README.md) for the experiment configurations and reproducibility commands.
 
 ## Requirements
-- Python 3.10+
-- Recommended: virtual environment via `poetry`.
 
+- Python 3.10 or later.
+- Poetry, recommended for environment management.
+- PyTorch and TensorKrowch for `STC`.
+- A working PySCIPOpt/SCIP installation for the SCIP experiments.
+
+The main dependencies are listed in `pyproject.toml` and resolved versions are recorded in `poetry.lock`.
 
 ## Installation
 
-### Option 1: Poetry (recommended)
+From the repository root:
+
 ```bash
-# From the project root
 poetry install
-
-# Activate the virtualenv
-poetry shell
+poetry run python -c "import qudo_solver; print('QUDO Solver installed')"
 ```
-## Quick start
 
-This repository includes three notebooks, one for each variant of the method:
+You may also activate the Poetry environment with `poetry shell`.
 
-- A notebook for the matrix-based implementation (NumPy), showing step-by-step instance generation, network construction, and solution via matrix operations.
+## Basic usage
 
-- A notebook for the tensor-based implementation (tensorkrowch/Torch), following the same workflow but using tensors and backend-specific operations.
+Solvers receive a compact lower-triangular matrix `Q`, a vector of linear coefficients `q`, the local dimension `dits`, and the neighbor range `k`:
 
-- A notebook that reproduces all the experiments reported in the paper.
+```python
+from qudo_solver.data_generator.qudo_problem_generator import qudo_problem_generation
+from qudo_solver.solvers.smvc.smvc import solver_smvc
 
-Additionally, it includes to python scripts containing each of the algorithms as a module.
+instance = qudo_problem_generation(20, 2, 1, 0)[0]
+result = solver_smvc(
+    instance["q_matrix"], instance["q_row"], dits=2, n_neighbors=2
+)
+print(result.solution_list, result.cost)
+```
 
-## Tips and notes
-- Tune `tau` for your problem. `tau` controls the "temperature" of the imaginary-time evolution.
+Solvers return `SolutionClass`, containing the solution, objective value, and execution time.
 
+## Tests
 
-## Development
-- Dev requirement: `ipykernel` to run notebooks.
-- Open and run the notebooks with the environment kernel.
+Run the test suite with:
 
-## Citation
-If you use this repository in academic work, please cite "" and this repository.
+```bash
+poetry run pytest
+```
+
+The current copy still contains historical tests for solvers that are no longer present, so full collection may fail. Tests for the currently maintained components can be run with:
+
+```bash
+poetry run pytest \
+  tests/test_scip_solver.py \
+  tests/test_tabu_search_solver.py \
+  tests/test_experiment_6.py
+```
+
+## Repository layout
+
+```text
+qudo_solver/       Solver implementations, instance generation, and result model
+experimentation/   Experiment scripts and result processors
+tests/             Unit and integration tests
+main.py            Legacy comparison script; it may reference retired modules
+```
+
+## Reproducibility
+
+Experiments generate instances with deterministic integer seeds and write intermediate results to `results/` directories. Generated JSON and PNG files are excluded from Git to avoid committing large artifacts; processed tables and selected results are retained under `processed_results/`.
+
+To reproduce a table or figure, use the generation script, the experiment configuration, and the corresponding raw results. See [`experimentation/README.md`](experimentation/README.md) for the exact inventory.
+
+## Known status
+
+- `main.py` is not fully aligned with the current `qudo_solver` layout.
+- Some historical tests and documentation references point to removed modules.
+- Numerical reproduction depends on CPU, BLAS/PyTorch/TensorKrowch versions, SCIP, and the operating system.
+- Runtime and memory results should not be compared across machines without recording the environment.
+
+## License and citation
+
+The project is distributed under the license in [`LICENSE`](LICENSE). Complete paper citation metadata should be added before the repository is released as a final publication companion.

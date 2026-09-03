@@ -74,10 +74,10 @@ def run_configuration(n_variables: int, n_neighbors: int) -> list[dict]:
         )
 
         print(
-            f"n={n_variables}, k={n_neighbors}, instancia={index}: "
-            f"matriz={matrix_solution.execution_time:.4f}s, "
+            f"n={n_variables}, k={n_neighbors}, instance={index}: "
+            f"matrix={matrix_solution.execution_time:.4f}s, "
             f"tensor={tensor_solution.execution_time:.4f}s, "
-            f"dinamica={dynamic_solution.execution_time:.4f}s"
+            f"dynamic={dynamic_solution.execution_time:.4f}s"
         )
 
     return results
@@ -103,7 +103,7 @@ def main() -> None:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     output_path = RESULTS_DIR / "experiment_5.json"
     output_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-    print(f"Resultados guardados en: {output_path}")
+    print(f"Results saved to: {output_path}")
 
 
 if __name__ == "__main__":

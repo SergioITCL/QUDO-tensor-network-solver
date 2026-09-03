@@ -41,7 +41,7 @@ def qudo_value(
 ) -> float:
     if len(x) != len(q_matrix) or len(x) != len(q_row):
         raise ValueError(
-            "x, q_matrix y q_row deben tener la misma longitud"
+            "x, q_matrix, and q_row must have the same length"
         )
 
     total = 0.0

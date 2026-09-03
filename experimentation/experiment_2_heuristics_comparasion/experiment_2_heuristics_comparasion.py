@@ -514,7 +514,7 @@ def run_experiment(dits: int, n_neighbors: int):
             )
 
         print("\\")
-        print(f"Prueba con dits={dits}, k={n_neighbors}, n={n_variables}")
+        print(f"Run with dits={dits}, k={n_neighbors}, n={n_variables}")
         total_trials = len(qudo_instances)
 
         stability_summary = compute_stability_summary(

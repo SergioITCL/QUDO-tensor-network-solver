@@ -94,7 +94,7 @@ def main() -> None:
         "\\bottomrule\n\\end{tabular}\n\\end{table*}\n"
     )
     LATEX_PATH.write_text(latex, encoding="utf-8")
-    print(f"Gráfica guardada en: {OUTPUT_PATH}")
+    print(f"Plot saved to: {OUTPUT_PATH}")
     print(f"Tabla LaTeX guardada en: {LATEX_PATH}")
 
 

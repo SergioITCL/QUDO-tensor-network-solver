@@ -83,7 +83,7 @@ def main() -> None:
         + "\\bottomrule\n\\end{tabular}\n\\end{table*}\n"
     )
     (OUTPUT_DIR / "experiment_1_accuracy.tex").write_text(latex, encoding="utf-8")
-    print(f"Resultados procesados en: {OUTPUT_DIR}")
+    print(f"Processed results saved to: {OUTPUT_DIR}")
 
 
 if __name__ == "__main__":

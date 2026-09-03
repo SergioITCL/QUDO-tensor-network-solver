@@ -73,9 +73,9 @@ def run_configuration(series: str, value: int, dits: int, n_neighbors: int) -> l
         )
 
         print(
-            f"{series}={value}, instancia={index}: "
+            f"{series}={value}, instance={index}: "
             f"tensor={tensor_solution.execution_time:.4f}s, "
-            f"matriz={matrix_solution.execution_time:.4f}s, "
+            f"matrix={matrix_solution.execution_time:.4f}s, "
         )
 
     return results
@@ -107,7 +107,7 @@ def main() -> None:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     output_path = RESULTS_DIR / "experiment_3_kd_t.json"
     output_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-    print(f"Resultados guardados en: {output_path}")
+    print(f"Results saved to: {output_path}")
 
 
 if __name__ == "__main__":

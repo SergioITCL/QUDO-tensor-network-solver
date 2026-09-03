@@ -172,7 +172,7 @@ def solver_beam_dynamic_programming(
     if n == 0:
         raise ValueError("q_matrix must contain at least one variable")
     if len(q_row) != n:
-        raise ValueError("q_matrix y q_row deben tener la misma longitud")
+        raise ValueError("q_matrix and q_row must have the same length")
 
     interaction_width = max(len(row) - 1 for row in q_matrix)
     max_hist = min(n - 1, max(n_neighbors, interaction_width))

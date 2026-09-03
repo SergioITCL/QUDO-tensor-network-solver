@@ -164,7 +164,7 @@ def main() -> None:
         writer.writerows(rows)
 
     outputs = (csv_path, write_latex(rows), make_plot(rows))
-    print("Resultados procesados:")
+    print("Processed results:")
     for output in outputs:
         print(f"  - {output}")
 

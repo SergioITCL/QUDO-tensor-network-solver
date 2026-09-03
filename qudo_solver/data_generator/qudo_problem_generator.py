@@ -24,7 +24,7 @@ def normalize_list_of_lists(Q_matrix: list[list[float]]):
 
     norm = np.linalg.norm(all_values)
     if norm == 0:
-        raise ValueError("No se puede normalizar una matriz de norma cero")
+        raise ValueError("A zero-norm matrix cannot be normalized")
 
     # Normalize respecting the original shape
     Q_normalized = []
@@ -43,7 +43,7 @@ def normalize_problem(
 
     if len(Q_matrix) != len(Q_row):
         raise ValueError(
-            "Q_matrix y Q_row deben tener la misma longitud"
+            "Q_matrix and Q_row must have the same length"
         )
 
     all_values = []
@@ -56,7 +56,7 @@ def normalize_problem(
     norm = np.linalg.norm(all_values)
 
     if norm == 0:
-        raise ValueError("No se puede normalizar un problema de norma cero")
+        raise ValueError("A zero-norm problem cannot be normalized")
 
     Q_matrix_normalized = [
         [float(value / norm) for value in row]
@@ -77,13 +77,13 @@ def qudo_problem_generation(
     n_fixed_instances: int,
 ) -> list[QudoInstance]:
     if n_variables < 1:
-        raise ValueError("n_variables debe ser mayor que 0")
+        raise ValueError("n_variables must be greater than 0")
     if n_neighbors < 1:
-        raise ValueError("n_neighbors debe ser mayor que 0")
+        raise ValueError("n_neighbors must be greater than 0")
     if n_random_instances < 0 or n_fixed_instances < 0:
-        raise ValueError("El número de instancias no puede ser negativo")
+        raise ValueError("The number of instances cannot be negative")
     if n_random_instances + n_fixed_instances == 0:
-        raise ValueError("Debe generarse al menos una instancia")
+        raise ValueError("At least one instance must be generated")
 
     qudo_instances: list[QudoInstance] = []
 
@@ -126,9 +126,9 @@ def generate_k_random_qudo(
     seed: int | None = None,
 ) -> list[list[float]]:
     if n_variables < 1:
-        raise ValueError("n_variables debe ser mayor que 0")
+        raise ValueError("n_variables must be greater than 0")
     if k_neighbor < 1:
-        raise ValueError("k_neighbor debe ser mayor que 0")
+        raise ValueError("k_neighbor must be greater than 0")
 
     rng = random.Random(seed)
     Q_list = [[] for _ in range(n_variables)]
@@ -146,11 +146,11 @@ def generate_random_q_row(
     n_variables: int,
     seed: int | None = None,
 ) -> list[float]:
-    """Genera coeficientes lineales independientes."""
+    """Generate independent linear coefficients."""
     if n_variables < 1:
-        raise ValueError("n_variables debe ser mayor que 0")
+        raise ValueError("n_variables must be greater than 0")
 
-    # Prefijo para que q_row no repita la secuencia usada por q_matrix.
+    # Use a prefix so q_row does not repeat the sequence used by q_matrix.
     rng = random.Random(
         f"q-row-random-{seed}" if seed is not None else None
     )
@@ -166,13 +166,13 @@ def generate_fixed_interactions_qudo(
     seed: int | None = None,
 ) -> list[list[float]]:
     """
-    Genera una QUDO triangular inferior con interacciones aleatorias
-    repetibles para una misma semilla.
+        Generate a lower-triangular QUDO with random interactions
+        reproducible for a given seed.
     """
     if n_variables < 1:
-        raise ValueError("n_variables debe ser mayor que 0")
+        raise ValueError("n_variables must be greater than 0")
     if k_neighbors < 1:
-        raise ValueError("k_neighbors debe ser mayor que 0")
+        raise ValueError("k_neighbors must be greater than 0")
 
     rng = random.Random(seed)
     neighbor_values = [
@@ -191,7 +191,7 @@ def generate_fixed_interactions_qudo(
             for distance in range(max_distance, 0, -1)
         ]
 
-        # La diagonal es fija entre filas, pero independiente de los acoplamientos.
+        # The diagonal is fixed across rows and independent of the couplings.
         row.append(diagonal_value)
 
         Q_list.append(row)
@@ -202,9 +202,9 @@ def generate_fixed_q_row(
     n_variables: int,
     seed: int | None = None,
 ) -> list[float]:
-    """Genera un mismo coeficiente lineal para todas las variables."""
+    """Generate the same linear coefficient for every variable."""
     if n_variables < 1:
-        raise ValueError("n_variables debe ser mayor que 0")
+        raise ValueError("n_variables must be greater than 0")
 
     rng = random.Random(
         f"q-row-fixed-{seed}" if seed is not None else None

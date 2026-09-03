@@ -192,7 +192,7 @@ def main() -> None:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     output_path = RESULTS_DIR / "experiment_7_memory.json"
     output_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-    print(f"Resultados guardados en: {output_path}")
+    print(f"Results saved to: {output_path}")
 
 
 if __name__ == "__main__":
