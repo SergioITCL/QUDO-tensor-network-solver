@@ -47,6 +47,23 @@ def solver_smvc(
     n_variables = len(Q_matrix)
     solution = np.zeros(n_variables, dtype=int)
 
+    # There are no contraction matrices for a one-variable problem.  Handle
+    # this valid degenerate case directly instead of trying to multiply the
+    # first and last tensors together.
+    if n_variables == 1:
+        solution[0] = min(
+            range(dits),
+            key=lambda value: Q_matrix[0][0] * value**2
+            + Q_row_normalized[0] * value,
+        )
+        return SolutionClass.from_solution_list(
+            qudo_instance_matrix=Q_list,
+            qudo_instance_row=Q_row,
+            solution_list=list(solution),
+            dits=dits,
+            execution_time=time() - initial_time,
+        )
+
     if tau is None:
         tau = estimate_tau_max(
             n_variables=n_variables,

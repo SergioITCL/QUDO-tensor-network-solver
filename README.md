@@ -50,19 +50,10 @@ Solvers return `SolutionClass`, containing the solution, objective value, and ex
 
 ## Tests
 
-Run the test suite with:
+Run the unit and integration tests with:
 
 ```bash
 poetry run pytest
-```
-
-The current copy still contains historical tests for solvers that are no longer present, so full collection may fail. Tests for the currently maintained components can be run with:
-
-```bash
-poetry run pytest \
-  tests/test_scip_solver.py \
-  tests/test_tabu_search_solver.py \
-  tests/test_experiment_6.py
 ```
 
 ## Repository layout
@@ -71,7 +62,7 @@ poetry run pytest \
 qudo_solver/       Solver implementations, instance generation, and result model
 experimentation/   Experiment scripts and result processors
 tests/             Unit and integration tests
-main.py            Legacy comparison script; it may reference retired modules
+main.py            Small multi-solver comparison example
 ```
 
 ## Reproducibility
@@ -80,10 +71,8 @@ Experiments generate instances with deterministic integer seeds and write interm
 
 To reproduce a table or figure, use the generation script, the experiment configuration, and the corresponding raw results. The `seeds` list is part of the configuration and is also stored in generated result files. See [`experimentation/README.md`](experimentation/README.md) for the exact inventory.
 
-## Known status
+## Known limitations
 
-- `main.py` is not fully aligned with the current `qudo_solver` layout.
-- Some historical tests and documentation references point to removed modules.
 - Numerical reproduction depends on CPU, BLAS/PyTorch/TensorKrowch versions, SCIP, and the operating system.
 - Runtime and memory results should not be compared across machines without recording the environment.
 
