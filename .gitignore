@@ -63,6 +63,9 @@ scripts/time_matrix_generator/osrm-data/
 # JSON files in outputs
 outputs/**/*.json
 
+# LaTeX auxiliary source
+apssamp.tex
+
 # Experimentation results (JSON + plots)
 experimentation/**/*.json
 experimentation/**/*.png
