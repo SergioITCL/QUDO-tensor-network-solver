@@ -4,7 +4,17 @@ This directory contains the scripts that generate experimental results and the p
 
 ## Shared configuration
 
-All experiment parameters are stored in [`experiments.json`](experiments.json). Edit that file to change problem sizes, `(d, k)` configurations, numbers of instances, solver limits, or result directories. Individual experiment scripts load their section from this file.
+All experiment parameters are stored in [`experiments.json`](experiments.json). Each top-level section (`experiment_1` through `experiment_7`) defines the scripts, result directories, problem sizes, solver parameters, and exact instance `seeds` for one experiment. Individual experiment scripts and processors load their section from this file.
+
+For example, to run only five selected instances in Experiment 1, change its section to:
+
+```json
+{
+  "seeds": [10, 20, 30, 40, 50]
+}
+```
+
+The other fields in that section must be preserved. The number of generated instances is derived from the length of `seeds`, so `n_random_instances` does not need to be edited separately. Result paths can also be changed through `results_dir` and `processed_results_dir`.
 
 ## Run all experiments
 
@@ -14,7 +24,7 @@ The following command runs every experiment in JSON order and executes its proce
 poetry run python experimentation/run_all_experiments.py
 ```
 
-The full campaign can take a long time. Experiments 2, 6, and 7 are the most expensive. To run a single experiment, use the commands in its section below.
+The full campaign can take a long time. Experiments 2, 6, and 7 are the most expensive. To run a single experiment, edit its configuration if necessary and use the commands in its section below.
 
 Run all commands from the repository root:
 

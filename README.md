@@ -9,7 +9,7 @@ Python implementations of exact and approximate methods for QUDO/QUBO problems w
 - Tabu Search.
 - SCIP.
 
-All experiment parameters are centralized in [`experimentation/experiments.json`](experimentation/experiments.json). See [`experimentation/README.md`](experimentation/README.md) for reproducibility commands.
+All experiment parameters are centralized in [`experimentation/experiments.json`](experimentation/experiments.json). Each section contains the scripts, result directories, problem sizes, solver parameters, and the exact `seeds` list used for instance generation. Edit this file before running an experiment; do not edit the experiment scripts to change its configuration. See [`experimentation/README.md`](experimentation/README.md) for reproducibility commands.
 
 ## Requirements
 
@@ -78,7 +78,7 @@ main.py            Legacy comparison script; it may reference retired modules
 
 Experiments generate instances with deterministic integer seeds and write intermediate results to `results/` directories. Generated JSON and PNG files are excluded from Git to avoid committing large artifacts; processed tables and selected results are retained under `processed_results/`.
 
-To reproduce a table or figure, use the generation script, the experiment configuration, and the corresponding raw results. See [`experimentation/README.md`](experimentation/README.md) for the exact inventory.
+To reproduce a table or figure, use the generation script, the experiment configuration, and the corresponding raw results. The `seeds` list is part of the configuration and is also stored in generated result files. See [`experimentation/README.md`](experimentation/README.md) for the exact inventory.
 
 ## Known status
 
