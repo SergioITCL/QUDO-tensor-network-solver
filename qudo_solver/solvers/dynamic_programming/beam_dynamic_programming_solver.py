@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
 from time import time
+from typing import Dict, List, Tuple
 
 from qudo_solver.qudo_solver_core.solution import SolutionClass
 
@@ -141,7 +141,7 @@ def _local_search(
     return solution
 
 
-def solver_dynamic_programming_heuristic(
+def solver_beam_dynamic_programming(
     q_matrix: List[List[float]],
     q_row: List[float],
     dits: int,

@@ -3,112 +3,125 @@ from typing import Dict, List, Optional, Tuple
 
 from qudo_solver.qudo_solver_core.solution import SolutionClass
 
+History = Tuple[int, ...]
+State = Tuple[History, bool]
 
-def _row_cost(
-    Q_matrix: List[List[float]],
-    Q_row: List[float],
-    i: int,
-    x: List[int],
+
+def _step_cost(
+    row: List[float],
+    linear_coefficient: float,
+    history: History,
+    value: int,
 ) -> float:
-    """Energy contribution of row i given the assignment x[0..i]."""
-    row_vals = Q_matrix[i]
-    j_start = i - len(row_vals) + 1
-    x_i = x[i]
-    quadratic_cost = sum(
-        q_ij * x[j] * x_i
-        for k, q_ij in enumerate(row_vals)
-        if (j := j_start + k) >= 0
+    """Return the contribution of one band-matrix row."""
+    interaction_count = len(row) - 1
+    relevant_history = history[-interaction_count:] if interaction_count else ()
+
+    total = row[-1] * value * value + linear_coefficient * value
+    total += sum(
+        coefficient * previous_value * value
+        for coefficient, previous_value in zip(row[:-1], relevant_history)
     )
-    linear_cost = Q_row[i] * x_i
-    return quadratic_cost + linear_cost
+    return float(total)
 
 
 def solver_dynamic_programming(
-    Q_matrix: List[List[float]],
-    Q_row: List[float],
+    q_matrix: List[List[float]],
+    q_row: List[float],
     dits: int,
     n_neighbors: int,
     require_nonzero: bool = False,
 ) -> SolutionClass:
-    """
-    Solves a k-neighbor QUBO problem via exact dynamic programming.
+    """Solve a banded QUDO exactly without copying complete candidate routes.
 
-    Each variable takes values in {0, ..., dits - 1}. The band structure limits
-    interactions to the last n_neighbors variables, so the DP state tracks only
-    that window. Set ``require_nonzero=True`` to exclude the all-zero solution.
+    The state contains only the last ``n_neighbors`` values and a flag recording
+    whether the partial assignment contains a nonzero value. The flag is used
+    only when ``require_nonzero=True``; by default the all-zero assignment is
+    feasible. Backpointers are stored separately for reconstruction, so
+    extending a state never copies its length-``n`` route.
 
-    Args:
-        Q_matrix: Band/triangular QUBO representation.
-        Q_row: Linear coefficient of each variable.
-        dits: Number of discrete values per variable.
-        n_neighbors: Neighborhood width (k) of the problem.
-
-    Returns:
-        SolutionClass with the optimal solution and its cost.
+    For ``n`` variables, ``d`` dits and neighborhood width ``k``, the running
+    time is O(n * k * d**(k + 1)) and the reconstruction storage is
+    O(n * d**k).  In particular, for fixed ``d`` and ``k`` the running time is
+    linear, rather than quadratic, in ``n``.
     """
     initial_time = time()
-    n = len(Q_matrix)
 
-    if len(Q_row) != n:
-        raise ValueError("Q_matrix y Q_row deben tener la misma longitud")
+    if not q_matrix:
+        raise ValueError("q_matrix must contain at least one variable")
+    if len(q_row) != len(q_matrix):
+        raise ValueError("q_matrix y q_row deben tener la misma longitud")
+    if dits < 2:
+        raise ValueError("dits must be at least 2")
+    if n_neighbors < 0:
+        raise ValueError("n_neighbors must be non-negative")
 
-    max_hist = n_neighbors
+    for position, row in enumerate(q_matrix):
+        if not row:
+            raise ValueError(f"q_matrix[{position}] must not be empty")
 
-    State = Tuple[int, Tuple[int, ...], bool]
-    dp: Dict[State, float] = {(0, (), False): 0.0}
-    parent: Dict[State, Tuple[State, int]] = {}
+        maximum_row_length = min(position, n_neighbors) + 1
+        if len(row) > maximum_row_length:
+            raise ValueError(
+                f"q_matrix[{position}] has {len(row) - 1} previous-variable "
+                f"interactions, but at most {maximum_row_length - 1} are "
+                "representable with n_neighbors"
+            )
 
-    for pos in range(n):
-        next_dp: Dict[State, float] = {}
+    current_costs: Dict[State, float] = {((), False): 0.0}
+    parents: List[Dict[State, Tuple[State, int]]] = []
 
-        for (cur_pos, hist, has_nonzero), cost_so_far in dp.items():
-            if cur_pos != pos:
-                continue
+    for row, linear_coefficient in zip(q_matrix, q_row):
+        next_costs: Dict[State, float] = {}
+        next_parents: Dict[State, Tuple[State, int]] = {}
 
-            prefix_start = pos - len(hist)
-            x_prefix = list(hist)
+        for state, cost_so_far in current_costs.items():
+            history, has_nonzero = state
 
-            for val in range(dits):
-                x = [0] * (pos + 1)
-                for idx, var_idx in enumerate(range(prefix_start, pos)):
-                    x[var_idx] = x_prefix[idx]
-                x[pos] = val
+            for value in range(dits):
+                if n_neighbors:
+                    new_history = (history + (value,))[-n_neighbors:]
+                else:
+                    new_history = ()
 
-                step_cost = _row_cost(Q_matrix, Q_row, pos, x)
-                new_cost = cost_so_far + step_cost
-                new_has_nonzero = has_nonzero or val != 0
-                new_hist = tuple((hist + (val,))[-max_hist:])
-                state_key: State = (pos + 1, new_hist, new_has_nonzero)
+                new_state: State = (
+                    new_history,
+                    has_nonzero or value != 0,
+                )
+                new_cost = cost_so_far + _step_cost(
+                    row, linear_coefficient, history, value
+                )
 
-                if state_key not in next_dp or new_cost < next_dp[state_key]:
-                    next_dp[state_key] = new_cost
-                    parent[state_key] = ((pos, hist, has_nonzero), val)
+                if new_state not in next_costs or new_cost < next_costs[new_state]:
+                    next_costs[new_state] = new_cost
+                    next_parents[new_state] = (state, value)
 
-        dp = next_dp
+        current_costs = next_costs
+        parents.append(next_parents)
 
     best_state: Optional[State] = None
     best_cost = float("inf")
 
-    for (cur_pos, hist, has_nonzero), cost in dp.items():
-        if cur_pos == n and (has_nonzero or not require_nonzero) and cost < best_cost:
+    for state, cost in current_costs.items():
+        if (state[1] or not require_nonzero) and cost < best_cost:
+            best_state = state
             best_cost = cost
-            best_state = (cur_pos, hist, has_nonzero)
 
     if best_state is None:
         raise RuntimeError("No feasible solution found.")
 
-    solution = [0] * n
-    state: Optional[State] = best_state
+    solution = [0] * len(q_matrix)
+    state = best_state
 
-    while state is not None and state[0] > 0:
-        prev_state, val = parent[state]
-        solution[state[0] - 1] = val
-        state = prev_state
+    for position in range(len(q_matrix) - 1, -1, -1):
+        previous_state, value = parents[position][state]
+        solution[position] = value
+        state = previous_state
 
     return SolutionClass.from_solution_list(
-        qudo_instance_matrix=Q_matrix,
-        qudo_instance_row=Q_row,
+        qudo_instance_matrix=q_matrix,
+        qudo_instance_row=q_row,
         solution_list=solution,
         dits=dits,
-        execution_time=time()-initial_time
+        execution_time=time() - initial_time,
     )

@@ -13,7 +13,7 @@ from qudo_solver.data_generator.qudo_problem_generator import (
     normalize_problem,
 )
 from qudo_solver.qudo_solver_core.solution import SolutionClass
-from qudo_solver.solvers.tensorkrowch_tn.tensorkrowch_nodes import (
+from qudo_solver.solvers.stc.stc_nodes import (
     new_initial_tensor_,
     node_control,
     node_final,
@@ -23,7 +23,7 @@ from qudo_solver.solvers.tensorkrowch_tn.tensorkrowch_nodes import (
 )
 
 
-def solver_tensorkrowch(
+def solver_stc(
     Q_matrix: list[list[float]], 
     Q_row: list[float],
     tau: float | None, 

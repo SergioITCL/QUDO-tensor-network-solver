@@ -1,6 +1,13 @@
 from time import time
 
 import numpy as np
+from qudo_solver.solvers.smvc.smvc_nodes import (
+    last_tensor,
+    new_initial_tensor,
+    node_0,
+    node_grow,
+    node_intermediate,
+)
 
 from qudo_solver.auxiliar_functions import (
     estimate_tau_max,
@@ -10,16 +17,9 @@ from qudo_solver.data_generator.qudo_problem_generator import (
     normalize_problem,
 )
 from qudo_solver.qudo_solver_core.solution import SolutionClass
-from qudo_solver.solvers.matrix_method.matrix_method_nodes import (
-    last_tensor,
-    new_initial_tensor,
-    node_0,
-    node_grow,
-    node_intermediate,
-)
 
 
-def solver_matrix_method(
+def solver_smvc(
     Q_list: list[list[float]], 
     Q_row: list[float],
     dits: int, 

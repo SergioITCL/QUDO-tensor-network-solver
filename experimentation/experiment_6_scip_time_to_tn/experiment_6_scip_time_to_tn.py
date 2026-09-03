@@ -7,6 +7,8 @@ import sys
 from pathlib import Path
 from statistics import fmean, median
 
+from qudo_solver.solvers.smvc.smvc import solver_smvc
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
@@ -14,9 +16,6 @@ if str(PROJECT_ROOT) not in sys.path:
 from qudo_solver.auxiliar_functions import estimate_tau_max, qudo_value
 from qudo_solver.data_generator.qudo_problem_generator import (
     qudo_problem_generation,
-)
-from qudo_solver.solvers.matrix_method.matrix_method_solver import (
-    solver_matrix_method,
 )
 from qudo_solver.solvers.scip import solver_scip_time_to_target
 
@@ -148,7 +147,7 @@ def run_configuration(n: int, dits: int, n_neighbors: int) -> Path:
         q_matrix = instance["q_matrix"]
         q_row = instance["q_row"]
 
-        matrix_result = solver_matrix_method(
+        matrix_result = solver_smvc(
             Q_list=q_matrix,
             Q_row=q_row,
             dits=dits,

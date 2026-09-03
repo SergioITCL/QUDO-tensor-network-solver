@@ -4,15 +4,16 @@ import json
 import sys
 from pathlib import Path
 
+from qudo_solver.solvers.smvc.smvc import solver_smvc
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from qudo_solver.data_generator.qudo_problem_generator import qudo_problem_generation
-from qudo_solver.solvers.dynamic_programming.dynamic_programming_solver3 import (
-    solver_dynamic_programming3,
+from qudo_solver.solvers.dynamic_programming.dynamic_programming_solver import (
+    solver_dynamic_programming,
 )
-from qudo_solver.solvers.matrix_method.matrix_method_solver import solver_matrix_method
 
 RESULTS_DIR = Path(__file__).resolve().parent / "results"
 N_VARIABLES = (500, 1000)
@@ -32,8 +33,8 @@ def run_configuration(n_variables: int, dits: int, n_neighbors: int) -> list[dic
     for instance in instances:
         q_matrix = instance["q_matrix"]
         q_row = instance["q_row"]
-        exact_dp = solver_dynamic_programming3(q_matrix, q_row, dits, n_neighbors)
-        smvc = solver_matrix_method(q_matrix, q_row, dits, n_neighbors)
+        exact_dp = solver_dynamic_programming(q_matrix, q_row, dits, n_neighbors)
+        smvc = solver_smvc(q_matrix, q_row, dits, n_neighbors)
 
         results.append(
             {
@@ -67,7 +68,7 @@ def main() -> None:
             "n_variables": N_VARIABLES,
             "configurations": CONFIGURATIONS,
             "n_random_instances": N_RANDOM_INSTANCES,
-            "linear_coefficients": 0,
+            "linear_coefficients": "random",
         },
         "results": results,
     }

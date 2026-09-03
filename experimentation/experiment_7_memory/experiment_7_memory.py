@@ -37,35 +37,35 @@ def current_rss_mib(pid: int) -> float | None:
 
 def get_solver(method: str, dits: int, n_neighbors: int, seed: int):
     if method == "exact_dp":
-        from qudo_solver.solvers.dynamic_programming.dynamic_programming_solver3 import (
-            solver_dynamic_programming3,
+        from qudo_solver.solvers.dynamic_programming.dynamic_programming_solver import (
+            solver_dynamic_programming,
         )
 
-        return lambda q_matrix, q_row: solver_dynamic_programming3(
+        return lambda q_matrix, q_row: solver_dynamic_programming(
             q_matrix, q_row, dits, n_neighbors
         )
     if method == "smvc":
-        from qudo_solver.solvers.matrix_method.matrix_method_solver import (
-            solver_matrix_method,
+        from qudo_solver.solvers.smvc.smvc import (
+            solver_smvc,
         )
 
-        return lambda q_matrix, q_row: solver_matrix_method(
+        return lambda q_matrix, q_row: solver_smvc(
             q_matrix, q_row, dits, n_neighbors
         )
     if method == "stc":
-        from qudo_solver.solvers.tensorkrowch_tn.tensorkrowch_solver import (
-            solver_tensorkrowch,
+        from qudo_solver.solvers.stc.stc_solver import (
+            solver_stc,
         )
 
-        return lambda q_matrix, q_row: solver_tensorkrowch(
+        return lambda q_matrix, q_row: solver_stc(
             q_matrix, q_row, None, dits, n_neighbors
         )
     if method == "beam_dp":
-        from qudo_solver.solvers.dynamic_programming.heuristic_dynamic_programming_solver import (
-            solver_dynamic_programming_heuristic,
+        from qudo_solver.solvers.dynamic_programming.beam_dynamic_programming_solver import (
+            solver_beam_dynamic_programming,
         )
 
-        return lambda q_matrix, q_row: solver_dynamic_programming_heuristic(
+        return lambda q_matrix, q_row: solver_beam_dynamic_programming(
             q_matrix, q_row, dits, n_neighbors, beam_width=BEAM_WIDTH
         )
     if method == "tabu":

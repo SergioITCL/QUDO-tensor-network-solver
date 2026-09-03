@@ -60,18 +60,10 @@ def qudo_value(
 def estimate_tau_max(
     n_variables: int,
     dits: int,
-    n_neighbors: int
-    ) -> float :
+    n_neighbors: int,
+) -> float:
     """
-    Estimates a high but numerically stable tau for the tensor-network solvers.
-
-    The matrix and TensorKrowch methods encode each local QUBO contribution as
-    exp(-tau * q_ij * x_i * x_j). For generated problems normalized with an L2
-    norm, a typical coefficient has scale sqrt(3 / n_coefficients).
-
-    The limit is intentionally below float64 overflow. Contractions multiply
-    tensor entries before normalizing, so entries around exp(500) can overflow
-    during an intermediate product even if each individual entry is finite.
+    Estimates a numerically stable tau including quadratic and linear terms.
     """
     if n_variables <= 0:
         raise ValueError("n_variables must be positive")
@@ -82,14 +74,23 @@ def estimate_tau_max(
 
     effective_neighbors = min(n_neighbors, n_variables - 1)
     max_terms_per_row = effective_neighbors + 1
-    n_coefficients = sum(
+
+    n_quadratic_coefficients = sum(
         min(row + 1, max_terms_per_row)
         for row in range(n_variables)
     )
 
-    estimated_q_abs = np.sqrt(3.0 / n_coefficients)
-    max_dit_product = (dits - 1) ** 2
-    max_local_energy = max_terms_per_row * estimated_q_abs * max_dit_product
+    n_coefficients = n_quadratic_coefficients + n_variables
+
+    estimated_coefficient_abs = np.sqrt(3.0 / n_coefficients)
+
+    max_dit = dits - 1
+    max_dit_product = max_dit**2
+
+    max_local_energy = estimated_coefficient_abs * (
+        max_terms_per_row * max_dit_product
+        + max_dit
+    )
 
     target_exponent = 300.0
     return float(target_exponent / max_local_energy)

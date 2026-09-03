@@ -9,7 +9,6 @@ import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
-
 EXPERIMENT_DIR = Path(__file__).resolve().parent
 RESULTS_PATH = EXPERIMENT_DIR / "results" / "experiment_5.json"
 OUTPUT_PATH = EXPERIMENT_DIR / "processed_results" / "experiment_5.png"
