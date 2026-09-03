@@ -16,8 +16,6 @@ CONFIG = load_experiment("experiment_3")
 METHODS = {
     "tensor_method": ("tensor method", "#e76f7a"),
     "matrix_method": ("matrix method", "#168aad"),
-    "simulated_annealing": ("simulated annealing", "#f4a261"),
-    "dynamic_programming": ("dynamic programming", "#4a9d45"),
 }
 
 
@@ -69,11 +67,11 @@ def main() -> None:
             sample = selected[0]
             times = [
                 median(result[method]["execution_time"] for result in selected)
-                for method in ("tensor_method", "matrix_method", "dynamic_programming")
+                for method in ("tensor_method", "matrix_method")
             ]
             table_rows.append(
                 f"{series} & {value} & {sample['dits']} & {sample['n_neighbors']} & "
-                f"{times[0]:.6f} & {times[1]:.6f} & {times[2]:.6f} \\\\\n"
+                f"{times[0]:.6f} & {times[1]:.6f} \\\\\n"
             )
 
     latex = (
@@ -81,8 +79,8 @@ def main() -> None:
         "\\caption{Median execution time over three random instances when "
         "varying $k$ or $d$ at fixed $n=100$.}\n"
         "\\label{tab:experiment-3-runtime}\n"
-        "\\begin{tabular}{lrrrrrr}\n\\toprule\n"
-        "Varied parameter & Value & $d$ & $k$ & STC (s) & SMVC (s) & Exact DP (s) \\\\\n"
+        "\\begin{tabular}{lrrrrr}\n\\toprule\n"
+        "Varied parameter & Value & $d$ & $k$ & STC (s) & SMVC (s) \\\\\n"
         "\\midrule\n" + "".join(table_rows) +
         "\\bottomrule\n\\end{tabular}\n\\end{table*}\n"
     )

@@ -12,7 +12,9 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from experimentation.experiment_config import experiment_path, load_experiment
-from qudo_solver.data_generator.qudo_problem_generator import generate_k_random_qudo
+from qudo_solver.data_generator.qudo_problem_generator import (
+    qudo_problem_generation,
+)
 
 CONFIG = load_experiment("experiment_7")
 
@@ -75,8 +77,16 @@ def get_solver(method: str, dits: int, n_neighbors: int, seed: int):
 
 def run_worker(method: str, n: int, k: int, d: int, seed: int) -> None:
     solver = get_solver(method, d, k, seed)
-    q_matrix = generate_k_random_qudo(n, k, seed)
-    q_row = [0.0] * n
+    instance = qudo_problem_generation(
+        n_variables=n,
+        n_neighbors=k,
+        n_random_instances=1,
+        n_fixed_instances=0,
+        random_seeds=[seed],
+    )[0]
+    q_matrix = instance["q_matrix"]
+    q_row = instance["q_row"]
+
     baseline = current_rss_mib(os.getpid())
     print(json.dumps({"baseline_rss_mib": baseline}), flush=True)
     sys.stdin.readline()

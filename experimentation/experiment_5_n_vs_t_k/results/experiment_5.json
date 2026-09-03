@@ -19,7 +19,12 @@
       10
     ],
     "dits": 2,
-    "n_random_instances": 3
+    "n_random_instances": 3,
+    "seeds": [
+      0,
+      1,
+      2
+    ]
   },
   "results": [
     {
@@ -30,16 +35,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.031586647033691406,
-        "cost": -5.285994814722985
+        "execution_time": 0.02954411506652832,
+        "cost": -977.4491504984119
       },
       "tensor_method": {
-        "execution_time": 0.2736387252807617,
-        "cost": -5.285994814722985
+        "execution_time": 0.24755287170410156,
+        "cost": -977.4491504984119
       },
       "dynamic_programming": {
-        "execution_time": 0.003171682357788086,
-        "cost": -5.285994814722985
+        "execution_time": 0.0022330284118652344,
+        "cost": -977.4491504984119
       }
     },
     {
@@ -50,16 +55,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.03475189208984375,
-        "cost": -5.7742545902872795
+        "execution_time": 0.02655935287475586,
+        "cost": -928.9825530813205
       },
       "tensor_method": {
-        "execution_time": 0.2988293170928955,
-        "cost": -5.7742545902872795
+        "execution_time": 0.24975943565368652,
+        "cost": -928.9825530813205
       },
       "dynamic_programming": {
-        "execution_time": 0.0031375885009765625,
-        "cost": -5.7742545902872795
+        "execution_time": 0.0022780895233154297,
+        "cost": -928.9825530813205
       }
     },
     {
@@ -70,16 +75,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.030310630798339844,
-        "cost": -5.583620564952292
+        "execution_time": 0.027219533920288086,
+        "cost": -901.3333373929134
       },
       "tensor_method": {
-        "execution_time": 0.22428274154663086,
-        "cost": -5.583620564952292
+        "execution_time": 0.20510315895080566,
+        "cost": -901.3333373929134
       },
       "dynamic_programming": {
-        "execution_time": 0.050189971923828125,
-        "cost": -5.583620564952292
+        "execution_time": 0.06348967552185059,
+        "cost": -901.3333373929134
       }
     },
     {
@@ -90,16 +95,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.0533754825592041,
-        "cost": -8.10010497650817
+        "execution_time": 0.05159354209899902,
+        "cost": -1849.843999306654
       },
       "tensor_method": {
-        "execution_time": 0.4857203960418701,
-        "cost": -8.10010497650817
+        "execution_time": 0.4593961238861084,
+        "cost": -1849.843999306654
       },
       "dynamic_programming": {
-        "execution_time": 0.006307840347290039,
-        "cost": -8.10010497650817
+        "execution_time": 0.004520416259765625,
+        "cost": -1849.843999306654
       }
     },
     {
@@ -110,16 +115,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.05642414093017578,
-        "cost": -8.379161767816841
+        "execution_time": 0.056349754333496094,
+        "cost": -1882.1321396719823
       },
       "tensor_method": {
-        "execution_time": 0.5813062191009521,
-        "cost": -8.379161767816841
+        "execution_time": 0.5145449638366699,
+        "cost": -1882.1321396719823
       },
       "dynamic_programming": {
-        "execution_time": 0.006292581558227539,
-        "cost": -8.379161767816841
+        "execution_time": 0.004709720611572266,
+        "cost": -1882.1321396719823
       }
     },
     {
@@ -130,16 +135,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.06032872200012207,
-        "cost": -7.984157199661499
+        "execution_time": 0.050789833068847656,
+        "cost": -1847.1576140003262
       },
       "tensor_method": {
-        "execution_time": 0.5532486438751221,
-        "cost": -7.984157199661499
+        "execution_time": 0.5102834701538086,
+        "cost": -1847.1576140003262
       },
       "dynamic_programming": {
-        "execution_time": 0.0061016082763671875,
-        "cost": -7.984157199661499
+        "execution_time": 0.004288911819458008,
+        "cost": -1847.1576140003262
       }
     },
     {
@@ -150,16 +155,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.08809590339660645,
-        "cost": -9.584036519419293
+        "execution_time": 0.07120704650878906,
+        "cost": -2684.420140010759
       },
       "tensor_method": {
-        "execution_time": 0.8390505313873291,
-        "cost": -9.584036519419293
+        "execution_time": 0.7147216796875,
+        "cost": -2684.420140010759
       },
       "dynamic_programming": {
-        "execution_time": 0.009813547134399414,
-        "cost": -9.584036519419293
+        "execution_time": 0.006667613983154297,
+        "cost": -2684.420140010759
       }
     },
     {
@@ -170,16 +175,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.0856330394744873,
-        "cost": -10.34513519079547
+        "execution_time": 0.07634592056274414,
+        "cost": -2843.859685956335
       },
       "tensor_method": {
-        "execution_time": 0.921506404876709,
-        "cost": -10.34513519079547
+        "execution_time": 0.81032395362854,
+        "cost": -2843.859685956335
       },
       "dynamic_programming": {
-        "execution_time": 0.009359121322631836,
-        "cost": -10.34513519079547
+        "execution_time": 0.0065877437591552734,
+        "cost": -2843.859685956335
       }
     },
     {
@@ -190,16 +195,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.08528709411621094,
-        "cost": -9.69377400541894
+        "execution_time": 0.0784919261932373,
+        "cost": -2642.2349819198184
       },
       "tensor_method": {
-        "execution_time": 0.9392838478088379,
-        "cost": -9.69377400541894
+        "execution_time": 0.7621417045593262,
+        "cost": -2642.2349819198184
       },
       "dynamic_programming": {
-        "execution_time": 0.009880781173706055,
-        "cost": -9.69377400541894
+        "execution_time": 0.006583213806152344,
+        "cost": -2642.2349819198184
       }
     },
     {
@@ -210,16 +215,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.12302970886230469,
-        "cost": -10.99682143930834
+        "execution_time": 0.10056114196777344,
+        "cost": -3613.7949896947976
       },
       "tensor_method": {
-        "execution_time": 1.220879316329956,
-        "cost": -10.99682143930834
+        "execution_time": 1.0478579998016357,
+        "cost": -3613.7949896947976
       },
       "dynamic_programming": {
-        "execution_time": 0.013128995895385742,
-        "cost": -10.99682143930834
+        "execution_time": 0.009473085403442383,
+        "cost": -3613.7949896947976
       }
     },
     {
@@ -230,16 +235,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.11469244956970215,
-        "cost": -11.959943096388526
+        "execution_time": 0.10693931579589844,
+        "cost": -3798.2192092509504
       },
       "tensor_method": {
-        "execution_time": 1.205643892288208,
-        "cost": -11.959943096388526
+        "execution_time": 1.0942513942718506,
+        "cost": -3798.2192092509504
       },
       "dynamic_programming": {
-        "execution_time": 0.012354850769042969,
-        "cost": -11.959943096388526
+        "execution_time": 0.008721590042114258,
+        "cost": -3798.2192092509504
       }
     },
     {
@@ -250,16 +255,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.10870742797851562,
-        "cost": -10.929129314158809
+        "execution_time": 0.10476922988891602,
+        "cost": -3459.9027314431614
       },
       "tensor_method": {
-        "execution_time": 1.1566314697265625,
-        "cost": -10.929129314158809
+        "execution_time": 1.1981470584869385,
+        "cost": -3459.9027314431614
       },
       "dynamic_programming": {
-        "execution_time": 0.012911796569824219,
-        "cost": -10.929129314158809
+        "execution_time": 0.009538412094116211,
+        "cost": -3459.9027314431614
       }
     },
     {
@@ -270,16 +275,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.1318683624267578,
-        "cost": -12.282742362710808
+        "execution_time": 0.13004827499389648,
+        "cost": -4528.536671735506
       },
       "tensor_method": {
-        "execution_time": 1.498441457748413,
-        "cost": -12.282742362710808
+        "execution_time": 1.4143245220184326,
+        "cost": -4528.536671735506
       },
       "dynamic_programming": {
-        "execution_time": 0.016097545623779297,
-        "cost": -12.282742362710808
+        "execution_time": 0.012210845947265625,
+        "cost": -4528.536671735506
       }
     },
     {
@@ -290,16 +295,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.14025235176086426,
-        "cost": -13.135054219938036
+        "execution_time": 0.12581539154052734,
+        "cost": -4653.414472983475
       },
       "tensor_method": {
-        "execution_time": 1.4728655815124512,
-        "cost": -13.135054219938036
+        "execution_time": 1.3672163486480713,
+        "cost": -4653.414472983475
       },
       "dynamic_programming": {
-        "execution_time": 0.015333890914916992,
-        "cost": -13.135054219938036
+        "execution_time": 0.12967181205749512,
+        "cost": -4653.414472983475
       }
     },
     {
@@ -310,16 +315,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.1441483497619629,
-        "cost": -12.486546136880017
+        "execution_time": 0.12872099876403809,
+        "cost": -4435.402243473459
       },
       "tensor_method": {
-        "execution_time": 1.5777332782745361,
-        "cost": -12.486546136880017
+        "execution_time": 1.278942346572876,
+        "cost": -4435.402243473459
       },
       "dynamic_programming": {
-        "execution_time": 0.015071630477905273,
-        "cost": -12.486546136880017
+        "execution_time": 0.011304616928100586,
+        "cost": -4435.402243473459
       }
     },
     {
@@ -330,16 +335,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.03428173065185547,
-        "cost": -6.073337304349113
+        "execution_time": 0.028081417083740234,
+        "cost": -1204.9505595792446
       },
       "tensor_method": {
-        "execution_time": 0.27266645431518555,
-        "cost": -6.073337304349113
+        "execution_time": 0.3769991397857666,
+        "cost": -1204.9505595792446
       },
       "dynamic_programming": {
-        "execution_time": 0.006009578704833984,
-        "cost": -6.073337304349113
+        "execution_time": 0.004247426986694336,
+        "cost": -1204.9505595792446
       }
     },
     {
@@ -350,16 +355,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.0302579402923584,
-        "cost": -5.52588333077579
+        "execution_time": 0.029520034790039062,
+        "cost": -1049.6114096453532
       },
       "tensor_method": {
-        "execution_time": 0.3931465148925781,
-        "cost": -5.52588333077579
+        "execution_time": 0.30991077423095703,
+        "cost": -1049.6114096453532
       },
       "dynamic_programming": {
-        "execution_time": 0.006154537200927734,
-        "cost": -5.52588333077579
+        "execution_time": 0.05447816848754883,
+        "cost": -1049.6114096453532
       }
     },
     {
@@ -370,16 +375,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.03135371208190918,
-        "cost": -5.943244214780259
+        "execution_time": 0.032829999923706055,
+        "cost": -1105.5534491987783
       },
       "tensor_method": {
-        "execution_time": 0.3161628246307373,
-        "cost": -5.943244214780259
+        "execution_time": 0.24879932403564453,
+        "cost": -1105.5534491987783
       },
       "dynamic_programming": {
-        "execution_time": 0.005677938461303711,
-        "cost": -5.943244214780259
+        "execution_time": 0.05250668525695801,
+        "cost": -1105.5534491987783
       }
     },
     {
@@ -390,16 +395,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.0525660514831543,
-        "cost": -8.244273474731592
+        "execution_time": 0.056543588638305664,
+        "cost": -2165.5352617348913
       },
       "tensor_method": {
-        "execution_time": 0.6626811027526855,
-        "cost": -8.244273474731592
+        "execution_time": 0.6209321022033691,
+        "cost": -2165.5352617348913
       },
       "dynamic_programming": {
-        "execution_time": 0.0846858024597168,
-        "cost": -8.244273474731592
+        "execution_time": 0.008826732635498047,
+        "cost": -2165.5352617348913
       }
     },
     {
@@ -410,16 +415,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.05499529838562012,
-        "cost": -7.6698100521536
+        "execution_time": 0.06626248359680176,
+        "cost": -2052.486408423089
       },
       "tensor_method": {
-        "execution_time": 0.6483423709869385,
-        "cost": -7.6698100521536
+        "execution_time": 0.6843287944793701,
+        "cost": -2052.486408423089
       },
       "dynamic_programming": {
-        "execution_time": 0.011954784393310547,
-        "cost": -7.6698100521536
+        "execution_time": 0.008337020874023438,
+        "cost": -2052.486408423089
       }
     },
     {
@@ -430,16 +435,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.060904741287231445,
-        "cost": -7.744848135185129
+        "execution_time": 0.05790877342224121,
+        "cost": -2108.73699752022
       },
       "tensor_method": {
-        "execution_time": 0.6875913143157959,
-        "cost": -7.744848135185129
+        "execution_time": 0.6422955989837646,
+        "cost": -2108.73699752022
       },
       "dynamic_programming": {
-        "execution_time": 0.01180720329284668,
-        "cost": -7.744848135185129
+        "execution_time": 0.00845646858215332,
+        "cost": -2108.73699752022
       }
     },
     {
@@ -450,16 +455,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.08318305015563965,
-        "cost": -9.885047550643222
+        "execution_time": 0.08579850196838379,
+        "cost": -3054.401397538656
       },
       "tensor_method": {
-        "execution_time": 1.0300235748291016,
-        "cost": -9.885047550643222
+        "execution_time": 1.019834041595459,
+        "cost": -3054.401397538656
       },
       "dynamic_programming": {
-        "execution_time": 0.020127058029174805,
-        "cost": -9.885047550643222
+        "execution_time": 0.013579130172729492,
+        "cost": -3054.401397538656
       }
     },
     {
@@ -470,16 +475,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.0836942195892334,
-        "cost": -9.82103134748393
+        "execution_time": 0.08341336250305176,
+        "cost": -3131.065525488096
       },
       "tensor_method": {
-        "execution_time": 1.0802311897277832,
-        "cost": -9.82103134748393
+        "execution_time": 1.02518630027771,
+        "cost": -3131.065525488096
       },
       "dynamic_programming": {
-        "execution_time": 0.017899513244628906,
-        "cost": -9.82103134748393
+        "execution_time": 0.012848138809204102,
+        "cost": -3131.065525488096
       }
     },
     {
@@ -490,16 +495,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.08208346366882324,
-        "cost": -9.34064958821867
+        "execution_time": 0.08591532707214355,
+        "cost": -2937.2284021242335
       },
       "tensor_method": {
-        "execution_time": 1.0961048603057861,
-        "cost": -9.34064958821867
+        "execution_time": 0.9655754566192627,
+        "cost": -2937.2284021242335
       },
       "dynamic_programming": {
-        "execution_time": 0.018794536590576172,
-        "cost": -9.34064958821867
+        "execution_time": 0.09956240653991699,
+        "cost": -2937.2284021242335
       }
     },
     {
@@ -510,16 +515,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.10579156875610352,
-        "cost": -11.270128246199315
+        "execution_time": 0.11239027976989746,
+        "cost": -4043.5936601768735
       },
       "tensor_method": {
-        "execution_time": 1.4070484638214111,
-        "cost": -11.270128246199315
+        "execution_time": 1.214193344116211,
+        "cost": -4043.5936601768735
       },
       "dynamic_programming": {
-        "execution_time": 0.02390885353088379,
-        "cost": -11.270128246199315
+        "execution_time": 0.017378807067871094,
+        "cost": -4043.5936601768735
       }
     },
     {
@@ -530,16 +535,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.11596965789794922,
-        "cost": -11.444941639490073
+        "execution_time": 0.10943102836608887,
+        "cost": -4222.216303457473
       },
       "tensor_method": {
-        "execution_time": 1.4649901390075684,
-        "cost": -11.444941639490073
+        "execution_time": 1.4333226680755615,
+        "cost": -4222.216303457473
       },
       "dynamic_programming": {
-        "execution_time": 0.02398204803466797,
-        "cost": -11.444941639490073
+        "execution_time": 0.016735315322875977,
+        "cost": -4222.216303457473
       }
     },
     {
@@ -550,16 +555,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.12002778053283691,
-        "cost": -10.96015537617527
+        "execution_time": 0.11239242553710938,
+        "cost": -4010.4052416985137
       },
       "tensor_method": {
-        "execution_time": 1.463484287261963,
-        "cost": -10.96015537617527
+        "execution_time": 1.4482505321502686,
+        "cost": -4010.4052416985137
       },
       "dynamic_programming": {
-        "execution_time": 0.025441884994506836,
-        "cost": -10.96015537617527
+        "execution_time": 0.017691850662231445,
+        "cost": -4010.4052416985137
       }
     },
     {
@@ -570,16 +575,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.14902639389038086,
-        "cost": -12.320789843153579
+        "execution_time": 0.13849544525146484,
+        "cost": -5001.532165540795
       },
       "tensor_method": {
-        "execution_time": 1.9130001068115234,
-        "cost": -12.320789843153579
+        "execution_time": 1.6743474006652832,
+        "cost": -5001.532165540795
       },
       "dynamic_programming": {
-        "execution_time": 0.03252577781677246,
-        "cost": -12.320789843153579
+        "execution_time": 0.021764278411865234,
+        "cost": -5001.532165540795
       }
     },
     {
@@ -590,16 +595,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.13551878929138184,
-        "cost": -12.815038936957652
+        "execution_time": 0.14361190795898438,
+        "cost": -5306.485851905743
       },
       "tensor_method": {
-        "execution_time": 1.7840991020202637,
-        "cost": -12.815038936957652
+        "execution_time": 1.6865923404693604,
+        "cost": -5306.485851905743
       },
       "dynamic_programming": {
-        "execution_time": 0.03092336654663086,
-        "cost": -12.815038936957652
+        "execution_time": 0.020776033401489258,
+        "cost": -5306.485851905743
       }
     },
     {
@@ -610,16 +615,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.13618826866149902,
-        "cost": -12.413766911370844
+        "execution_time": 0.13425803184509277,
+        "cost": -5112.621133832385
       },
       "tensor_method": {
-        "execution_time": 1.8310046195983887,
-        "cost": -12.413766911370844
+        "execution_time": 1.7216112613677979,
+        "cost": -5112.621133832385
       },
       "dynamic_programming": {
-        "execution_time": 0.03148651123046875,
-        "cost": -12.413766911370844
+        "execution_time": 0.022961139678955078,
+        "cost": -5112.621133832385
       }
     },
     {
@@ -630,16 +635,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.0302276611328125,
-        "cost": -5.832484143325798
+        "execution_time": 0.030549049377441406,
+        "cost": -1235.3244183927402
       },
       "tensor_method": {
-        "execution_time": 0.5018951892852783,
-        "cost": -5.832484143325798
+        "execution_time": 0.5041358470916748,
+        "cost": -1235.3244183927402
       },
       "dynamic_programming": {
-        "execution_time": 0.012622356414794922,
-        "cost": -5.832484143325798
+        "execution_time": 0.008672714233398438,
+        "cost": -1235.3244183927402
       }
     },
     {
@@ -650,16 +655,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.028728485107421875,
-        "cost": -5.6020259983653045
+        "execution_time": 0.029332637786865234,
+        "cost": -1144.4960382745871
       },
       "tensor_method": {
-        "execution_time": 0.36186885833740234,
-        "cost": -5.6020259983653045
+        "execution_time": 3.311300277709961,
+        "cost": -1144.4960382745871
       },
       "dynamic_programming": {
-        "execution_time": 0.012451171875,
-        "cost": -5.6020259983653045
+        "execution_time": 0.00862264633178711,
+        "cost": -1144.4960382745871
       }
     },
     {
@@ -670,16 +675,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.034139156341552734,
-        "cost": -5.870662174679297
+        "execution_time": 0.0301969051361084,
+        "cost": -1173.930906025813
       },
       "tensor_method": {
-        "execution_time": 0.36855173110961914,
-        "cost": -5.870662174679297
+        "execution_time": 0.43580198287963867,
+        "cost": -1173.930906025813
       },
       "dynamic_programming": {
-        "execution_time": 0.012451648712158203,
-        "cost": -5.870662174679297
+        "execution_time": 0.008783578872680664,
+        "cost": -1173.930906025813
       }
     },
     {
@@ -690,16 +695,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.0615534782409668,
-        "cost": -7.871378795420661
+        "execution_time": 0.06047534942626953,
+        "cost": -2213.149380992018
       },
       "tensor_method": {
-        "execution_time": 0.8111987113952637,
-        "cost": -7.871378795420661
+        "execution_time": 0.7606039047241211,
+        "cost": -2213.149380992018
       },
       "dynamic_programming": {
-        "execution_time": 0.024069547653198242,
-        "cost": -7.871378795420661
+        "execution_time": 0.016881942749023438,
+        "cost": -2213.149380992018
       }
     },
     {
@@ -710,16 +715,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.05628609657287598,
-        "cost": -8.38498769767201
+        "execution_time": 0.06085681915283203,
+        "cost": -2366.6591263630044
       },
       "tensor_method": {
-        "execution_time": 0.7817370891571045,
-        "cost": -8.38498769767201
+        "execution_time": 0.8071801662445068,
+        "cost": -2366.6591263630044
       },
       "dynamic_programming": {
-        "execution_time": 0.02624797821044922,
-        "cost": -8.38498769767201
+        "execution_time": 0.10077166557312012,
+        "cost": -2366.6591263630044
       }
     },
     {
@@ -730,16 +735,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.055686235427856445,
-        "cost": -8.192183677416603
+        "execution_time": 0.05773496627807617,
+        "cost": -2330.572354006016
       },
       "tensor_method": {
-        "execution_time": 0.7952167987823486,
-        "cost": -8.192183677416603
+        "execution_time": 0.8095011711120605,
+        "cost": -2330.572354006016
       },
       "dynamic_programming": {
-        "execution_time": 0.0252840518951416,
-        "cost": -8.192183677416603
+        "execution_time": 0.02027583122253418,
+        "cost": -2330.5738346409435
       }
     },
     {
@@ -750,16 +755,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.08191180229187012,
-        "cost": -9.479720603855878
+        "execution_time": 0.08653950691223145,
+        "cost": -3241.2657577617792
       },
       "tensor_method": {
-        "execution_time": 1.316648244857788,
-        "cost": -9.479720603855878
+        "execution_time": 1.1912033557891846,
+        "cost": -3241.2657577617792
       },
       "dynamic_programming": {
-        "execution_time": 0.03616738319396973,
-        "cost": -9.479720603855878
+        "execution_time": 0.026714563369750977,
+        "cost": -3241.2657577617792
       }
     },
     {
@@ -770,16 +775,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.08298087120056152,
-        "cost": -9.95054541417591
+        "execution_time": 0.08256030082702637,
+        "cost": -3456.072294154959
       },
       "tensor_method": {
-        "execution_time": 1.2420899868011475,
-        "cost": -9.95054541417591
+        "execution_time": 1.302818775177002,
+        "cost": -3456.072294154959
       },
       "dynamic_programming": {
-        "execution_time": 0.03797101974487305,
-        "cost": -9.95054541417591
+        "execution_time": 0.026961803436279297,
+        "cost": -3456.072294154959
       }
     },
     {
@@ -790,16 +795,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.09314346313476562,
-        "cost": -9.983517174423634
+        "execution_time": 0.08861494064331055,
+        "cost": -3373.5350511274773
       },
       "tensor_method": {
-        "execution_time": 1.2469751834869385,
-        "cost": -9.983517174423634
+        "execution_time": 1.227346420288086,
+        "cost": -3373.5350511274773
       },
       "dynamic_programming": {
-        "execution_time": 0.03691458702087402,
-        "cost": -9.983517174423634
+        "execution_time": 0.02566385269165039,
+        "cost": -3373.5365317624046
       }
     },
     {
@@ -810,16 +815,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.11748480796813965,
-        "cost": -10.773278157575005
+        "execution_time": 0.11556434631347656,
+        "cost": -4283.9290224101505
       },
       "tensor_method": {
-        "execution_time": 1.6731746196746826,
-        "cost": -10.773278157575005
+        "execution_time": 1.551595687866211,
+        "cost": -4283.9290224101505
       },
       "dynamic_programming": {
-        "execution_time": 0.24485421180725098,
-        "cost": -10.773305033788192
+        "execution_time": 0.034726619720458984,
+        "cost": -4283.9290224101505
       }
     },
     {
@@ -830,16 +835,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.11544370651245117,
-        "cost": -11.806633297307952
+        "execution_time": 0.11110234260559082,
+        "cost": -4775.68062508233
       },
       "tensor_method": {
-        "execution_time": 1.5778934955596924,
-        "cost": -11.806633297307952
+        "execution_time": 1.540924310684204,
+        "cost": -4775.68062508233
       },
       "dynamic_programming": {
-        "execution_time": 0.04897785186767578,
-        "cost": -11.806633297307952
+        "execution_time": 0.03451967239379883,
+        "cost": -4775.68062508233
       }
     },
     {
@@ -850,16 +855,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.11554431915283203,
-        "cost": -11.742974142175946
+        "execution_time": 0.10969781875610352,
+        "cost": -4558.020504123815
       },
       "tensor_method": {
-        "execution_time": 1.6901674270629883,
-        "cost": -11.742974142175946
+        "execution_time": 1.6424808502197266,
+        "cost": -4558.020504123815
       },
       "dynamic_programming": {
-        "execution_time": 0.049381256103515625,
-        "cost": -11.742974142175946
+        "execution_time": 0.03450489044189453,
+        "cost": -4558.021984758742
       }
     },
     {
@@ -870,16 +875,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.28252649307250977,
-        "cost": -12.44245633716543
+        "execution_time": 0.13695263862609863,
+        "cost": -5482.546717293592
       },
       "tensor_method": {
-        "execution_time": 2.0670361518859863,
-        "cost": -12.44245633716543
+        "execution_time": 2.242398262023926,
+        "cost": -5482.546717293592
       },
       "dynamic_programming": {
-        "execution_time": 0.06708884239196777,
-        "cost": -12.44245633716543
+        "execution_time": 0.044327735900878906,
+        "cost": -5482.546717293592
       }
     },
     {
@@ -890,16 +895,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.14556574821472168,
-        "cost": -13.286247547791449
+        "execution_time": 0.14261817932128906,
+        "cost": -5924.269559613603
       },
       "tensor_method": {
-        "execution_time": 2.2901816368103027,
-        "cost": -13.286247547791449
+        "execution_time": 2.1027164459228516,
+        "cost": -5924.269559613603
       },
       "dynamic_programming": {
-        "execution_time": 0.06429195404052734,
-        "cost": -13.286247547791449
+        "execution_time": 0.04293537139892578,
+        "cost": -5924.269559613603
       }
     },
     {
@@ -910,16 +915,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.15023040771484375,
-        "cost": -13.078727428184695
+        "execution_time": 0.14426684379577637,
+        "cost": -5766.124059187631
       },
       "tensor_method": {
-        "execution_time": 2.3201794624328613,
-        "cost": -13.078727428184695
+        "execution_time": 2.1408498287200928,
+        "cost": -5766.124059187631
       },
       "dynamic_programming": {
-        "execution_time": 0.06661772727966309,
-        "cost": -13.078727428184695
+        "execution_time": 0.04331469535827637,
+        "cost": -5766.125539822559
       }
     },
     {
@@ -930,16 +935,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.03246903419494629,
-        "cost": -5.670877613053168
+        "execution_time": 0.029596328735351562,
+        "cost": -1338.77475858743
       },
       "tensor_method": {
-        "execution_time": 0.6438477039337158,
-        "cost": -5.670877613053168
+        "execution_time": 0.6110165119171143,
+        "cost": -1338.77475858743
       },
       "dynamic_programming": {
-        "execution_time": 0.027228355407714844,
-        "cost": -5.670877613053168
+        "execution_time": 0.018108606338500977,
+        "cost": -1338.77475858743
       }
     },
     {
@@ -950,16 +955,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.03166842460632324,
-        "cost": -5.282392833051687
+        "execution_time": 0.03215479850769043,
+        "cost": -1193.863563523879
       },
       "tensor_method": {
-        "execution_time": 0.46948885917663574,
-        "cost": -5.282392833051687
+        "execution_time": 0.4457376003265381,
+        "cost": -1193.863563523879
       },
       "dynamic_programming": {
-        "execution_time": 0.02753591537475586,
-        "cost": -5.282392833051687
+        "execution_time": 0.017524242401123047,
+        "cost": -1193.863563523879
       }
     },
     {
@@ -970,16 +975,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.031046152114868164,
-        "cost": -5.800205483421735
+        "execution_time": 0.031108379364013672,
+        "cost": -1195.8098564859363
       },
       "tensor_method": {
-        "execution_time": 0.4703373908996582,
-        "cost": -5.800205483421735
+        "execution_time": 0.46308064460754395,
+        "cost": -1195.8098564859363
       },
       "dynamic_programming": {
-        "execution_time": 0.026690006256103516,
-        "cost": -5.800205483421735
+        "execution_time": 0.01705646514892578,
+        "cost": -1195.8098564859363
       }
     },
     {
@@ -990,16 +995,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.06437897682189941,
-        "cost": -7.996310407128837
+        "execution_time": 0.06052565574645996,
+        "cost": -2497.654836708851
       },
       "tensor_method": {
-        "execution_time": 0.8898601531982422,
-        "cost": -7.996310407128837
+        "execution_time": 0.8742451667785645,
+        "cost": -2497.654836708851
       },
       "dynamic_programming": {
-        "execution_time": 0.1534433364868164,
-        "cost": -7.996310407128837
+        "execution_time": 0.03380942344665527,
+        "cost": -2497.654836708851
       }
     },
     {
@@ -1010,16 +1015,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.061356544494628906,
-        "cost": -7.981108121334009
+        "execution_time": 0.05964183807373047,
+        "cost": -2517.3783107021127
       },
       "tensor_method": {
-        "execution_time": 0.9672105312347412,
-        "cost": -7.981108121334009
+        "execution_time": 0.8329594135284424,
+        "cost": -2517.3783107021127
       },
       "dynamic_programming": {
-        "execution_time": 0.052220821380615234,
-        "cost": -7.981108121334009
+        "execution_time": 0.03422236442565918,
+        "cost": -2517.3783107021127
       }
     },
     {
@@ -1030,16 +1035,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.06608104705810547,
-        "cost": -7.77584497727591
+        "execution_time": 0.05753278732299805,
+        "cost": -2378.722257432289
       },
       "tensor_method": {
-        "execution_time": 0.9408693313598633,
-        "cost": -7.77584497727591
+        "execution_time": 0.8738031387329102,
+        "cost": -2378.722257432289
       },
       "dynamic_programming": {
-        "execution_time": 0.05267977714538574,
-        "cost": -7.77584497727591
+        "execution_time": 0.0338289737701416,
+        "cost": -2378.722257432289
       }
     },
     {
@@ -1050,16 +1055,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.0910651683807373,
-        "cost": -9.604841026790961
+        "execution_time": 0.08710885047912598,
+        "cost": -3564.7512118623918
       },
       "tensor_method": {
-        "execution_time": 1.4222931861877441,
-        "cost": -9.604841026790961
+        "execution_time": 1.4838156700134277,
+        "cost": -3564.7512118623918
       },
       "dynamic_programming": {
-        "execution_time": 0.0782163143157959,
-        "cost": -9.604841026790961
+        "execution_time": 0.04979968070983887,
+        "cost": -3564.7512118623918
       }
     },
     {
@@ -1070,16 +1075,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.09051656723022461,
-        "cost": -10.073682279456182
+        "execution_time": 0.08458638191223145,
+        "cost": -3823.5270631465996
       },
       "tensor_method": {
-        "execution_time": 1.4580070972442627,
-        "cost": -10.073682279456182
+        "execution_time": 1.5411689281463623,
+        "cost": -3823.5270631465996
       },
       "dynamic_programming": {
-        "execution_time": 0.07937908172607422,
-        "cost": -10.073682279456182
+        "execution_time": 0.052696943283081055,
+        "cost": -3823.5270631465996
       }
     },
     {
@@ -1090,16 +1095,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.10587859153747559,
-        "cost": -9.660795787074374
+        "execution_time": 0.09815526008605957,
+        "cost": -3570.4222679759378
       },
       "tensor_method": {
-        "execution_time": 1.5704736709594727,
-        "cost": -9.660795787074374
+        "execution_time": 1.5090720653533936,
+        "cost": -3570.4222679759378
       },
       "dynamic_programming": {
-        "execution_time": 0.0793759822845459,
-        "cost": -9.660795787074374
+        "execution_time": 0.05601835250854492,
+        "cost": -3570.4222679759378
       }
     },
     {
@@ -1110,16 +1115,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.11995244026184082,
-        "cost": -11.267469037458582
+        "execution_time": 0.15727019309997559,
+        "cost": -4843.188189790215
       },
       "tensor_method": {
-        "execution_time": 1.9559948444366455,
-        "cost": -11.267469037458582
+        "execution_time": 1.879133939743042,
+        "cost": -4843.188189790215
       },
       "dynamic_programming": {
-        "execution_time": 0.10475325584411621,
-        "cost": -11.267469037458582
+        "execution_time": 0.0721595287322998,
+        "cost": -4843.188189790215
       }
     },
     {
@@ -1130,16 +1135,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.12862348556518555,
-        "cost": -11.830758651538488
+        "execution_time": 0.11964583396911621,
+        "cost": -5156.127890334062
       },
       "tensor_method": {
-        "execution_time": 2.083606004714966,
-        "cost": -11.830758651538488
+        "execution_time": 4.908228874206543,
+        "cost": -5156.127890334062
       },
       "dynamic_programming": {
-        "execution_time": 0.11330246925354004,
-        "cost": -11.830758651538488
+        "execution_time": 0.07181930541992188,
+        "cost": -5156.127890334062
       }
     },
     {
@@ -1150,16 +1155,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.12239313125610352,
-        "cost": -11.608314548686709
+        "execution_time": 0.124237060546875,
+        "cost": -4925.7738203043755
       },
       "tensor_method": {
-        "execution_time": 2.03334903717041,
-        "cost": -11.608314548686709
+        "execution_time": 1.8625574111938477,
+        "cost": -4925.7738203043755
       },
       "dynamic_programming": {
-        "execution_time": 0.10310578346252441,
-        "cost": -11.608314548686709
+        "execution_time": 0.07237696647644043,
+        "cost": -4925.7738203043755
       }
     },
     {
@@ -1170,16 +1175,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.1546938419342041,
-        "cost": -12.554520191123617
+        "execution_time": 0.15797138214111328,
+        "cost": -6036.675694116396
       },
       "tensor_method": {
-        "execution_time": 2.522304058074951,
-        "cost": -12.554520191123617
+        "execution_time": 2.479865550994873,
+        "cost": -6036.675694116396
       },
       "dynamic_programming": {
-        "execution_time": 0.4314553737640381,
-        "cost": -12.554520191123617
+        "execution_time": 0.09156155586242676,
+        "cost": -6036.675694116396
       }
     },
     {
@@ -1190,16 +1195,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.15108799934387207,
-        "cost": -13.076102662008992
+        "execution_time": 0.15130257606506348,
+        "cost": -6274.411543819621
       },
       "tensor_method": {
-        "execution_time": 2.4053215980529785,
-        "cost": -13.076102662008992
+        "execution_time": 2.4450254440307617,
+        "cost": -6274.411543819621
       },
       "dynamic_programming": {
-        "execution_time": 0.1391294002532959,
-        "cost": -13.076102662008992
+        "execution_time": 0.08899188041687012,
+        "cost": -6274.411543819621
       }
     },
     {
@@ -1210,16 +1215,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.15262675285339355,
-        "cost": -12.717808221473048
+        "execution_time": 0.14533257484436035,
+        "cost": -6096.138998038379
       },
       "tensor_method": {
-        "execution_time": 2.622666835784912,
-        "cost": -12.717808221473048
+        "execution_time": 2.451972246170044,
+        "cost": -6096.138998038379
       },
       "dynamic_programming": {
-        "execution_time": 0.3655247688293457,
-        "cost": -12.717808221473048
+        "execution_time": 0.08733081817626953,
+        "cost": -6096.138998038379
       }
     },
     {
@@ -1230,16 +1235,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.03826332092285156,
-        "cost": -5.5412799080197335
+        "execution_time": 0.03206920623779297,
+        "cost": -1380.90657854053
       },
       "tensor_method": {
-        "execution_time": 0.5398216247558594,
-        "cost": -5.5412799080197335
+        "execution_time": 0.7682006359100342,
+        "cost": -1380.90657854053
       },
       "dynamic_programming": {
-        "execution_time": 0.05352520942687988,
-        "cost": -5.5412799080197335
+        "execution_time": 0.03570055961608887,
+        "cost": -1380.90657854053
       }
     },
     {
@@ -1250,16 +1255,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.03468680381774902,
-        "cost": -5.421373680062553
+        "execution_time": 0.03316307067871094,
+        "cost": -1178.6587436875336
       },
       "tensor_method": {
-        "execution_time": 0.49985384941101074,
-        "cost": -5.421373680062553
+        "execution_time": 0.48021960258483887,
+        "cost": -1178.6587436875336
       },
       "dynamic_programming": {
-        "execution_time": 0.13200592994689941,
-        "cost": -5.421373680062553
+        "execution_time": 0.09657454490661621,
+        "cost": -1178.6587436875336
       }
     },
     {
@@ -1270,16 +1275,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.03612256050109863,
-        "cost": -5.7060582376695566
+        "execution_time": 0.03245186805725098,
+        "cost": -1264.5063105681868
       },
       "tensor_method": {
-        "execution_time": 0.4778859615325928,
-        "cost": -5.7060582376695566
+        "execution_time": 0.4327852725982666,
+        "cost": -1264.5063105681868
       },
       "dynamic_programming": {
-        "execution_time": 0.12609338760375977,
-        "cost": -5.7060582376695566
+        "execution_time": 0.03709864616394043,
+        "cost": -1264.597436606574
       }
     },
     {
@@ -1290,16 +1295,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.06643104553222656,
-        "cost": -7.8444537992943655
+        "execution_time": 0.061008453369140625,
+        "cost": -2612.652661282051
       },
       "tensor_method": {
-        "execution_time": 1.053105115890503,
-        "cost": -7.8444537992943655
+        "execution_time": 1.0060904026031494,
+        "cost": -2612.652661282051
       },
       "dynamic_programming": {
-        "execution_time": 0.1135714054107666,
-        "cost": -7.8444537992943655
+        "execution_time": 0.07309818267822266,
+        "cost": -2612.6914604518547
       }
     },
     {
@@ -1310,16 +1315,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.0637967586517334,
-        "cost": -8.070097280677874
+        "execution_time": 0.06961369514465332,
+        "cost": -2553.155931547772
       },
       "tensor_method": {
-        "execution_time": 1.1145403385162354,
-        "cost": -8.070097280677874
+        "execution_time": 1.091782569885254,
+        "cost": -2553.155931547772
       },
       "dynamic_programming": {
-        "execution_time": 0.11361002922058105,
-        "cost": -8.070097280677874
+        "execution_time": 0.07140016555786133,
+        "cost": -2553.155931547772
       }
     },
     {
@@ -1330,16 +1335,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.06990933418273926,
-        "cost": -7.949933601811018
+        "execution_time": 0.06833219528198242,
+        "cost": -2551.7850487389587
       },
       "tensor_method": {
-        "execution_time": 1.1693086624145508,
-        "cost": -7.949933601811018
+        "execution_time": 1.0864009857177734,
+        "cost": -2551.7850487389587
       },
       "dynamic_programming": {
-        "execution_time": 0.11189937591552734,
-        "cost": -7.949933601811018
+        "execution_time": 0.07087588310241699,
+        "cost": -2551.876174777346
       }
     },
     {
@@ -1350,16 +1355,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.09825778007507324,
-        "cost": -9.726305658428434
+        "execution_time": 0.0953829288482666,
+        "cost": -3879.671194023946
       },
       "tensor_method": {
-        "execution_time": 1.6358728408813477,
-        "cost": -9.726305658428434
+        "execution_time": 1.583486557006836,
+        "cost": -3879.671194023946
       },
       "dynamic_programming": {
-        "execution_time": 0.16810131072998047,
-        "cost": -9.726305658428434
+        "execution_time": 0.1075141429901123,
+        "cost": -3879.7099931937496
       }
     },
     {
@@ -1370,16 +1375,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.09467029571533203,
-        "cost": -9.842404927033842
+        "execution_time": 0.09935784339904785,
+        "cost": -3885.126884216359
       },
       "tensor_method": {
-        "execution_time": 1.6696529388427734,
-        "cost": -9.842404927033842
+        "execution_time": 1.652693271636963,
+        "cost": -3885.126884216359
       },
       "dynamic_programming": {
-        "execution_time": 0.16592931747436523,
-        "cost": -9.842415749813183
+        "execution_time": 0.11148786544799805,
+        "cost": -3885.126884216359
       }
     },
     {
@@ -1390,16 +1395,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.10331368446350098,
-        "cost": -9.932941516231294
+        "execution_time": 0.09994125366210938,
+        "cost": -3867.247578482093
       },
       "tensor_method": {
-        "execution_time": 1.7171778678894043,
-        "cost": -9.932941516231294
+        "execution_time": 1.6205661296844482,
+        "cost": -3867.247578482093
       },
       "dynamic_programming": {
-        "execution_time": 0.3783841133117676,
-        "cost": -9.932941516231294
+        "execution_time": 0.29941463470458984,
+        "cost": -3867.3387045204804
       }
     },
     {
@@ -1410,16 +1415,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.1306781768798828,
-        "cost": -11.435598311141742
+        "execution_time": 0.12652969360351562,
+        "cost": -5211.563668831652
       },
       "tensor_method": {
-        "execution_time": 2.1405553817749023,
-        "cost": -11.435598311141742
+        "execution_time": 2.0219509601593018,
+        "cost": -5211.563668831652
       },
       "dynamic_programming": {
-        "execution_time": 0.23051738739013672,
-        "cost": -11.435598311141742
+        "execution_time": 0.15030694007873535,
+        "cost": -5211.602468001455
       }
     },
     {
@@ -1430,16 +1435,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.13471770286560059,
-        "cost": -11.228961287533973
+        "execution_time": 0.13541340827941895,
+        "cost": -5140.472248829513
       },
       "tensor_method": {
-        "execution_time": 2.4595518112182617,
-        "cost": -11.228961287533973
+        "execution_time": 2.435792922973633,
+        "cost": -5140.472248829513
       },
       "dynamic_programming": {
-        "execution_time": 0.22234773635864258,
-        "cost": -11.228970714320717
+        "execution_time": 0.14705324172973633,
+        "cost": -5140.472248829513
       }
     },
     {
@@ -1450,16 +1455,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.13685083389282227,
-        "cost": -11.36106319549753
+        "execution_time": 0.1313478946685791,
+        "cost": -5201.548544178872
       },
       "tensor_method": {
-        "execution_time": 2.3780951499938965,
-        "cost": -11.36106319549753
+        "execution_time": 2.1448845863342285,
+        "cost": -5201.548544178872
       },
       "dynamic_programming": {
-        "execution_time": 0.23149800300598145,
-        "cost": -11.36106319549753
+        "execution_time": 0.14953994750976562,
+        "cost": -5201.63967021726
       }
     },
     {
@@ -1470,16 +1475,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.17041492462158203,
-        "cost": -12.620749105328446
+        "execution_time": 0.1669771671295166,
+        "cost": -6408.398891352615
       },
       "tensor_method": {
-        "execution_time": 3.034268856048584,
-        "cost": -12.620749105328446
+        "execution_time": 5.683207273483276,
+        "cost": -6408.398891352615
       },
       "dynamic_programming": {
-        "execution_time": 0.30499863624572754,
-        "cost": -12.620749105328446
+        "execution_time": 0.19857096672058105,
+        "cost": -6408.437690522419
       }
     },
     {
@@ -1490,16 +1495,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.17394614219665527,
-        "cost": -12.790917214889532
+        "execution_time": 0.16802144050598145,
+        "cost": -6485.891225136659
       },
       "tensor_method": {
-        "execution_time": 3.0808823108673096,
-        "cost": -12.790917214889532
+        "execution_time": 2.6414012908935547,
+        "cost": -6485.891225136659
       },
       "dynamic_programming": {
-        "execution_time": 0.28634071350097656,
-        "cost": -12.790925649681348
+        "execution_time": 0.1944265365600586,
+        "cost": -6485.891225136659
       }
     },
     {
@@ -1510,16 +1515,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.1709575653076172,
-        "cost": -12.65554678658107
+        "execution_time": 0.1684267520904541,
+        "cost": -6549.332571491466
       },
       "tensor_method": {
-        "execution_time": 3.0893993377685547,
-        "cost": -12.65554678658107
+        "execution_time": 2.88167667388916,
+        "cost": -6549.332571491466
       },
       "dynamic_programming": {
-        "execution_time": 0.30119919776916504,
-        "cost": -12.65554678658107
+        "execution_time": 0.18998932838439941,
+        "cost": -6549.423697529854
       }
     },
     {
@@ -1530,16 +1535,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.04384922981262207,
-        "cost": -6.169389470868269
+        "execution_time": 0.04149317741394043,
+        "cost": -1605.1737184971855
       },
       "tensor_method": {
-        "execution_time": 0.8670189380645752,
-        "cost": -6.169389470868269
+        "execution_time": 0.6933825016021729,
+        "cost": -1605.1737184971855
       },
       "dynamic_programming": {
-        "execution_time": 0.22604990005493164,
-        "cost": -6.169389470868269
+        "execution_time": 0.07590913772583008,
+        "cost": -1605.1737184971855
       }
     },
     {
@@ -1550,16 +1555,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.03847670555114746,
-        "cost": -5.7258733970860565
+        "execution_time": 0.03904223442077637,
+        "cost": -1444.46922758123
       },
       "tensor_method": {
-        "execution_time": 0.6151583194732666,
-        "cost": -5.7258733970860565
+        "execution_time": 0.5808389186859131,
+        "cost": -1444.46922758123
       },
       "dynamic_programming": {
-        "execution_time": 0.12298202514648438,
-        "cost": -5.7258733970860565
+        "execution_time": 0.07485270500183105,
+        "cost": -1444.46922758123
       }
     },
     {
@@ -1570,16 +1575,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.04276323318481445,
-        "cost": -5.300581657777259
+        "execution_time": 0.0421445369720459,
+        "cost": -1255.5727806754664
       },
       "tensor_method": {
-        "execution_time": 0.6039137840270996,
-        "cost": -5.300581657777259
+        "execution_time": 0.5890567302703857,
+        "cost": -1255.5727806754664
       },
       "dynamic_programming": {
-        "execution_time": 0.19899773597717285,
-        "cost": -5.300581657777259
+        "execution_time": 0.07481861114501953,
+        "cost": -1255.6293935999581
       }
     },
     {
@@ -1590,16 +1595,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.08091521263122559,
-        "cost": -8.240011137990521
+        "execution_time": 0.07509589195251465,
+        "cost": -2892.3141071189098
       },
       "tensor_method": {
-        "execution_time": 1.2324950695037842,
-        "cost": -8.240011137990521
+        "execution_time": 1.1308815479278564,
+        "cost": -2892.3141071189098
       },
       "dynamic_programming": {
-        "execution_time": 0.4048166275024414,
-        "cost": -8.240011137990521
+        "execution_time": 0.1533493995666504,
+        "cost": -2892.3141071189098
       }
     },
     {
@@ -1610,16 +1615,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.08139300346374512,
-        "cost": -8.39986173444097
+        "execution_time": 0.07957768440246582,
+        "cost": -3038.683527217054
       },
       "tensor_method": {
-        "execution_time": 1.2679953575134277,
-        "cost": -8.39986173444097
+        "execution_time": 1.2458717823028564,
+        "cost": -3038.683527217054
       },
       "dynamic_programming": {
-        "execution_time": 0.2505640983581543,
-        "cost": -8.39986173444097
+        "execution_time": 0.15183639526367188,
+        "cost": -3038.683527217054
       }
     },
     {
@@ -1630,16 +1635,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.07732200622558594,
-        "cost": -7.544582014924001
+        "execution_time": 0.07603001594543457,
+        "cost": -2574.123452448032
       },
       "tensor_method": {
-        "execution_time": 1.374194860458374,
-        "cost": -7.544582014924001
+        "execution_time": 1.2211830615997314,
+        "cost": -2574.123452448032
       },
       "dynamic_programming": {
-        "execution_time": 0.2494187355041504,
-        "cost": -7.544582014924001
+        "execution_time": 0.15290307998657227,
+        "cost": -2574.1800653725236
       }
     },
     {
@@ -1650,16 +1655,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.11732602119445801,
-        "cost": -9.9794689807182
+        "execution_time": 0.11615371704101562,
+        "cost": -4236.515773781516
       },
       "tensor_method": {
-        "execution_time": 1.893873691558838,
-        "cost": -9.9794689807182
+        "execution_time": 1.8278470039367676,
+        "cost": -4236.515773781516
       },
       "dynamic_programming": {
-        "execution_time": 0.6107003688812256,
-        "cost": -9.9794689807182
+        "execution_time": 0.23059511184692383,
+        "cost": -4236.515773781516
       }
     },
     {
@@ -1670,16 +1675,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.11985921859741211,
-        "cost": -10.13442974355944
+        "execution_time": 0.11701202392578125,
+        "cost": -4457.332407848942
       },
       "tensor_method": {
-        "execution_time": 1.870365858078003,
-        "cost": -10.13442974355944
+        "execution_time": 1.8553245067596436,
+        "cost": -4457.332407848942
       },
       "dynamic_programming": {
-        "execution_time": 0.36406803131103516,
-        "cost": -10.13442974355944
+        "execution_time": 0.4253406524658203,
+        "cost": -4457.332407848942
       }
     },
     {
@@ -1690,16 +1695,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.12250089645385742,
-        "cost": -9.668717151435509
+        "execution_time": 0.11379861831665039,
+        "cost": -4020.3947050511388
       },
       "tensor_method": {
-        "execution_time": 2.1722939014434814,
-        "cost": -9.668717151435509
+        "execution_time": 1.8696014881134033,
+        "cost": -4020.3947050511388
       },
       "dynamic_programming": {
-        "execution_time": 0.3788731098175049,
-        "cost": -9.668717151435509
+        "execution_time": 0.24956417083740234,
+        "cost": -4020.4513179756304
       }
     },
     {
@@ -1710,16 +1715,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.16138339042663574,
-        "cost": -11.49123582951013
+        "execution_time": 0.15165042877197266,
+        "cost": -5612.0631038919455
       },
       "tensor_method": {
-        "execution_time": 2.857851505279541,
-        "cost": -11.49123582951013
+        "execution_time": 2.472174644470215,
+        "cost": -5612.0631038919455
       },
       "dynamic_programming": {
-        "execution_time": 0.5019323825836182,
-        "cost": -11.491448094781203
+        "execution_time": 0.32363200187683105,
+        "cost": -5612.0631038919455
       }
     },
     {
@@ -1730,16 +1735,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.16462111473083496,
-        "cost": -11.689114017683945
+        "execution_time": 0.1547229290008545,
+        "cost": -5885.447970665919
       },
       "tensor_method": {
-        "execution_time": 2.7682714462280273,
-        "cost": -11.689114017683945
+        "execution_time": 2.5488474369049072,
+        "cost": -5885.447970665919
       },
       "dynamic_programming": {
-        "execution_time": 0.47215890884399414,
-        "cost": -11.689114017683945
+        "execution_time": 0.318023681640625,
+        "cost": -5885.447970665919
       }
     },
     {
@@ -1750,16 +1755,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.16718149185180664,
-        "cost": -11.235679870255993
+        "execution_time": 0.1572730541229248,
+        "cost": -5436.524057093679
       },
       "tensor_method": {
-        "execution_time": 2.652987241744995,
-        "cost": -11.235679870255993
+        "execution_time": 2.556494951248169,
+        "cost": -5436.524057093679
       },
       "dynamic_programming": {
-        "execution_time": 0.48395276069641113,
-        "cost": -11.235679870255993
+        "execution_time": 0.31071901321411133,
+        "cost": -5436.580670018172
       }
     },
     {
@@ -1770,16 +1775,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.19617819786071777,
-        "cost": -12.643024633504544
+        "execution_time": 0.17786121368408203,
+        "cost": -6901.839673804644
       },
       "tensor_method": {
-        "execution_time": 3.4028282165527344,
-        "cost": -12.643024633504544
+        "execution_time": 5.9586851596832275,
+        "cost": -6901.839673804644
       },
       "dynamic_programming": {
-        "execution_time": 0.6372170448303223,
-        "cost": -12.64321468450918
+        "execution_time": 0.41036558151245117,
+        "cost": -6901.839673804644
       }
     },
     {
@@ -1790,16 +1795,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.19309544563293457,
-        "cost": -13.3010873577313
+        "execution_time": 0.18885183334350586,
+        "cost": -7355.243839016794
       },
       "tensor_method": {
-        "execution_time": 3.4639172554016113,
-        "cost": -13.3010873577313
+        "execution_time": 3.2193121910095215,
+        "cost": -7355.243839016794
       },
       "dynamic_programming": {
-        "execution_time": 0.6111998558044434,
-        "cost": -13.3010873577313
+        "execution_time": 0.38590073585510254,
+        "cost": -7355.243839016794
       }
     },
     {
@@ -1810,16 +1815,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.19172883033752441,
-        "cost": -13.104667785570644
+        "execution_time": 0.18836426734924316,
+        "cost": -7089.861399035533
       },
       "tensor_method": {
-        "execution_time": 3.5789196491241455,
-        "cost": -13.104667785570644
+        "execution_time": 3.2602219581604004,
+        "cost": -7089.861399035533
       },
       "dynamic_programming": {
-        "execution_time": 0.6080837249755859,
-        "cost": -13.104667785570644
+        "execution_time": 0.39640140533447266,
+        "cost": -7089.918011960026
       }
     },
     {
@@ -1830,16 +1835,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.10339856147766113,
-        "cost": -5.514764765923696
+        "execution_time": 0.13587141036987305,
+        "cost": -1506.8997658024582
       },
       "tensor_method": {
-        "execution_time": 0.9619901180267334,
-        "cost": -5.514764765923696
+        "execution_time": 1.000300645828247,
+        "cost": -1506.8997658024582
       },
       "dynamic_programming": {
-        "execution_time": 0.33556199073791504,
-        "cost": -5.514764765923696
+        "execution_time": 0.1569817066192627,
+        "cost": -1506.8997658024582
       }
     },
     {
@@ -1850,16 +1855,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.08389687538146973,
-        "cost": -5.978431766277245
+        "execution_time": 0.07134461402893066,
+        "cost": -1472.551578479596
       },
       "tensor_method": {
-        "execution_time": 0.6944625377655029,
-        "cost": -5.978431766277245
+        "execution_time": 0.7012066841125488,
+        "cost": -1472.551578479596
       },
       "dynamic_programming": {
-        "execution_time": 0.2527029514312744,
-        "cost": -5.978431766277245
+        "execution_time": 0.23148369789123535,
+        "cost": -1472.551578479596
       }
     },
     {
@@ -1870,16 +1875,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.09743690490722656,
-        "cost": -5.696586800344035
+        "execution_time": 0.06591391563415527,
+        "cost": -1383.164515321656
       },
       "tensor_method": {
-        "execution_time": 0.7136025428771973,
-        "cost": -5.696586800344035
+        "execution_time": 0.5989601612091064,
+        "cost": -1383.164515321656
       },
       "dynamic_programming": {
-        "execution_time": 0.2523214817047119,
-        "cost": -5.696586800344035
+        "execution_time": 0.1676633358001709,
+        "cost": -1383.164515321656
       }
     },
     {
@@ -1890,16 +1895,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.13229632377624512,
-        "cost": -7.729682696819719
+        "execution_time": 0.13669753074645996,
+        "cost": -2810.852843360142
       },
       "tensor_method": {
-        "execution_time": 1.4495532512664795,
-        "cost": -7.729682696819719
+        "execution_time": 1.3394229412078857,
+        "cost": -2810.852843360142
       },
       "dynamic_programming": {
-        "execution_time": 0.5138063430786133,
-        "cost": -7.729682696819719
+        "execution_time": 0.31359362602233887,
+        "cost": -2810.852843360142
       }
     },
     {
@@ -1910,16 +1915,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.1466846466064453,
-        "cost": -8.744337743229432
+        "execution_time": 0.1453690528869629,
+        "cost": -3216.1350379713217
       },
       "tensor_method": {
-        "execution_time": 1.5281620025634766,
-        "cost": -8.744337743229432
+        "execution_time": 1.419238567352295,
+        "cost": -3216.1350379713217
       },
       "dynamic_programming": {
-        "execution_time": 0.5090079307556152,
-        "cost": -8.744337743229432
+        "execution_time": 0.30911779403686523,
+        "cost": -3216.1350379713217
       }
     },
     {
@@ -1930,16 +1935,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.152052640914917,
-        "cost": -8.410514142431824
+        "execution_time": 0.15172767639160156,
+        "cost": -3017.0601816929848
       },
       "tensor_method": {
-        "execution_time": 1.4267277717590332,
-        "cost": -8.410514142431824
+        "execution_time": 1.3888039588928223,
+        "cost": -3017.0601816929848
       },
       "dynamic_programming": {
-        "execution_time": 0.679811954498291,
-        "cost": -8.410514142431824
+        "execution_time": 0.4693641662597656,
+        "cost": -3017.0601816929848
       }
     },
     {
@@ -1950,16 +1955,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.21146488189697266,
-        "cost": -9.435770019656974
+        "execution_time": 0.20236492156982422,
+        "cost": -4151.772351812638
       },
       "tensor_method": {
-        "execution_time": 2.0104119777679443,
-        "cost": -9.435770019656974
+        "execution_time": 1.8523693084716797,
+        "cost": -4151.772351812638
       },
       "dynamic_programming": {
-        "execution_time": 0.8291852474212646,
-        "cost": -9.435770019656974
+        "execution_time": 0.4782602787017822,
+        "cost": -4151.772351812638
       }
     },
     {
@@ -1970,16 +1975,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.23928475379943848,
-        "cost": -10.447865758371833
+        "execution_time": 0.2151029109954834,
+        "cost": -4676.679357665639
       },
       "tensor_method": {
-        "execution_time": 2.39221453666687,
-        "cost": -10.447865758371833
+        "execution_time": 2.196544647216797,
+        "cost": -4676.679357665639
       },
       "dynamic_programming": {
-        "execution_time": 0.7773041725158691,
-        "cost": -10.447865758371833
+        "execution_time": 0.4796741008758545,
+        "cost": -4676.679357665639
       }
     },
     {
@@ -1990,16 +1995,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.20368242263793945,
-        "cost": -10.400151938836975
+        "execution_time": 0.1971573829650879,
+        "cost": -4487.998283167126
       },
       "tensor_method": {
-        "execution_time": 2.2953970432281494,
-        "cost": -10.400151938836975
+        "execution_time": 2.148543357849121,
+        "cost": -4487.998283167126
       },
       "dynamic_programming": {
-        "execution_time": 0.7659804821014404,
-        "cost": -10.400151938836975
+        "execution_time": 0.47695064544677734,
+        "cost": -4487.998283167126
       }
     },
     {
@@ -2010,16 +2015,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.2638974189758301,
-        "cost": -10.812790229329568
+        "execution_time": 0.2416067123413086,
+        "cost": -5508.6289378153715
       },
       "tensor_method": {
-        "execution_time": 3.014481782913208,
-        "cost": -10.812790229329568
+        "execution_time": 2.7525970935821533,
+        "cost": -5508.6289378153715
       },
       "dynamic_programming": {
-        "execution_time": 1.0925405025482178,
-        "cost": -10.812790229329568
+        "execution_time": 0.6441323757171631,
+        "cost": -5508.6289378153715
       }
     },
     {
@@ -2030,16 +2035,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.24982714653015137,
-        "cost": -11.921116810566875
+        "execution_time": 0.26329493522644043,
+        "cost": -6153.240718539782
       },
       "tensor_method": {
-        "execution_time": 3.3959457874298096,
-        "cost": -11.921116810566875
+        "execution_time": 5.955936431884766,
+        "cost": -6153.240718539782
       },
       "dynamic_programming": {
-        "execution_time": 1.0916602611541748,
-        "cost": -11.921116810566875
+        "execution_time": 0.6534059047698975,
+        "cost": -6153.240718539782
       }
     },
     {
@@ -2050,16 +2055,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.25551319122314453,
-        "cost": -11.586793696059276
+        "execution_time": 0.25226712226867676,
+        "cost": -5856.361811395447
       },
       "tensor_method": {
-        "execution_time": 3.1263158321380615,
-        "cost": -11.586793696059276
+        "execution_time": 2.843982458114624,
+        "cost": -5856.361811395447
       },
       "dynamic_programming": {
-        "execution_time": 1.0560972690582275,
-        "cost": -11.586793696059276
+        "execution_time": 0.6396484375,
+        "cost": -5856.361811395447
       }
     },
     {
@@ -2070,16 +2075,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.318035364151001,
-        "cost": -12.296266848505295
+        "execution_time": 0.30898141860961914,
+        "cost": -7021.412043579786
       },
       "tensor_method": {
-        "execution_time": 4.047096252441406,
-        "cost": -12.296266848505295
+        "execution_time": 3.6764564514160156,
+        "cost": -7021.412043579786
       },
       "dynamic_programming": {
-        "execution_time": 1.3539583683013916,
-        "cost": -12.296266848505295
+        "execution_time": 0.8925652503967285,
+        "cost": -7021.412043579786
       }
     },
     {
@@ -2090,16 +2095,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.31216001510620117,
-        "cost": -13.466790021248455
+        "execution_time": 0.2550387382507324,
+        "cost": -7705.22225519879
       },
       "tensor_method": {
-        "execution_time": 3.820763349533081,
-        "cost": -13.466790021248455
+        "execution_time": 3.389481782913208,
+        "cost": -7705.22225519879
       },
       "dynamic_programming": {
-        "execution_time": 1.8338463306427002,
-        "cost": -13.466790021248455
+        "execution_time": 0.8453860282897949,
+        "cost": -7705.22225519879
       }
     },
     {
@@ -2110,16 +2115,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.27851390838623047,
-        "cost": -13.413883616827896
+        "execution_time": 0.30460023880004883,
+        "cost": -7602.836132658548
       },
       "tensor_method": {
-        "execution_time": 3.474642276763916,
-        "cost": -13.413883616827896
+        "execution_time": 3.8257813453674316,
+        "cost": -7602.836132658548
       },
       "dynamic_programming": {
-        "execution_time": 1.3363142013549805,
-        "cost": -13.413883616827896
+        "execution_time": 1.160776138305664,
+        "cost": -7602.836132658548
       }
     },
     {
@@ -2130,16 +2135,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.11829638481140137,
-        "cost": -5.529782532952138
+        "execution_time": 0.1162726879119873,
+        "cost": -1562.0216591785702
       },
       "tensor_method": {
-        "execution_time": 1.1103086471557617,
-        "cost": -5.529782532952138
+        "execution_time": 0.6910197734832764,
+        "cost": -1562.0216591785702
       },
       "dynamic_programming": {
-        "execution_time": 0.5307583808898926,
-        "cost": -5.529782532952138
+        "execution_time": 0.4266011714935303,
+        "cost": -1562.0216591785702
       }
     },
     {
@@ -2150,16 +2155,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.1046445369720459,
-        "cost": -5.833516252207839
+        "execution_time": 0.10213685035705566,
+        "cost": -1575.9881247804472
       },
       "tensor_method": {
-        "execution_time": 0.7820489406585693,
-        "cost": -5.833516252207839
+        "execution_time": 0.7125339508056641,
+        "cost": -1575.9881247804472
       },
       "dynamic_programming": {
-        "execution_time": 0.5620887279510498,
-        "cost": -5.833516252207839
+        "execution_time": 0.4325287342071533,
+        "cost": -1575.9881247804472
       }
     },
     {
@@ -2170,16 +2175,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.11102461814880371,
-        "cost": -5.709002604857335
+        "execution_time": 0.10915589332580566,
+        "cost": -1448.0159063030535
       },
       "tensor_method": {
-        "execution_time": 0.7897553443908691,
-        "cost": -5.709002604857335
+        "execution_time": 0.6581649780273438,
+        "cost": -1448.0159063030535
       },
       "dynamic_programming": {
-        "execution_time": 0.6254260540008545,
-        "cost": -5.709002604857335
+        "execution_time": 0.4015517234802246,
+        "cost": -1448.0159063030535
       }
     },
     {
@@ -2190,16 +2195,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.1817028522491455,
-        "cost": -7.94545420338244
+        "execution_time": 0.1837003231048584,
+        "cost": -2984.874506394875
       },
       "tensor_method": {
-        "execution_time": 1.508681297302246,
-        "cost": -7.94545420338244
+        "execution_time": 1.4864871501922607,
+        "cost": -2984.874506394875
       },
       "dynamic_programming": {
-        "execution_time": 1.0832374095916748,
-        "cost": -7.94545420338244
+        "execution_time": 0.6772222518920898,
+        "cost": -2984.874506394875
       }
     },
     {
@@ -2210,16 +2215,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.19611668586730957,
-        "cost": -8.27700834676009
+        "execution_time": 0.19459748268127441,
+        "cost": -3207.5571235020275
       },
       "tensor_method": {
-        "execution_time": 1.7116079330444336,
-        "cost": -8.27700834676009
+        "execution_time": 1.5382580757141113,
+        "cost": -3207.5571235020275
       },
       "dynamic_programming": {
-        "execution_time": 1.0807969570159912,
-        "cost": -8.27700834676009
+        "execution_time": 0.848668098449707,
+        "cost": -3207.5571235020275
       }
     },
     {
@@ -2230,16 +2235,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.20488953590393066,
-        "cost": -7.952714302256122
+        "execution_time": 0.21969366073608398,
+        "cost": -2971.295972845499
       },
       "tensor_method": {
-        "execution_time": 1.6277446746826172,
-        "cost": -7.952714302256122
+        "execution_time": 1.4786744117736816,
+        "cost": -2971.295972845499
       },
       "dynamic_programming": {
-        "execution_time": 1.1063909530639648,
-        "cost": -7.952714302256122
+        "execution_time": 0.8233256340026855,
+        "cost": -2971.295972845499
       }
     },
     {
@@ -2250,16 +2255,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.26331067085266113,
-        "cost": -9.743505328336726
+        "execution_time": 0.2908973693847656,
+        "cost": -4470.77522897979
       },
       "tensor_method": {
-        "execution_time": 2.5446176528930664,
-        "cost": -9.743505328336726
+        "execution_time": 5.22018027305603,
+        "cost": -4470.77522897979
       },
       "dynamic_programming": {
-        "execution_time": 1.7353668212890625,
-        "cost": -9.743505328336726
+        "execution_time": 1.0631229877471924,
+        "cost": -4470.77522897979
       }
     },
     {
@@ -2270,16 +2275,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.24492740631103516,
-        "cost": -10.15985443415372
+        "execution_time": 0.2984302043914795,
+        "cost": -4779.097974740684
       },
       "tensor_method": {
-        "execution_time": 2.6222457885742188,
-        "cost": -10.15985443415372
+        "execution_time": 2.4650497436523438,
+        "cost": -4779.097974740684
       },
       "dynamic_programming": {
-        "execution_time": 1.6852757930755615,
-        "cost": -10.15985443415372
+        "execution_time": 1.0222103595733643,
+        "cost": -4779.165859513558
       }
     },
     {
@@ -2290,16 +2295,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.2790346145629883,
-        "cost": -9.799986979119971
+        "execution_time": 0.2730085849761963,
+        "cost": -4422.007767346212
       },
       "tensor_method": {
-        "execution_time": 2.707120895385742,
-        "cost": -9.799986979119971
+        "execution_time": 2.363416910171509,
+        "cost": -4422.007767346212
       },
       "dynamic_programming": {
-        "execution_time": 1.7021877765655518,
-        "cost": -9.80001024881164
+        "execution_time": 1.2347908020019531,
+        "cost": -4422.007767346212
       }
     },
     {
@@ -2310,16 +2315,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.3266115188598633,
-        "cost": -11.375935494693382
+        "execution_time": 0.33992481231689453,
+        "cost": -6072.442118886035
       },
       "tensor_method": {
-        "execution_time": 3.425299882888794,
-        "cost": -11.375935494693382
+        "execution_time": 2.902458429336548,
+        "cost": -6072.442118886035
       },
       "dynamic_programming": {
-        "execution_time": 2.649484634399414,
-        "cost": -11.375935494693382
+        "execution_time": 1.6592845916748047,
+        "cost": -6072.442118886035
       }
     },
     {
@@ -2330,16 +2335,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.33363866806030273,
-        "cost": -11.612020643229444
+        "execution_time": 0.33575868606567383,
+        "cost": -6304.417890300944
       },
       "tensor_method": {
-        "execution_time": 3.477037191390991,
-        "cost": -11.612020643229444
+        "execution_time": 2.618694305419922,
+        "cost": -6304.417890300944
       },
       "dynamic_programming": {
-        "execution_time": 2.2741763591766357,
-        "cost": -11.612020643229444
+        "execution_time": 1.5885181427001953,
+        "cost": -6304.485775073818
       }
     },
     {
@@ -2350,16 +2355,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.31079554557800293,
-        "cost": -11.591178048459705
+        "execution_time": 0.31174659729003906,
+        "cost": -6067.531795769632
       },
       "tensor_method": {
-        "execution_time": 3.484926223754883,
-        "cost": -11.591178048459705
+        "execution_time": 3.1415855884552,
+        "cost": -6067.531795769632
       },
       "dynamic_programming": {
-        "execution_time": 2.2702600955963135,
-        "cost": -11.591198206914171
+        "execution_time": 1.4347474575042725,
+        "cost": -6067.531795769632
       }
     },
     {
@@ -2370,16 +2375,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.3949143886566162,
-        "cost": -13.037907625146763
+        "execution_time": 0.3785998821258545,
+        "cost": -7749.660751147898
       },
       "tensor_method": {
-        "execution_time": 4.411997318267822,
-        "cost": -13.037907625146763
+        "execution_time": 3.9973320960998535,
+        "cost": -7749.660751147898
       },
       "dynamic_programming": {
-        "execution_time": 2.8697917461395264,
-        "cost": -13.037907625146763
+        "execution_time": 2.138953685760498,
+        "cost": -7749.660751147898
       }
     },
     {
@@ -2390,16 +2395,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.38635802268981934,
-        "cost": -13.028984739355602
+        "execution_time": 0.39788126945495605,
+        "cost": -7878.800029943537
       },
       "tensor_method": {
-        "execution_time": 4.331105709075928,
-        "cost": -13.028984739355602
+        "execution_time": 6.447327136993408,
+        "cost": -7878.800029943537
       },
       "dynamic_programming": {
-        "execution_time": 3.2623233795166016,
-        "cost": -13.028984739355602
+        "execution_time": 2.116119146347046,
+        "cost": -7878.867914716411
       }
     },
     {
@@ -2410,16 +2415,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.3683469295501709,
-        "cost": -13.332821128562465
+        "execution_time": 0.36408329010009766,
+        "cost": -7832.796904952474
       },
       "tensor_method": {
-        "execution_time": 3.8075039386749268,
-        "cost": -13.332821128562465
+        "execution_time": 3.6016671657562256,
+        "cost": -7832.796904952474
       },
       "dynamic_programming": {
-        "execution_time": 3.3601911067962646,
-        "cost": -13.33283915337951
+        "execution_time": 2.1203858852386475,
+        "cost": -7832.949625814258
       }
     },
     {
@@ -2430,16 +2435,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.24977731704711914,
-        "cost": -5.557561280467705
+        "execution_time": 0.3407878875732422,
+        "cost": -1651.9501943675452
       },
       "tensor_method": {
-        "execution_time": 0.8382968902587891,
-        "cost": -5.557561280467705
+        "execution_time": 0.775188684463501,
+        "cost": -1651.9501943675452
       },
       "dynamic_programming": {
-        "execution_time": 1.1016409397125244,
-        "cost": -5.557561280467705
+        "execution_time": 0.6656656265258789,
+        "cost": -1651.9501943675452
       }
     },
     {
@@ -2450,16 +2455,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.30510926246643066,
-        "cost": -5.807268291013744
+        "execution_time": 0.275526762008667,
+        "cost": -1624.6670016072267
       },
       "tensor_method": {
-        "execution_time": 0.8437378406524658,
-        "cost": -5.807268291013744
+        "execution_time": 0.8747439384460449,
+        "cost": -1624.6670016072267
       },
       "dynamic_programming": {
-        "execution_time": 1.2081305980682373,
-        "cost": -5.807268291013744
+        "execution_time": 0.8253750801086426,
+        "cost": -1624.6670016072267
       }
     },
     {
@@ -2470,16 +2475,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.22507309913635254,
-        "cost": -5.383426815489236
+        "execution_time": 0.8281204700469971,
+        "cost": -1452.1937955929152
       },
       "tensor_method": {
-        "execution_time": 0.8429815769195557,
-        "cost": -5.383426815489236
+        "execution_time": 0.8674588203430176,
+        "cost": -1452.1937955929152
       },
       "dynamic_programming": {
-        "execution_time": 1.1161634922027588,
-        "cost": -5.383426815489236
+        "execution_time": 0.7075502872467041,
+        "cost": -1452.1937955929152
       }
     },
     {
@@ -2490,16 +2495,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.3558619022369385,
-        "cost": -7.858421479891401
+        "execution_time": 0.4010605812072754,
+        "cost": -3173.7753742706604
       },
       "tensor_method": {
-        "execution_time": 1.774951696395874,
-        "cost": -7.858421479891401
+        "execution_time": 1.7324614524841309,
+        "cost": -3173.7753742706604
       },
       "dynamic_programming": {
-        "execution_time": 2.337015390396118,
-        "cost": -7.858421479891401
+        "execution_time": 1.4044229984283447,
+        "cost": -3173.7753742706604
       }
     },
     {
@@ -2510,16 +2515,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.4588127136230469,
-        "cost": -8.30115980041081
+        "execution_time": 0.34982895851135254,
+        "cost": -3322.1439012101964
       },
       "tensor_method": {
-        "execution_time": 1.8898913860321045,
-        "cost": -8.30115980041081
+        "execution_time": 1.8523080348968506,
+        "cost": -3322.1439012101964
       },
       "dynamic_programming": {
-        "execution_time": 2.2904248237609863,
-        "cost": -8.30115980041081
+        "execution_time": 1.390761137008667,
+        "cost": -3322.1439012101964
       }
     },
     {
@@ -2530,16 +2535,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.37335729598999023,
-        "cost": -7.800949310614495
+        "execution_time": 1.0387074947357178,
+        "cost": -3120.8885800941384
       },
       "tensor_method": {
-        "execution_time": 1.873455286026001,
-        "cost": -7.800949310614495
+        "execution_time": 1.816760540008545,
+        "cost": -3120.8885800941384
       },
       "dynamic_programming": {
-        "execution_time": 2.3664603233337402,
-        "cost": -7.800949310614495
+        "execution_time": 1.4007182121276855,
+        "cost": -3120.8885800941384
       }
     },
     {
@@ -2550,16 +2555,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.4617471694946289,
-        "cost": -9.641275248210878
+        "execution_time": 0.6267173290252686,
+        "cost": -4661.990196766744
       },
       "tensor_method": {
-        "execution_time": 2.7956020832061768,
-        "cost": -9.641275248210878
+        "execution_time": 5.555774688720703,
+        "cost": -4661.990196766744
       },
       "dynamic_programming": {
-        "execution_time": 4.025966167449951,
-        "cost": -9.641275248210878
+        "execution_time": 2.433008909225464,
+        "cost": -4662.128725579517
       }
     },
     {
@@ -2570,16 +2575,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.4490523338317871,
-        "cost": -10.06988907636389
+        "execution_time": 0.4807283878326416,
+        "cost": -4922.144344680861
       },
       "tensor_method": {
-        "execution_time": 2.7018160820007324,
-        "cost": -10.06988907636389
+        "execution_time": 2.4975388050079346,
+        "cost": -4922.144344680861
       },
       "dynamic_programming": {
-        "execution_time": 3.972644805908203,
-        "cost": -10.06988907636389
+        "execution_time": 2.378809928894043,
+        "cost": -4922.144344680861
       }
     },
     {
@@ -2590,16 +2595,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.7045650482177734,
-        "cost": -10.062952487205175
+        "execution_time": 0.6814942359924316,
+        "cost": -4876.798622479478
       },
       "tensor_method": {
-        "execution_time": 2.6740734577178955,
-        "cost": -10.062952487205175
+        "execution_time": 2.406384229660034,
+        "cost": -4876.798622479478
       },
       "dynamic_programming": {
-        "execution_time": 3.914888381958008,
-        "cost": -10.062952487205175
+        "execution_time": 2.370849370956421,
+        "cost": -4876.804602060776
       }
     },
     {
@@ -2610,16 +2615,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.8321406841278076,
-        "cost": -11.317319894649927
+        "execution_time": 1.481673240661621,
+        "cost": -6317.592925591974
       },
       "tensor_method": {
-        "execution_time": 3.696563243865967,
-        "cost": -11.317319894649927
+        "execution_time": 3.4768118858337402,
+        "cost": -6317.592925591974
       },
       "dynamic_programming": {
-        "execution_time": 5.158297777175903,
-        "cost": -11.317319894649927
+        "execution_time": 3.3187296390533447,
+        "cost": -6317.738800540066
       }
     },
     {
@@ -2630,16 +2635,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.5618648529052734,
-        "cost": -11.8404689789489
+        "execution_time": 0.6514506340026855,
+        "cost": -6724.688611828745
       },
       "tensor_method": {
-        "execution_time": 3.5109732151031494,
-        "cost": -11.8404689789489
+        "execution_time": 3.3899831771850586,
+        "cost": -6724.688611828745
       },
       "dynamic_programming": {
-        "execution_time": 5.1047632694244385,
-        "cost": -11.8404689789489
+        "execution_time": 3.3483152389526367,
+        "cost": -6724.688611828745
       }
     },
     {
@@ -2650,16 +2655,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.6334578990936279,
-        "cost": -11.734259791542017
+        "execution_time": 0.6045072078704834,
+        "cost": -6589.90120664047
       },
       "tensor_method": {
-        "execution_time": 3.085296392440796,
-        "cost": -11.734259791542017
+        "execution_time": 6.48289942741394,
+        "cost": -6589.90120664047
       },
       "dynamic_programming": {
-        "execution_time": 5.3313069343566895,
-        "cost": -11.734259791542017
+        "execution_time": 3.219451665878296,
+        "cost": -6589.90718622177
       }
     },
     {
@@ -2670,16 +2675,16 @@
       "instance_type": "random",
       "seed": 0,
       "matrix_method": {
-        "execution_time": 0.6887283325195312,
-        "cost": -13.069604298837792
+        "execution_time": 0.7775089740753174,
+        "cost": -8166.368817252045
       },
       "tensor_method": {
-        "execution_time": 4.8780622482299805,
-        "cost": -13.069604298837792
+        "execution_time": 4.2611188888549805,
+        "cost": -8166.368817252045
       },
       "dynamic_programming": {
-        "execution_time": 6.697331666946411,
-        "cost": -13.069604298837792
+        "execution_time": 4.0901219844818115,
+        "cost": -8166.678900165218
       }
     },
     {
@@ -2690,16 +2695,16 @@
       "instance_type": "random",
       "seed": 1,
       "matrix_method": {
-        "execution_time": 0.9765145778656006,
-        "cost": -13.23167466431335
+        "execution_time": 0.8193371295928955,
+        "cost": -8375.455643407051
       },
       "tensor_method": {
-        "execution_time": 5.344229221343994,
-        "cost": -13.23167466431335
+        "execution_time": 4.436316251754761,
+        "cost": -8375.455643407051
       },
       "dynamic_programming": {
-        "execution_time": 7.034182786941528,
-        "cost": -13.23179731737098
+        "execution_time": 4.24593710899353,
+        "cost": -8375.455643407051
       }
     },
     {
@@ -2710,16 +2715,16 @@
       "instance_type": "random",
       "seed": 2,
       "matrix_method": {
-        "execution_time": 0.7098019123077393,
-        "cost": -13.331276526701284
+        "execution_time": 0.7818772792816162,
+        "cost": -8378.849449568996
       },
       "tensor_method": {
-        "execution_time": 5.088164329528809,
-        "cost": -13.331276526701284
+        "execution_time": 4.379131555557251,
+        "cost": -8378.849449568996
       },
       "dynamic_programming": {
-        "execution_time": 6.802478075027466,
-        "cost": -13.331276526701284
+        "execution_time": 6.980445146560669,
+        "cost": -8378.855429150295
       }
     }
   ]
