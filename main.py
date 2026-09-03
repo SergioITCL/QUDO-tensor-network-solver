@@ -37,89 +37,44 @@ resultado = solver_matrix_method(Q, q, d, k)
 matrix_time = time() - in1
 print("Matriz:", resultado.cost, "time", matrix_time)
 
-# resultado = solver_tabu_search(
-#     Q,
-#     q,
-#     d,
-#     k,
-#     time_limit=matrix_time,
-#     seed=instancia["seed"],
-# )
-# print("Tabu Search:", resultado.cost)
-
-# resultado = solver_scip(
-#     Q,
-#     q,
-#     d,
-#     k,
-#     time_limit=3*matrix_time,
-#     seed=instancia["seed"],
-# )
-# print("SCIP:", resultado.cost)
-
-# resultado = solver_tensorkrowch(Q, q, None, d, k)
-# print("TensorKrowch:", resultado.cost)
-
-# resultado = solver_dynamic_programming(Q, q, d, k)
-# print("Dinámica 1:", resultado.cost)
-
-# resultado = solver_dynamic_programming2(Q, q,d, k)
-# print("Dinámica 2:", resultado.cost)
-
-# resultado = solver_dynamic_programming3(Q, q,d, k)
-# print("Dinámica 3:", resultado.cost)
-
-# resultado = solver_dynamic_programming_heuristic(Q, q,d, k)
-# print("Heurística:", resultado.cost)
-
-# resultado = solver_sum_product(Q, q, d, k)
-# print("Min-sum:", resultado.cost)
-
-# resultado = solver_ortools(Q, q, d, 10)
-# print("OR-Tools:", resultado.cost)
-
-
-target_result = solver_scip_time_to_target(
+resultado = solver_tabu_search(
     Q,
     q,
     d,
     k,
-    target_cost=resultado.cost,
-    max_time=100.0,
-    seed=1,
+    time_limit=matrix_time,
+    seed=instancia["seed"],
 )
-print("Scip time result", target_result.time_to_target)
+print("Tabu Search:", resultado.cost)
 
+resultado = solver_scip(
+    Q,
+    q,
+    d,
+    k,
+    time_limit=3*matrix_time,
+    seed=instancia["seed"],
+)
+print("SCIP:", resultado.cost)
 
+resultado = solver_tensorkrowch(Q, q, None, d, k)
+print("TensorKrowch:", resultado.cost)
 
+resultado = solver_dynamic_programming(Q, q, d, k)
+print("Dinámica 1:", resultado.cost)
 
-# for scip_time in [
-#     0.1,
-#     0.25,
-#     0.5,
-#     0.75,
-#     1.0,
-#     1.5,
-#     2.0,
-#     2.5,
-#     3.0,
-#     4.0,
-#     5.0,
-# ]:
-#     resultado, metadata = solver_scip_with_metadata(
-#         Q,
-#         q,
-#         d,
-#         k,
-#         time_limit=scip_time,
-#         seed=instancia["seed"],
-#     )
+resultado = solver_dynamic_programming2(Q, q,d, k)
+print("Dinámica 2:", resultado.cost)
 
-#     print(
-#         f"SCIP {scip_time}s:",
-#         resultado.cost,
-#         metadata.status,
-#         metadata.gap,
-#         metadata.best_bound,
-#         metadata.nodes,
-#     )
+resultado = solver_dynamic_programming3(Q, q,d, k)
+print("Dinámica 3:", resultado.cost)
+
+resultado = solver_dynamic_programming_heuristic(Q, q,d, k)
+print("Heurística:", resultado.cost)
+
+resultado = solver_sum_product(Q, q, d, k)
+print("Min-sum:", resultado.cost)
+
+resultado = solver_ortools(Q, q, d, 10)
+print("OR-Tools:", resultado.cost)
+

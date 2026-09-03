@@ -1,23 +1,46 @@
 \begin{table*}[t]
-\centering
-\small
-\caption{Comparison of SMVC, Beam DP, Tabu search, and SCIP for random $k$-neighbor QUDO instances with $n=500$.}
-\label{tab:experiment-2-comparison}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{rrrrrrrrrr}
-\toprule
-$d$ & $k$ & SMVC error (\%) & Beam error (\%) & $b/d^k$ & Beam/SMVC & Tabu error (\%) & Tabu/SMVC & SCIP error (\%) & SCIP/SMVC \\
-\midrule
-2 & 2 & 0 & 0 & 1.000 & 0.119 & 1.29 & 1.014 & 100 & 1.047 \\
-2 & 3 & 1.98 & 0 & 1.000 & 0.241 & 1.6 & 1.015 & 100 & 1.046 \\
-2 & 4 & $1.50 \times 10^{-4}$ & 0 & 1.000 & 0.477 & 2.02 & 1.021 & 100 & 1.054 \\
-4 & 2 & $4.43 \times 10^{-4}$ & 0 & 1.000 & 0.752 & 3.24 & 1.011 & 97.6 & 1.091 \\
-4 & 3 & $7.03 \times 10^{-4}$ & 1.2 & 0.375 & 1.066 & 3.58 & 1.011 & 99.9 & 1.136 \\
-4 & 4 & $1.02 \times 10^{-3}$ & 2.03 & 0.156 & 1.036 & 2.02 & 1.007 & 78.5 & 1.059 \\
-6 & 2 & $1.58 \times 10^{-3}$ & 1.82 & 0.472 & 1.028 & 3.71 & 1.012 & 96.5 & 1.058 \\
-6 & 3 & $1.97 \times 10^{-3}$ & 4.97 & 0.097 & 1.048 & 3.57 & 1.010 & 99.4 & 1.051 \\
-6 & 4 & $2.62 \times 10^{-3}$ & 4.48 & 0.046 & 1.173 & 1.56 & 1.003 & 68.7 & 1.039 \\
-\bottomrule
-\end{tabular}%
-}
+    \centering
+    \caption{
+    Comparison of SMVC, Beam DP, tabu search, and SCIP on random
+    $k$-neighbor QUDO instances with $n=500$. Each configuration
+    contains 50 instances. Errors are mean relative errors, with the
+    lowest value in each row highlighted in bold. Runtime ratios are
+    computed relative to SMVC.
+    }
+    \label{tab:n500-method-comparison}
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \renewcommand{\arraystretch}{1.15}
+
+    \begin{tabular*}{\textwidth}{
+        @{\extracolsep{\fill}}ccrrrrrrrr@{}
+    }
+        \toprule
+        & &
+        \multicolumn{1}{c}{SMVC} &
+        \multicolumn{3}{c}{Beam DP} &
+        \multicolumn{2}{c}{Tabu search} &
+        \multicolumn{2}{c}{SCIP} \\
+        \cmidrule(lr){3-3}
+        \cmidrule(lr){4-6}
+        \cmidrule(lr){7-8}
+        \cmidrule(l){9-10}
+
+        $d$ & $k$ &
+        Error (\%) & Error (\%) & $b/d^k$ & Beam/SMVC &
+        Error (\%) & Tabu/SMVC & Error (\%) & SCIP/SMVC \\
+        \midrule
+        2 & 2 & \textbf{0} & \textbf{0} & 1.000 & 0.119 & 1.29 & 1.014 & 100 & 1.047 \\
+        2 & 3 & 1.98 & \textbf{0} & 1.000 & 0.241 & 1.6 & 1.015 & 100 & 1.046 \\
+        2 & 4 & $1.50\times10^{-4}$ & \textbf{0} & 1.000 & 0.477 & 2.02 & 1.021 & 100 & 1.054 \\
+        \midrule
+        4 & 2 & $4.43\times10^{-4}$ & \textbf{0} & 1.000 & 0.752 & 3.24 & 1.011 & 97.6 & 1.091 \\
+        4 & 3 & $\mathbf{7.03\times10^{-4}}$ & 1.2 & 0.375 & 1.066 & 3.58 & 1.011 & 99.9 & 1.136 \\
+        4 & 4 & $\mathbf{1.02\times10^{-3}}$ & 2.03 & 0.156 & 1.036 & 2.02 & 1.007 & 78.5 & 1.059 \\
+        \midrule
+        6 & 2 & $\mathbf{1.58\times10^{-3}}$ & 1.82 & 0.472 & 1.028 & 3.71 & 1.012 & 96.5 & 1.058 \\
+        6 & 3 & $\mathbf{1.97\times10^{-3}}$ & 4.97 & 0.097 & 1.048 & 3.57 & 1.010 & 99.4 & 1.051 \\
+        6 & 4 & $\mathbf{2.62\times10^{-3}}$ & 4.48 & 0.046 & 1.173 & 1.56 & 1.003 & 68.7 & 1.039 \\
+        \bottomrule
+    \end{tabular*}
 \end{table*}

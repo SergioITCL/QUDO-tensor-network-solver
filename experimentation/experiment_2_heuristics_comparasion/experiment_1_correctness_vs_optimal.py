@@ -22,7 +22,7 @@ from qudo_solver.solvers.matrix_method.matrix_method_solver import solver_matrix
 from qudo_solver.solvers.scip import solver_scip_with_metadata
 from qudo_solver.solvers.tabu_search import solver_tabu_search
 
-RESULTS_DIR = PROJECT_ROOT / "experimentation" / "experiment_1_correctness_vs_optimal" / "results"
+RESULTS_DIR = Path(__file__).resolve().parent / "results"
 
 N_VARIABLES = [250, 500]  # list(range(10, 1001, 100))
 DITS_VALUES = [2, 4, 6]
@@ -203,7 +203,7 @@ def run_experiment(dits: int, n_neighbors: int):
     heuristic_summary = []
     tabu_search_summary = []
     scip_summary = []
-    json_path = RESULTS_DIR / f"experiment_1_params_d{dits}_k{n_neighbors}.json"
+    json_path = RESULTS_DIR / f"experiment_2_params_d{dits}_k{n_neighbors}.json"
 
     for n_variables in N_VARIABLES:
         optimal_count = 0

@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 
 HERE = Path(__file__).resolve().parent
 RESULTS_DIR = HERE / "results"
+LEGACY_RESULTS_DIR = HERE.parent / "experiment_1_correctness_vs_optimal" / "results"
 OUTPUT_DIR = HERE / "processed_results"
 METHODS = (
     ("matrix_method", "Matrix method"),
@@ -53,9 +54,34 @@ def latex_number(value):
     return f"{value:.3g}"
 
 
+def latex_error(value, bold=False):
+    if value is None or not math.isfinite(value):
+        return "--"
+    if value == 0:
+        return "\\textbf{0}" if bold else "0"
+    if abs(value) < 1e-2:
+        mantissa, exponent = f"{value:.2e}".split("e")
+        number = f"{mantissa}\\times10^{{{int(exponent)}}}"
+        return f"$\\mathbf{{{number}}}$" if bold else f"${number}$"
+    number = f"{value:.3g}"
+    return f"\\textbf{{{number}}}" if bold else number
+
+
 def collect_rows():
     """Aggregate the independent seeds by (d, k, n, instance type, method)."""
-    files = sorted(RESULTS_DIR.glob("experiment_1_params_d*_k*.json"))
+    # Accept both names so that results generated before/after the experiment
+    # directory rename are processed from the current results directory.
+    preferred_files = sorted(RESULTS_DIR.glob("experiment_2_params_d*_k*.json"))
+    old_named_files = sorted(RESULTS_DIR.glob("experiment_1_params_d*_k*.json"))
+    files_by_configuration = {
+        path.name.split("_params_", 1)[1]: path for path in old_named_files
+    }
+    files_by_configuration.update(
+        {path.name.split("_params_", 1)[1]: path for path in preferred_files}
+    )
+    files = [files_by_configuration[key] for key in sorted(files_by_configuration)]
+    if not files:
+        files = sorted(LEGACY_RESULTS_DIR.glob("experiment_1_params_d*_k*.json"))
     if not files:
         raise FileNotFoundError(f"No experiment result files found in {RESULTS_DIR}")
 
@@ -153,36 +179,71 @@ def write_tables(rows):
     }
     latex_rows = []
     configurations = sorted({(d, k) for d, k, _ in selected})
+    previous_d = None
     for d, k in configurations:
         smvc = selected[(d, k, "Matrix method")]
         beam = selected[(d, k, "Heuristic")]
         tabu = selected[(d, k, "Tabu search")]
         scip = selected[(d, k, "SCIP")]
         smvc_time = smvc["mean_time_s"]
+        errors = [
+            smvc["mean_relative_error_pct"],
+            beam["mean_relative_error_pct"],
+            tabu["mean_relative_error_pct"],
+            scip["mean_relative_error_pct"],
+        ]
+        best_error = min(errors)
+        separator = "        \\midrule\n" if previous_d is not None and d != previous_d else ""
         latex_rows.append(
-            f"{d} & {k} & {latex_number(smvc['mean_relative_error_pct'])} & "
-            f"{latex_number(beam['mean_relative_error_pct'])} & "
+            separator
+            + f"        {d} & {k} & "
+            f"{latex_error(smvc['mean_relative_error_pct'], smvc['mean_relative_error_pct'] == best_error)} & "
+            f"{latex_error(beam['mean_relative_error_pct'], beam['mean_relative_error_pct'] == best_error)} & "
             f"{beam['beam_width'] / d**k:.3f} & "
             f"{beam['mean_time_s'] / smvc_time:.3f} & "
-            f"{latex_number(tabu['mean_relative_error_pct'])} & "
+            f"{latex_error(tabu['mean_relative_error_pct'], tabu['mean_relative_error_pct'] == best_error)} & "
             f"{tabu['mean_time_s'] / smvc_time:.3f} & "
-            f"{latex_number(scip['mean_relative_error_pct'])} & "
+            f"{latex_error(scip['mean_relative_error_pct'], scip['mean_relative_error_pct'] == best_error)} & "
             f"{scip['mean_time_s'] / smvc_time:.3f} \\\\\n"
         )
+        previous_d = d
 
     latex_path = OUTPUT_DIR / "experiment_2_comparison.tex"
     latex = (
-        "\\begin{table*}[t]\n\\centering\n\\small\n"
-        "\\caption{Comparison of SMVC, Beam DP, Tabu search, and SCIP for "
-        "random $k$-neighbor QUDO instances with $n=500$.}\n"
-        "\\label{tab:experiment-2-comparison}\n"
-        "\\resizebox{\\textwidth}{!}{%\n"
-        "\\begin{tabular}{rrrrrrrrrr}\n\\toprule\n"
-        "$d$ & $k$ & SMVC error (\\%) & Beam error (\\%) & $b/d^k$ & "
-        "Beam/SMVC & Tabu error (\\%) & Tabu/SMVC & SCIP error (\\%) & "
-        "SCIP/SMVC \\\\\n\\midrule\n"
+        "\\begin{table*}[t]\n"
+        "    \\centering\n"
+        "    \\caption{\n"
+        "    Comparison of SMVC, Beam DP, tabu search, and SCIP on random\n"
+        "    $k$-neighbor QUDO instances with $n=500$. Each configuration\n"
+        "    contains 50 instances. Errors are mean relative errors, with the\n"
+        "    lowest value in each row highlighted in bold. Runtime ratios are\n"
+        "    computed relative to SMVC.\n"
+        "    }\n"
+        "    \\label{tab:n500-method-comparison}\n"
+        "    \\small\n"
+        "    \\setlength{\\tabcolsep}{4pt}\n"
+        "    \\renewcommand{\\arraystretch}{1.15}\n\n"
+        "    \\begin{tabular*}{\\textwidth}{\n"
+        "        @{\\extracolsep{\\fill}}ccrrrrrrrr@{}\n"
+        "    }\n"
+        "        \\toprule\n"
+        "        & &\n"
+        "        \\multicolumn{1}{c}{SMVC} &\n"
+        "        \\multicolumn{3}{c}{Beam DP} &\n"
+        "        \\multicolumn{2}{c}{Tabu search} &\n"
+        "        \\multicolumn{2}{c}{SCIP} \\\\\n"
+        "        \\cmidrule(lr){3-3}\n"
+        "        \\cmidrule(lr){4-6}\n"
+        "        \\cmidrule(lr){7-8}\n"
+        "        \\cmidrule(l){9-10}\n\n"
+        "        $d$ & $k$ &\n"
+        "        Error (\\%) & Error (\\%) & $b/d^k$ & Beam/SMVC &\n"
+        "        Error (\\%) & Tabu/SMVC & Error (\\%) & SCIP/SMVC \\\\\n"
+        "        \\midrule\n"
         + "".join(latex_rows)
-        + "\\bottomrule\n\\end{tabular}%\n}\n\\end{table*}\n"
+        + "        \\bottomrule\n"
+        "    \\end{tabular*}\n"
+        "\\end{table*}\n"
     )
     latex_path.write_text(latex, encoding="utf-8")
     return csv_path, markdown_path, latex_path
