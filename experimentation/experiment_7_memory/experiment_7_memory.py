@@ -7,6 +7,10 @@ import sys
 import time
 from pathlib import Path
 
+from qudo_solver.solvers.dynamic_programming.vectorized_dynamic_programin import (
+    solver_dynamic_programming_vectorized,
+)
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
@@ -33,7 +37,7 @@ def get_solver(method: str, dits: int, n_neighbors: int, seed: int):
             solver_dynamic_programming,
         )
 
-        return lambda q_matrix, q_row: solver_dynamic_programming(
+        return lambda q_matrix, q_row: solver_dynamic_programming_vectorized(
             q_matrix, q_row, dits, n_neighbors
         )
     if method == "smvc":

@@ -16,6 +16,7 @@ CONFIG = load_experiment("experiment_3")
 METHODS = {
     "tensor_method": ("tensor method", "#e76f7a"),
     "matrix_method": ("matrix method", "#168aad"),
+    "dynamic_programming": ("dynamic programming", "#2a9d8f"),
 }
 
 
@@ -44,7 +45,7 @@ def main() -> None:
 
     for axis, series in zip(axes, ("k", "d")):
         for method, (label, color) in METHODS.items():
-            # Old result files created before SA was added remain processable.
+            # Keep old result files processable when a method is absent.
             if not any(method in result for result in results):
                 continue
             values, times = get_median_times(results, series, method)
@@ -59,6 +60,10 @@ def main() -> None:
     figure.savefig(output_path, dpi=200, bbox_inches="tight")
     plt.close(figure)
 
+    method_order = ("tensor_method", "matrix_method", "dynamic_programming")
+    available_methods = tuple(
+        method for method in method_order if all(method in result for result in results)
+    )
     table_rows = []
     for series in ("k", "d"):
         series_results = [result for result in results if result["series"] == series]
@@ -67,20 +72,27 @@ def main() -> None:
             sample = selected[0]
             times = [
                 median(result[method]["execution_time"] for result in selected)
-                for method in ("tensor_method", "matrix_method")
+                for method in available_methods
             ]
             table_rows.append(
                 f"{series} & {value} & {sample['dits']} & {sample['n_neighbors']} & "
-                f"{times[0]:.6f} & {times[1]:.6f} \\\\\n"
+                + " & ".join(f"{time:.6f}" for time in times)
+                + " \\\\\n"
             )
 
+    method_labels = {
+        "tensor_method": "STC (s)",
+        "matrix_method": "SMVC (s)",
+        "dynamic_programming": "Exact DP (s)",
+    }
+    method_header = " & ".join(method_labels[method] for method in available_methods)
     latex = (
         "\\begin{table*}[t]\n\\centering\n\\scriptsize\n"
         "\\caption{Median execution time over three random instances when "
         "varying $k$ or $d$ at fixed $n=100$.}\n"
         "\\label{tab:experiment-3-runtime}\n"
-        "\\begin{tabular}{lrrrrr}\n\\toprule\n"
-        "Varied parameter & Value & $d$ & $k$ & STC (s) & SMVC (s) \\\\\n"
+        f"\\begin{{tabular}}{{lrrrr{'r' * len(available_methods)}}}\n\\toprule\n"
+        f"Varied parameter & Value & $d$ & $k$ & {method_header} \\\\\n"
         "\\midrule\n" + "".join(table_rows) +
         "\\bottomrule\n\\end{tabular}\n\\end{table*}\n"
     )

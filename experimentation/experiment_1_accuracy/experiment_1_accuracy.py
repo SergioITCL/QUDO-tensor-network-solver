@@ -4,6 +4,7 @@ import json
 import sys
 from pathlib import Path
 
+from qudo_solver.solvers.dynamic_programming.vectorized_dynamic_programin import solver_dynamic_programming_vectorized
 from qudo_solver.solvers.smvc.smvc import solver_smvc
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -32,7 +33,7 @@ def run_configuration(n_variables: int, dits: int, n_neighbors: int) -> list[dic
     for instance in instances:
         q_matrix = instance["q_matrix"]
         q_row = instance["q_row"]
-        exact_dp = solver_dynamic_programming(q_matrix, q_row, dits, n_neighbors)
+        exact_dp = solver_dynamic_programming_vectorized(q_matrix, q_row, dits, n_neighbors)
         smvc = solver_smvc(q_matrix, q_row, dits, n_neighbors)
 
         results.append(

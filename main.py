@@ -7,6 +7,9 @@ from qudo_solver.solvers.dynamic_programming.beam_dynamic_programming_solver imp
 from qudo_solver.solvers.dynamic_programming.dynamic_programming_solver import (
     solver_dynamic_programming,
 )
+from qudo_solver.solvers.dynamic_programming.vectorized_dynamic_programin import (
+    solver_dynamic_programming_vectorized,
+)
 from qudo_solver.solvers.scip import (
     solver_scip,
 )
@@ -27,32 +30,36 @@ resultado = solver_smvc(Q, q, d, k)
 matrix_time = time() - in1
 print("Matrix:", resultado.cost, "time", matrix_time)
 
-resultado = solver_tabu_search(
-    Q,
-    q,
-    d,
-    k,
-    time_limit=matrix_time,
-    seed=instancia["seed"],
-)
-print("Tabu Search:", resultado.cost)
+# resultado = solver_tabu_search(
+#     Q,
+#     q,
+#     d,
+#     k,
+#     time_limit=matrix_time,
+#     seed=instancia["seed"],
+# )
+# print("Tabu Search:", resultado.cost)
 
-resultado = solver_scip(
-    Q,
-    q,
-    d,
-    k,
-    time_limit=3*matrix_time,
-    seed=instancia["seed"],
-)
-print("SCIP:", resultado.cost)
+# resultado = solver_scip(
+#     Q,
+#     q,
+#     d,
+#     k,
+#     time_limit=3*matrix_time,
+#     seed=instancia["seed"],
+# )
+# print("SCIP:", resultado.cost)
 
-resultado = solver_stc(Q, q, None, d, k)
-print("TensorKrowch:", resultado.cost)
+# resultado = solver_stc(Q, q, None, d, k)
+# print("TensorKrowch:", resultado.cost)
 
 
 resultado = solver_dynamic_programming(Q, q,d, k)
-print("Dynamic programming:", resultado.cost)
+print("Dynamic programming:", resultado.cost, "time", resultado.execution_time)
 
-resultado = solver_beam_dynamic_programming(Q, q,d, k)
-print("Heuristic:", resultado.cost)
+# resultado = solver_beam_dynamic_programming(Q, q,d, k)
+# print("Heuristic:", resultado.cost)
+
+
+resultado = solver_dynamic_programming_vectorized(Q, q,d, k)
+print("Vectorized:", resultado.cost, "time", resultado.execution_time)
